@@ -1,5 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import {
+  TextField,
+  Button,
+  Container,
+  Typography,
+  Paper,
+  Grid,
+  Snackbar,
+  Alert,
+} from '@mui/material';
+import SaveIcon from '@mui/icons-material/Save';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export default function ProveedorForm() {
   const { id } = useParams();
@@ -10,12 +22,18 @@ export default function ProveedorForm() {
     telefono: '',
     email: '',
   });
+  const [error, setError] = useState('');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   useEffect(() => {
     if (id) {
       fetch(`http://localhost:3001/api/proveedores/${id}`)
         .then((res) => res.json())
-        .then((data) => setProveedor(data));
+        .then((data) => setProveedor(data))
+        .catch((err) => {
+          setError('Error al cargar proveedor');
+          setOpenSnackbar(true);
+        });
     }
   }, [id]);
 
@@ -30,19 +48,71 @@ export default function ProveedorForm() {
       method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(proveedor),
-    }).then(() => navigate('/proveedores'));
+    })
+      .then(() => navigate('/proveedores'))
+      .catch((err) => {
+        setError('Error al guardar');
+        setOpenSnackbar(true);
+      });
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        value={proveedor.nombre}
-        onChange={(e) => setProveedor({ ...proveedor, nombre: e.target.value })}
-        placeholder="Nombre"
-      />
-      {/* Otros campos */}
-      <button type="submit">{id ? 'Actualizar' : 'Crear'}</button>
-    </form>
+    <Container maxWidth="sm" sx={{ mt: 4 }}>
+      <Paper elevation={3} sx={{ p: 3 }}>
+        <Typography variant="h5" component="h1" gutterBottom>
+          {id ? 'Editar Proveedor' : 'Nuevo Proveedor'}
+        </Typography>
+        <form onSubmit={handleSubmit}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                label="Nombre"
+                variant="outlined"
+                fullWidth
+                value={proveedor.nombre}
+                onChange={(e) => setProveedor({ ...proveedor, nombre: e.target.value })}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Teléfono"
+                variant="outlined"
+                fullWidth
+                value={proveedor.telefono}
+                onChange={(e) => setProveedor({ ...proveedor, telefono: e.target.value })}
+              />
+            </Grid>
+            {/* Más campos aquí */}
+          </Grid>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            startIcon={<SaveIcon />}
+            sx={{ mt: 2, mr: 2 }}
+          >
+            {id ? 'Actualizar' : 'Guardar'}
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBackIcon />}
+            sx={{ mt: 2 }}
+            onClick={() => navigate('/proveedores')}
+          >
+            Cancelar
+          </Button>
+        </form>
+      </Paper>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+      >
+        <Alert severity="error" onClose={() => setOpenSnackbar(false)}>
+          {error}
+        </Alert>
+      </Snackbar>
+    </Container>
   );
 }

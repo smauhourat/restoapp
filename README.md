@@ -1,5 +1,17 @@
-# Getting Started with Create React App
+# Descripcion
+La idea es tener un App para manejar los **Pedidos** de los **Proveedores** de un Restaurant. En principio un Proveedor tiene muchos **Productos** y un Producto puede ser vendido por uno o mas Proveedores.
 
+La aplicacion deberia poder facilitar al operador la generacion de Pedidos, los mismos son realizados para un Proveedor en particular, tiene una fecha de realizado, un estado (pendiente / enviado / recibido / cancelado), fecha deseada de entrega??
+
+Una vez creado el pedido con ese encabezado y una lista de Productos se puede visualizar los Pedidos, y **enviar al Proveedor, ya sea por Mail o por WhatsApp**.
+
+Esta accion de envio deberia quedar registrada de alguna forma, con fecha. y cambiar el estado del Pedido.
+
+
+
+
+
+## Project
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

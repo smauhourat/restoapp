@@ -19,6 +19,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PrintIcon from '@mui/icons-material/Print';
 import EmailIcon from '@mui/icons-material/Email';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp'; // Importar el icono
 
 const ESTADOS = {
     pendiente: { color: 'warning', label: 'Pendiente' },
@@ -26,6 +27,8 @@ const ESTADOS = {
     recibido: { color: 'success', label: 'Recibido' },
     cancelado: { color: 'error', label: 'Cancelado' },
 };
+
+
 
 export default function PedidoDetalle() {
     const { id } = useParams();
@@ -39,6 +42,32 @@ export default function PedidoDetalle() {
             .then(setPedido)
             .catch((err) => setError('Error al cargar el pedido'));
     }, [id]);
+
+    // Función para generar el mensaje de WhatsApp
+    const generateWhatsAppMessage = () => {
+        const itemsText = pedido.renglones.map(item =>
+            `- ${item.producto_nombre}: ${item.cantidad} x $${item.precio_unitario} = $${(item.cantidad * item.precio_unitario).toFixed(2)}`
+        ).join('%0A'); // %0A es el código para salto de línea en URLs
+
+        return `https://wa.me/1136801621?text=` + encodeURIComponent(`
+                *Nuevo Pedido*: ${pedido.numero_pedido}
+                *Proveedor*: ${pedido.proveedor_nombre}
+                *Fecha*: ${new Date(pedido.fecha).toLocaleDateString()}
+                *Estado*: ${ESTADOS[pedido.estado].label}
+                %0A%0A*Detalle*:%0A${itemsText}
+                %0A%0A*Total*: $${pedido.total.toFixed(2)}
+                %0A%0APor favor confirmar recepción.
+                `).replace(/\s+/g, ' '); // Elimina espacios múltiples        
+        // return `https://wa.me/${pedido.proveedor_telefono}?text=` + encodeURIComponent(`
+        //         *Nuevo Pedido*: ${pedido.numero_pedido}
+        //         *Proveedor*: ${pedido.proveedor_nombre}
+        //         *Fecha*: ${new Date(pedido.fecha).toLocaleDateString()}
+        //         *Estado*: ${ESTADOS[pedido.estado].label}
+        //         %0A%0A*Detalle*:%0A${itemsText}
+        //         %0A%0A*Total*: $${pedido.total.toFixed(2)}
+        //         %0A%0APor favor confirmar recepción.
+        //         `).replace(/\s+/g, ' '); // Elimina espacios múltiples
+    };
 
     if (!pedido) return <Typography>Cargando...</Typography>;
 
@@ -127,6 +156,15 @@ export default function PedidoDetalle() {
                     >
                         Enviar por Email
                     </Button>
+                    <Button
+                        variant="contained"
+                        color="success"
+                        startIcon={<WhatsAppIcon />}
+                        onClick={() => window.open(generateWhatsAppMessage(), '_blank')}
+                        disabled={!!pedido.proveedor_telefono}
+                    >
+                        Enviar por WhatsApp
+                    </Button>                    
                 </Box>
             </Paper>
         </Container>

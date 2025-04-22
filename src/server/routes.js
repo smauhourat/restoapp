@@ -199,4 +199,28 @@ router.patch('/pedidos/:id/estado', (req, res) => {
   res.json({ success: true });
 });
 
+
+// Registrar envío
+router.post('/pedidos/:id/envios', (req, res) => {
+  const { id } = req.params;
+  const { metodo_envio, destinatario } = req.body;
+
+  db.prepare(`
+    INSERT INTO HistorialEnvios (pedido_id, metodo_envio, destinatario)
+    VALUES (?, ?, ?)
+  `).run(id, metodo_envio, destinatario);
+
+  res.json({ success: true });
+});
+
+// Obtener historial de un pedido
+router.get('/pedidos/:id/envios', (req, res) => {
+  const { id } = req.params;
+  const historial = db.prepare(`
+    SELECT * FROM HistorialEnvios WHERE pedido_id = ?
+  `).all(id);
+
+  res.json(historial);
+});
+
 export default router;

@@ -15,11 +15,18 @@ import {
     Divider,
     Grid,
     Box,
+    DialogTitle,
+    DialogContent,
+    DialogActions
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PrintIcon from '@mui/icons-material/Print';
 import EmailIcon from '@mui/icons-material/Email';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'; // Importar el icono
+// import QrCodeIcon from '@mui/icons-material/QrCode';
+
+import QRCode from 'qrcode.react';
+import Dialog from '@mui/material/Dialog';
 
 const ESTADOS = {
     pendiente: { color: 'warning', label: 'Pendiente' },
@@ -36,12 +43,29 @@ export default function PedidoDetalle() {
     const [pedido, setPedido] = useState(null);
     const [error, setError] = useState('');
 
+    // Estado para el diálogo de QR
+    const [qrOpen, setQrOpen] = useState(false);
+    const [qrContent, setQrContent] = useState('');
+
     useEffect(() => {
         fetch(`http://localhost:3001/api/pedidos/${id}`)
             .then((res) => res.json())
             .then(setPedido)
             .catch((err) => setError('Error al cargar el pedido'));
     }, [id]);
+
+    const generateQR = () => {
+        const content = `Pedido #${pedido.numero_pedido}\nProveedor: ${pedido.proveedor_nombre}\nTotal: $${pedido.total.toFixed(2)}`;
+        setQrContent(content);
+        setQrOpen(true);
+
+        // Registrar generación de QR en el historial
+        fetch(`http://localhost:3001/api/pedidos/${id}/envios`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ metodo_envio: 'qr', destinatario: 'Generado para compartir' })
+        });
+    };
 
     // Función para generar el mensaje de WhatsApp
     const generateWhatsAppMessage = () => {
@@ -164,9 +188,40 @@ export default function PedidoDetalle() {
                         disabled={!!pedido.proveedor_telefono}
                     >
                         Enviar por WhatsApp
-                    </Button>                    
+                    </Button>    
+
+                    <Box sx={{ mt: 4, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                        {/* ...otros botones... */}
+                        <Button
+                            variant="contained"
+                            color="info"
+                            startIcon={<EmailIcon />}
+                            onClick={generateQR}
+                        >
+                            Generar QR
+                        </Button>
+                    </Box>
+
                 </Box>
             </Paper>
+            {/* Diálogo para mostrar QR */}
+            <Dialog open={qrOpen} onClose={() => setQrOpen(false)}>
+                <DialogTitle>Compartir Pedido</DialogTitle>
+                <DialogContent sx={{ textAlign: 'center', p: 4 }}>
+                    <QRCode
+                        value={qrContent}
+                        size={256}
+                        level="H"
+                        includeMargin
+                    />
+                    <Typography variant="body1" sx={{ mt: 2 }}>
+                        Escanear para ver detalles del pedido
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setQrOpen(false)}>Cerrar</Button>
+                </DialogActions>
+            </Dialog>            
         </Container>
     );
 }

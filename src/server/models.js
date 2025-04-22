@@ -62,4 +62,16 @@ export function initDatabase() {
       FOREIGN KEY (producto_id) REFERENCES Producto(id)
     );
   `);
+
+  // Tabla HistorialEnvios
+  db.exec(`
+  CREATE TABLE IF NOT EXISTS HistorialEnvios (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pedido_id INTEGER NOT NULL,
+    metodo_envio TEXT NOT NULL, -- 'email', 'whatsapp', 'qr'
+    fecha_envio TEXT DEFAULT (datetime('now')),
+    destinatario TEXT,
+    FOREIGN KEY (pedido_id) REFERENCES Pedido(id)
+  );
+`);  
 }

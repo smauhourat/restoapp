@@ -14,6 +14,11 @@ import {
   IconButton,
   Snackbar,
   Alert,
+  MenuItem,
+  Select,
+  Box,  
+  Pagination,
+  Stack
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -23,19 +28,36 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export default function ProveedorList() {
   const [proveedores, setProveedores] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(3);  
   const [error, setError] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const navigate = useNavigate();
 
+  // useEffect(() => {
+  //   fetch('http://localhost:3001/api/proveedores')
+  //     .then((res) => res.json())
+  //     .then((data) => setProveedores(data))
+  //     .catch((err) => {
+  //       setError('Error al cargar proveedores');
+  //       setOpenSnackbar(true);
+  //     });
+  // }, []);
+
   useEffect(() => {
-    fetch('http://localhost:3001/api/proveedores')
+    fetchProveedores();
+  }, [page, perPage]);
+
+  const fetchProveedores = () => {
+    fetch(`http://localhost:3001/api/proveedores?page=${page}&perPage=${perPage}`)
       .then((res) => res.json())
-      .then((data) => setProveedores(data))
-      .catch((err) => {
-        setError('Error al cargar proveedores');
-        setOpenSnackbar(true);
-      });
-  }, []);
+      .then((data) => {
+        setProveedores(data.data);
+        setTotalPages(data.totalPages);
+      })
+      .catch((err) => setError('Error al cargar proveedores'));
+  };  
 
   const handleDelete = (id) => {
     fetch(`http://localhost:3001/api/proveedores/${id}`, { method: 'DELETE' })
@@ -102,6 +124,33 @@ export default function ProveedorList() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Paginación y controles */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Typography>Filas por página:</Typography>
+          <Select
+            value={perPage}
+            onChange={(e) => setPerPage(e.target.value)}
+            size="small"
+            sx={{ width: 80 }}
+          >
+            <MenuItem value={5}>5</MenuItem>
+            <MenuItem value={10}>10</MenuItem>
+            <MenuItem value={20}>20</MenuItem>
+            <MenuItem value={50}>50</MenuItem>
+          </Select>
+        </Stack>
+
+        <Pagination
+          count={totalPages}
+          page={page}
+          onChange={(e, newPage) => setPage(newPage)}
+          color="primary"
+          showFirstButton
+          showLastButton
+        />
+      </Box>      
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}

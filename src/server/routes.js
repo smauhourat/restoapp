@@ -4,9 +4,32 @@ import db from './db.js';
 const router = express.Router();
 
 // CRUD Proveedores
+// router.get('/proveedores', (req, res) => {
+//   const proveedores = db.prepare('SELECT * FROM Proveedor').all();
+//   res.json(proveedores);
+// });
+
+// GET /api/proveedores con paginación
 router.get('/proveedores', (req, res) => {
-  const proveedores = db.prepare('SELECT * FROM Proveedor').all();
-  res.json(proveedores);
+  const { page = 1, perPage = 10 } = req.query;
+  const offset = (page - 1) * perPage;
+
+  const proveedores = db.prepare(`
+    SELECT * FROM Proveedor
+    LIMIT ? OFFSET ?
+  `).all(perPage, offset);
+
+  const total = db.prepare(`
+    SELECT COUNT(*) as total FROM Proveedor
+  `).get().total;
+
+  res.json({
+    data: proveedores,
+    total,
+    page: parseInt(page),
+    perPage: parseInt(perPage),
+    totalPages: Math.ceil(total / perPage),
+  });
 });
 
 router.post('/proveedores', (req, res) => {

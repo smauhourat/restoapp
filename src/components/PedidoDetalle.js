@@ -1,0 +1,134 @@
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import {
+    Container,
+    Paper,
+    Typography,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Button,
+    Chip,
+    Divider,
+    Grid,
+    Box,
+} from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import PrintIcon from '@mui/icons-material/Print';
+import EmailIcon from '@mui/icons-material/Email';
+
+const ESTADOS = {
+    pendiente: { color: 'warning', label: 'Pendiente' },
+    enviado: { color: 'info', label: 'Enviado' },
+    recibido: { color: 'success', label: 'Recibido' },
+    cancelado: { color: 'error', label: 'Cancelado' },
+};
+
+export default function PedidoDetalle() {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [pedido, setPedido] = useState(null);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        fetch(`http://localhost:3001/api/pedidos/${id}`)
+            .then((res) => res.json())
+            .then(setPedido)
+            .catch((err) => setError('Error al cargar el pedido'));
+    }, [id]);
+
+    if (!pedido) return <Typography>Cargando...</Typography>;
+
+    return (
+        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+            <Button
+                variant="outlined"
+                startIcon={<ArrowBackIcon />}
+                onClick={() => navigate('/pedidos')}
+                sx={{ mb: 3 }}
+            >
+                Volver a Pedidos
+            </Button>
+
+            <Paper elevation={3} sx={{ p: 4 }}>
+                {/* Cabecera del Pedido */}
+                <Grid container spacing={2}>
+                    <Grid item xs={12} md={6}>
+                        <Typography variant="h4" gutterBottom>
+                            Pedido #{pedido.numero_pedido}
+                        </Typography>
+                        <Typography variant="body1">
+                            <strong>Fecha:</strong> {new Date(pedido.fecha).toLocaleDateString()}
+                        </Typography>
+                        <Typography variant="body1" gutterBottom>
+                            <strong>Proveedor:</strong> {pedido.proveedor_nombre}
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12} md={6} sx={{ textAlign: 'right' }}>
+                        <Chip
+                            label={ESTADOS[pedido.estado]?.label || pedido.estado}
+                            color={ESTADOS[pedido.estado]?.color || 'default'}
+                            sx={{ fontSize: '1rem', p: 2, mb: 2 }}
+                        />
+                        <Typography variant="h5">
+                            <strong>Total:</strong> ${pedido.total?.toFixed(2)}
+                        </Typography>
+                    </Grid>
+                </Grid>
+
+                <Divider sx={{ my: 3 }} />
+
+                {/* Renglones del Pedido */}
+                <Typography variant="h6" gutterBottom>
+                    Detalle del Pedido
+                </Typography>
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Producto</TableCell>
+                                <TableCell align="right">Cantidad</TableCell>
+                                <TableCell align="right">Precio Unitario</TableCell>
+                                <TableCell align="right">Subtotal</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {pedido.renglones.map((renglon, index) => (
+                                <TableRow key={index}>
+                                    <TableCell>{renglon.producto_nombre}</TableCell>
+                                    <TableCell align="right">{renglon.cantidad}</TableCell>
+                                    <TableCell align="right">${renglon.precio_unitario?.toFixed(2)}</TableCell>
+                                    <TableCell align="right">
+                                        ${(renglon.cantidad * renglon.precio_unitario)?.toFixed(2)}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+
+                {/* Acciones */}
+                <Box sx={{ mt: 4, display: 'flex', gap: 2 }}>
+                    <Button
+                        variant="contained"
+                        startIcon={<PrintIcon />}
+                        onClick={() => window.print()}
+                    >
+                        Imprimir
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        startIcon={<EmailIcon />}
+                        onClick={() => alert('Enviar email al proveedor...')}
+                    >
+                        Enviar por Email
+                    </Button>
+                </Box>
+            </Paper>
+        </Container>
+    );
+}

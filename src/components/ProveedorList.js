@@ -18,7 +18,8 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import Inventory from '@mui/icons-material/Inventory';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export default function ProveedorList() {
   const [proveedores, setProveedores] = useState([]);
@@ -83,12 +84,12 @@ export default function ProveedorList() {
                   >
                     <EditIcon />
                   </IconButton>
-<IconButton
-  color="primary"
-  onClick={() => navigate(`/proveedores/${proveedor.id}/productos`)}
->
-  productos
-</IconButton>                  
+                  <IconButton
+                    color="primary"
+                    onClick={() => navigate(`/proveedores/${proveedor.id}/productos`)}
+                  >
+                    <InventoryIcon />
+                  </IconButton>                  
                   <IconButton
                     color="error"
                     onClick={() => handleDelete(proveedor.id)}
@@ -110,6 +111,15 @@ export default function ProveedorList() {
           {error}
         </Alert>
       </Snackbar>
+
+      <Button
+        variant="outlined"
+        startIcon={<ArrowBackIcon />}
+        sx={{ mt: 2 }}
+        onClick={() => navigate('/')} // Vuelve a la Home
+      >
+        Volver atrás
+      </Button>      
     </Container>
   );
 }

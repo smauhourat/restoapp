@@ -26,6 +26,8 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
+import apiClient from '../api/client';
+
 export default function ProveedorList() {
   const [proveedores, setProveedores] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
@@ -35,28 +37,30 @@ export default function ProveedorList() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   fetch('http://localhost:3001/api/proveedores')
-  //     .then((res) => res.json())
-  //     .then((data) => setProveedores(data))
-  //     .catch((err) => {
-  //       setError('Error al cargar proveedores');
-  //       setOpenSnackbar(true);
-  //     });
-  // }, []);
-
   useEffect(() => {
     fetchProveedores();
   }, [page, perPage]);
 
-  const fetchProveedores = () => {
-    fetch(`http://localhost:3001/api/proveedores?page=${page}&perPage=${perPage}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setProveedores(data.data);
-        setTotalPages(data.totalPages);
-      })
-      .catch((err) => setError('Error al cargar proveedores'));
+  // const fetchProveedores = () => {
+  //   fetch(`http://localhost:3001/api/proveedores?page=${page}&perPage=${perPage}`)
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       setProveedores(data.data);
+  //       setTotalPages(data.totalPages);
+  //     })
+  //     .catch((err) => setError('Error al cargar proveedores'));
+  // };  
+
+  const fetchProveedores = async () => {
+    try {
+      const { data, totalPages } = await apiClient.get('/proveedores', {
+        params: { page, perPage }
+      });
+      setProveedores(data);
+      setTotalPages(totalPages);
+    } catch (err) {
+      setError('Error al cargar proveedores');
+    }
   };  
 
   const handleDelete = (id) => {

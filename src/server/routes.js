@@ -67,6 +67,19 @@ router.post('/proveedores/:id/productos', (req, res) => {
   res.json({ success: true });
 });
 
+
+// Eliminar un proveedor
+router.delete('/proveedores/:id', (req, res) => {
+  const { id } = req.params;
+  const stmt = db.prepare(`
+    DELETE FROM Proveedor 
+    WHERE id = ?
+  `);
+  stmt.run(id);
+  res.json({ success: true });
+});
+
+
 // Eliminar producto de un proveedor
 router.delete('/proveedores/:proveedorId/productos/:productoId', (req, res) => {
   const { proveedorId, productoId } = req.params;

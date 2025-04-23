@@ -3,12 +3,6 @@ import db from './db.js';
 
 const router = express.Router();
 
-// CRUD Proveedores
-// router.get('/proveedores', (req, res) => {
-//   const proveedores = db.prepare('SELECT * FROM Proveedor').all();
-//   res.json(proveedores);
-// });
-
 // GET /api/proveedores con paginación
 router.get('/proveedores', (req, res) => {
   const { page = 1, perPage = 10 } = req.query;

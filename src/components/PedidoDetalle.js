@@ -25,7 +25,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'; // Importar el icono
 // import QrCodeIcon from '@mui/icons-material/QrCode';
 
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import Dialog from '@mui/material/Dialog';
 
 const ESTADOS = {
@@ -208,7 +208,7 @@ export default function PedidoDetalle() {
             <Dialog open={qrOpen} onClose={() => setQrOpen(false)}>
                 <DialogTitle>Compartir Pedido</DialogTitle>
                 <DialogContent sx={{ textAlign: 'center', p: 4 }}>
-                    <QRCode
+                    <QRCodeSVG
                         value={qrContent}
                         size={256}
                         level="H"

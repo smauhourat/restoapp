@@ -85,5 +85,17 @@ router.delete('/proveedores/:proveedorId/productos/:productoId', (req, res) => {
     res.json({ success: true });
 });
 
+// routes.js
+router.get('/proveedores/:id/productos', (req, res) => {
+    const { id } = req.params;
+    const productos = db.prepare(`
+    SELECT p.*, pp.precio_compra 
+    FROM Producto p
+    JOIN Proveedor_Producto pp ON p.id = pp.producto_id
+    WHERE pp.proveedor_id = ?
+  `).all(id);
+    res.json(productos);
+});
+
 
 export default router;

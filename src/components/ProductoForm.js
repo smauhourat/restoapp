@@ -98,7 +98,7 @@ export default function ProductoForm() {
                                 ))}
                             </TextField>
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid item xs={12} size={12}>
                             <TextField
                                 label="Descripción"
                                 variant="outlined"

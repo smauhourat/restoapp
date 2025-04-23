@@ -9,6 +9,8 @@ import {
   Grid,
   Snackbar,
   Alert,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -63,19 +65,30 @@ export default function ProveedorForm() {
           {id ? 'Editar Proveedor' : 'Nuevo Proveedor'}
         </Typography>
         <form onSubmit={handleSubmit}>
-          <Grid container spacing={2}>
+          <Grid container spacing={{ xs: 2, md: 3 }}>
             <Grid item xs={12}>
-              <TextField
-                label="Nombre"
-                variant="outlined"
-                fullWidth
-                value={proveedor.nombre}
-                onChange={(e) => setProveedor({ ...proveedor, nombre: e.target.value })}
-                required
-              />
+                <TextField
+                  helperText="Por favor ingrese el nombre"
+                  label="Nombre"
+                  variant="outlined"
+                  fullWidth
+                  value={proveedor.nombre}
+                  onChange={(e) => setProveedor({ ...proveedor, nombre: e.target.value })}
+                  required
+                  />
             </Grid>
             <Grid item xs={12}>
               <TextField
+                label="Direccion"
+                variant="outlined"
+                fullWidth
+                value={proveedor.direccion}
+                onChange={(e) => setProveedor({ ...proveedor, direccion: e.target.value })}
+              />
+            </Grid>            
+            <Grid item xs={12}>
+              <TextField
+                helperText="Por favor ingrese el telefono"
                 label="Teléfono"
                 variant="outlined"
                 fullWidth
@@ -83,7 +96,17 @@ export default function ProveedorForm() {
                 onChange={(e) => setProveedor({ ...proveedor, telefono: e.target.value })}
               />
             </Grid>
-            {/* Más campos aquí */}
+            <Grid item xs={12}>
+              <TextField
+                helperText="Por favor ingrese el email"
+                label="Email"
+                variant="outlined"
+                fullWidth
+                value={proveedor.email}
+                onChange={(e) => setProveedor({ ...proveedor, email: e.target.value })}
+              />
+            </Grid>
+            
           </Grid>
           <Button
             type="submit"

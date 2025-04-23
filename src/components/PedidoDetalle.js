@@ -23,7 +23,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PrintIcon from '@mui/icons-material/Print';
 import EmailIcon from '@mui/icons-material/Email';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'; // Importar el icono
-// import QrCodeIcon from '@mui/icons-material/QrCode';
+import QrCodeIcon from '@mui/icons-material/QrCode';
 
 import { QRCodeSVG } from 'qrcode.react';
 import Dialog from '@mui/material/Dialog';
@@ -189,18 +189,14 @@ export default function PedidoDetalle() {
                     >
                         Enviar por WhatsApp
                     </Button>    
-
-                    <Box sx={{ mt: 4, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                        {/* ...otros botones... */}
-                        <Button
-                            variant="contained"
-                            color="info"
-                            startIcon={<EmailIcon />}
-                            onClick={generateQR}
-                        >
-                            Generar QR
-                        </Button>
-                    </Box>
+                    <Button
+                        variant="contained"
+                        color="info"
+                        startIcon={<QrCodeIcon />}
+                        onClick={generateQR}
+                    >
+                        Generar QR
+                    </Button>
 
                 </Box>
             </Paper>

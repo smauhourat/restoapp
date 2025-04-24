@@ -17,6 +17,7 @@ import {
     Autocomplete,
     Snackbar,
     Alert,
+    CircularProgress,
 } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -24,8 +25,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export default function PedidoForm() {
     const [proveedores, setProveedores] = useState([]);
-    const [productos, setProductos] = useState([]);
-    const [pedido, setPedido] = useState({
+    const [productosDisponibles, setProductosDisponibles] = useState([]);
+    const [loadingProductos, setLoadingProductos] = useState(false);    const [pedido, setPedido] = useState({
         numero_pedido: `PED-${Date.now()}`,
         fecha: new Date().toISOString().split('T')[0],
         proveedor_id: null,
@@ -34,17 +35,38 @@ export default function PedidoForm() {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
+    // Cargar proveedores al inicio
     useEffect(() => {
         fetch('http://localhost:3001/api/proveedores')
             .then((res) => res.json())
-            .then(setProveedores);
-
-        fetch('http://localhost:3001/api/productos')
-            .then((res) => res.json())
-            .then(setProductos);
+            .then((data) => {
+                setProveedores(data.data)
+            })
+            //.then(setProveedores);
     }, []);
 
+    // Cargar productos cuando se selecciona un proveedor
+    useEffect(() => {
+        if (pedido.proveedor_id) {
+            setLoadingProductos(true);
+            fetch(`http://localhost:3001/api/proveedores/${pedido.proveedor_id}/productos`)
+                .then((res) => res.json())
+                .then((data) => {
+                    setProductosDisponibles(data);
+                    setLoadingProductos(false);
+                })
+                .catch(() => {
+                    setError('Error al cargar productos');
+                    setLoadingProductos(false);
+                });
+        }
+    }, [pedido.proveedor_id]);
+
     const handleAddRenglon = () => {
+        if (!pedido.proveedor_id) {
+            setError('Primero selecciona un proveedor');
+            return;
+        }
         setPedido({
             ...pedido,
             renglones: [
@@ -74,6 +96,9 @@ export default function PedidoForm() {
             .then(() => navigate('/pedidos'))
             .catch((err) => setError('Error al guardar pedido'));
     };
+
+    console.log('CACAAA')
+    console.log('proveedores =>', proveedores)
 
     return (
         <Container maxWidth="lg" sx={{ mt: 4 }}>
@@ -109,85 +134,112 @@ export default function PedidoForm() {
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <Autocomplete
-                            options={proveedores}
-                            getOptionLabel={(option) => option.nombre}
-                            onChange={(e, value) => setPedido({ ...pedido, proveedor_id: value?.id })}
-                            renderInput={(params) => (
-                                <TextField {...params} label="Proveedor" required />
-                            )}
-                        />
+                        {/* Selección de Proveedor (Obligatoria) */}
+                        {proveedores && proveedores.length === 0 ? (
+                            <CircularProgress />
+                        ) : (
+                                <Autocomplete
+                                    options={Array.isArray(proveedores) ? proveedores : []}
+                                    getOptionLabel={(option) => option.nombre}
+                                    onChange={(e, value) =>
+                                        setPedido({ ...pedido, proveedor_id: value?.id || null, renglones: [] })
+                                    }
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Proveedor *"
+                                            error={!pedido.proveedor_id && error}
+                                            helperText={!pedido.proveedor_id && "Selecciona un proveedor primero"}
+                                        />
+                                    )}
+                                    fullWidth
+                                    sx={{ mb: 3 }}
+                                />
+                        )}
+
                     </Grid>
                 </Grid>
 
-                <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
-                    Productos
-                </Typography>
-                <Button
-                    variant="contained"
-                    startIcon={<AddCircleIcon />}
-                    onClick={handleAddRenglon}
-                    sx={{ mb: 2 }}
-                >
-                    Agregar Producto
-                </Button>
+                {/* Sección de Productos (solo visible si hay proveedor) */}
 
-                <TableContainer component={Paper}>
-                    <Table size="small">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Producto</TableCell>
-                                <TableCell>Cantidad</TableCell>
-                                <TableCell>Precio Unitario</TableCell>
-                                <TableCell>Subtotal</TableCell>
-                                <TableCell>Acciones</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {pedido.renglones.map((renglon, index) => (
-                                <TableRow key={index}>
-                                    <TableCell>
-                                        <Autocomplete
-                                            options={productos}
-                                            getOptionLabel={(option) => option.nombre}
-                                            onChange={(e, value) => {
-                                                const newRenglones = [...pedido.renglones];
-                                                newRenglones[index].producto_id = value?.id;
-                                                newRenglones[index].precio_unitario = value?.precio_unitario || 0;
-                                                setPedido({ ...pedido, renglones: newRenglones });
-                                            }}
-                                            renderInput={(params) => (
-                                                <TextField {...params} label="Seleccionar" size="small" />
-                                            )}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            type="number"
-                                            value={renglon.cantidad}
-                                            onChange={(e) => {
-                                                const newRenglones = [...pedido.renglones];
-                                                newRenglones[index].cantidad = parseFloat(e.target.value);
-                                                setPedido({ ...pedido, renglones: newRenglones });
-                                            }}
-                                            size="small"
-                                            inputProps={{ min: 1, step: 1 }}
-                                        />
-                                    </TableCell>
-                                    <TableCell>${renglon.precio_unitario?.toFixed(2)}</TableCell>
-                                    <TableCell>
-                                        ${(renglon.cantidad * renglon.precio_unitario)?.toFixed(2)}
-                                    </TableCell>
-                                    <TableCell>
-                                        <IconButton onClick={() => handleRemoveRenglon(index)}>
-                                            <DeleteIcon color="error" />
-                                        </IconButton>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                {pedido.proveedor_id && (
+                    <>
+                        <Typography variant="h6" sx={{ mb: 2 }}>
+                            Productos de {proveedores.find(p => p.id === pedido.proveedor_id)?.nombre}
+                        </Typography>
+
+                        {loadingProductos ? (
+                            <CircularProgress />
+                        ) : (
+                        <>
+                                    <Button
+                                        variant="contained"
+                                        startIcon={<AddCircleIcon />}
+                                        onClick={handleAddRenglon}
+                                        sx={{ mb: 2 }}
+                                    >
+                                        Agregar Producto
+                                    </Button>           
+                                    <TableContainer component={Paper}>
+                                        <Table size="small">
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell>Producto</TableCell>
+                                                    <TableCell>Cantidad</TableCell>
+                                                    <TableCell>Precio Unitario</TableCell>
+                                                    <TableCell>Subtotal</TableCell>
+                                                    <TableCell>Acciones</TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {pedido.renglones.map((renglon, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell>
+                                                            <Autocomplete
+                                                                options={productosDisponibles}
+                                                                getOptionLabel={(option) => option.nombre}
+                                                                onChange={(e, value) => {
+                                                                    const newRenglones = [...pedido.renglones];
+                                                                    newRenglones[index].producto_id = value?.id;
+                                                                    newRenglones[index].precio_unitario = value?.precio_unitario || 0;
+                                                                    setPedido({ ...pedido, renglones: newRenglones });
+                                                                }}
+                                                                renderInput={(params) => (
+                                                                    <TextField {...params} label="Seleccionar" size="small" />
+                                                                )}
+                                                            />
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <TextField
+                                                                type="number"
+                                                                value={renglon.cantidad}
+                                                                onChange={(e) => {
+                                                                    const newRenglones = [...pedido.renglones];
+                                                                    newRenglones[index].cantidad = parseFloat(e.target.value);
+                                                                    setPedido({ ...pedido, renglones: newRenglones });
+                                                                }}
+                                                                size="small"
+                                                                inputProps={{ min: 1, step: 1 }}
+                                                            />
+                                                        </TableCell>
+                                                        <TableCell>${renglon.precio_unitario?.toFixed(2)}</TableCell>
+                                                        <TableCell>
+                                                            ${(renglon.cantidad * renglon.precio_unitario)?.toFixed(2)}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <IconButton onClick={() => handleRemoveRenglon(index)}>
+                                                                <DeleteIcon color="error" />
+                                                            </IconButton>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>                                                     
+                        </>)}                    
+                    </>
+                )}
+
 
                 <Typography variant="h6" sx={{ mt: 2, textAlign: 'right' }}>
                     Total: $

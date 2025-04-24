@@ -4,7 +4,7 @@ import db from '../db.js';
 const router = express.Router();
 
 // GET /api/proveedores con paginación
-router.get('/proveedores', (req, res) => {
+router.get('/', (req, res) => {
     const { page = 1, perPage = 10 } = req.query;
     const offset = (page - 1) * perPage;
 
@@ -26,7 +26,7 @@ router.get('/proveedores', (req, res) => {
     });
 });
 
-router.post('/proveedores', (req, res) => {
+router.post('/', (req, res) => {
     const { nombre, direccion, telefono, email } = req.body;
     const stmt = db.prepare(
         'INSERT INTO Proveedor (nombre, direccion, telefono, email) VALUES (?, ?, ?, ?)'
@@ -38,7 +38,7 @@ router.post('/proveedores', (req, res) => {
 // CRUD Productos, Pedidos, etc. (similar a lo anterior)
 // ...
 // Obtener todos los productos de un proveedor
-router.get('/proveedores/:id/productos', (req, res) => {
+router.get('/:id/productos', (req, res) => {
     const { id } = req.params;
     const productos = db.prepare(`
     SELECT p.id, p.nombre, p.precio_unitario, pp.precio_compra, pp.tiempo_entrega 
@@ -50,7 +50,7 @@ router.get('/proveedores/:id/productos', (req, res) => {
 });
 
 // Añadir producto a un proveedor
-router.post('/proveedores/:id/productos', (req, res) => {
+router.post('/:id/productos', (req, res) => {
     const { id } = req.params;
     const { producto_id, precio_compra, tiempo_entrega } = req.body;
     const stmt = db.prepare(`
@@ -63,7 +63,7 @@ router.post('/proveedores/:id/productos', (req, res) => {
 
 
 // Eliminar un proveedor
-router.delete('/proveedores/:id', (req, res) => {
+router.delete('/:id', (req, res) => {
     const { id } = req.params;
     const stmt = db.prepare(`
     DELETE FROM Proveedor 
@@ -75,7 +75,7 @@ router.delete('/proveedores/:id', (req, res) => {
 
 
 // Eliminar producto de un proveedor
-router.delete('/proveedores/:proveedorId/productos/:productoId', (req, res) => {
+router.delete('/:proveedorId/productos/:productoId', (req, res) => {
     const { proveedorId, productoId } = req.params;
     const stmt = db.prepare(`
     DELETE FROM Proveedor_Producto 
@@ -86,7 +86,7 @@ router.delete('/proveedores/:proveedorId/productos/:productoId', (req, res) => {
 });
 
 // routes.js
-router.get('/proveedores/:id/productos', (req, res) => {
+router.get('/:id/productos', (req, res) => {
     const { id } = req.params;
     const productos = db.prepare(`
     SELECT p.*, pp.precio_compra 

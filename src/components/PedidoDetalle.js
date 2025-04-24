@@ -28,6 +28,8 @@ import QrCodeIcon from '@mui/icons-material/QrCode';
 import { QRCodeSVG } from 'qrcode.react';
 import Dialog from '@mui/material/Dialog';
 
+import apiClient from '../api/client';
+
 const ESTADOS = {
     pendiente: { color: 'warning', label: 'Pendiente' },
     enviado: { color: 'info', label: 'Enviado' },
@@ -48,24 +50,31 @@ export default function PedidoDetalle() {
     const [qrContent, setQrContent] = useState('');
 
     useEffect(() => {
-        fetch(`http://localhost:3001/api/pedidos/${id}`)
-            .then((res) => res.json())
-            .then(setPedido)
-            .catch((err) => setError('Error al cargar el pedido'));
+        fetchPedidoDetalle()
     }, [id]);
 
-    const generateQR = () => {
+    const fetchPedidoDetalle = async () => {
+        try {
+            const data = await apiClient.get(`/pedidos/${id}`)
+            setPedido(data)
+        } catch (err) {
+            setError('Error al cargar el pedido');
+        }
+    }
+
+    const generateQR = async () => {
         const content = `Pedido #${pedido.numero_pedido}\nProveedor: ${pedido.proveedor_nombre}\nTotal: $${pedido.total.toFixed(2)}`;
         setQrContent(content);
         setQrOpen(true);
 
         // Registrar generación de QR en el historial
-        fetch(`http://localhost:3001/api/pedidos/${id}/envios`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ metodo_envio: 'qr', destinatario: 'Generado para compartir' })
-        });
+        await apiClient.post(`/pedidos/${id}/envios`, JSON.stringify({ metodo_envio: 'qr', destinatario: 'Generado para compartir' }))
     };
+
+    const saveHistorialEnvioWsp = async () => {
+        // Registrar generación de mensaje para WhatsApp en el historial
+        await apiClient.post(`/pedidos/${id}/envios`, JSON.stringify({ metodo_envio: 'wsp', destinatario: 'Generado para enviar' }))
+    }
 
     // Función para generar el mensaje de WhatsApp
     const generateWhatsAppMessage = () => {
@@ -184,7 +193,10 @@ export default function PedidoDetalle() {
                         variant="contained"
                         color="success"
                         startIcon={<WhatsAppIcon />}
-                        onClick={() => window.open(generateWhatsAppMessage(), '_blank')}
+                        onClick={() => { 
+                            saveHistorialEnvioWsp()
+                            window.open(generateWhatsAppMessage(), '_blank')
+                        }}
                         disabled={!!pedido.proveedor_telefono}
                     >
                         Enviar por WhatsApp

@@ -9,6 +9,17 @@ router.get('/', (req, res) => {
     res.json(productos);
 });
 
+router.get('/:id', (req, res) => {
+  const { id } = req.params;
+  const producto = db.prepare(`
+    SELECT p.*
+    FROM Producto p
+    WHERE p.id = ?
+  `).get(id); 
+  
+  res.json(producto);
+})
+
 // Crear un nuevo producto
 router.post('/', (req, res) => {
     const { nombre, descripcion, precio_unitario, unidad_medida } = req.body;

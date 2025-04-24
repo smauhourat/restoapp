@@ -14,6 +14,8 @@ import {
 import SaveIcon from '@mui/icons-material/Save';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
+import apiClient from '../api/client';
+
 const UNIDADES_MEDIDA = ['unidad', 'kg', 'litro', 'metro', 'caja'];
 
 export default function ProductoForm() {
@@ -29,28 +31,32 @@ export default function ProductoForm() {
 
     useEffect(() => {
         if (id) {
-            fetch(`http://localhost:3001/api/productos/${id}`)
-                .then((res) => res.json())
-                .then(setProducto)
-                .catch((err) => setError('Error al cargar producto'));
+            fetchProducto(id)
         }
     }, [id]);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const url = id
-            ? `http://localhost:3001/api/productos/${id}`
-            : 'http://localhost:3001/api/productos';
-        const method = id ? 'PUT' : 'POST';
+    const fetchProducto = async (id) => {
+        try {
+            const data = await apiClient.get(`/productos/${id}`)
+            setProducto(data)
+        } catch(err) {
+            setError('Error al cargar producto')
+        }
+    }
 
-        fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(producto),
-        })
-            .then(() => navigate('/productos'))
-            .catch((err) => setError('Error al guardar'));
-    };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            if (id) {
+                await apiClient.put(`/productos/${id}`, JSON.stringify(producto))
+            } else {
+                await apiClient.post(`/productos}`, JSON.stringify(producto))
+            }
+            navigate('/productos')
+        } catch (err) {
+            setError('Error al guardar producto')
+        }
+    }
 
     return (
         <Container maxWidth="sm" sx={{ mt: 4 }}>

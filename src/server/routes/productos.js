@@ -4,13 +4,13 @@ import db from '../db.js';
 const router = express.Router();
 
 // Obtener todos los productos
-router.get('/productos', (req, res) => {
+router.get('/', (req, res) => {
     const productos = db.prepare('SELECT * FROM Producto').all();
     res.json(productos);
 });
 
 // Crear un nuevo producto
-router.post('/productos', (req, res) => {
+router.post('/', (req, res) => {
     const { nombre, descripcion, precio_unitario, unidad_medida } = req.body;
     const stmt = db.prepare(`
     INSERT INTO Producto (nombre, descripcion, precio_unitario, unidad_medida)
@@ -21,7 +21,7 @@ router.post('/productos', (req, res) => {
 });
 
 // Actualizar un producto
-router.put('/productos/:id', (req, res) => {
+router.put('/:id', (req, res) => {
     const { id } = req.params;
     const { nombre, descripcion, precio_unitario, unidad_medida } = req.body;
     const stmt = db.prepare(`
@@ -34,7 +34,7 @@ router.put('/productos/:id', (req, res) => {
 });
 
 // Eliminar un producto
-router.delete('/productos/:id', (req, res) => {
+router.delete('/:id', (req, res) => {
     const { id } = req.params;
     // Verificar que el producto no esté asociado a un proveedor
     const tieneProveedores = db.prepare(`

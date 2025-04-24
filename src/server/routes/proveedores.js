@@ -65,6 +65,7 @@ router.post('/:id/productos', (req, res) => {
 // Eliminar un proveedor
 router.delete('/:id', (req, res) => {
     const { id } = req.params;
+    console.log('Id Proveedor =>', id)
     const stmt = db.prepare(`
     DELETE FROM Proveedor 
     WHERE id = ?

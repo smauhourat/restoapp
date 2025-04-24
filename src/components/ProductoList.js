@@ -25,6 +25,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
+import apiClient from '../api/client';
+
 export default function ProductoList() {
     const [productos, setProductos] = useState([]);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -36,25 +38,25 @@ export default function ProductoList() {
         fetchProductos();
     }, []);
 
-    const fetchProductos = () => {
-        fetch('http://localhost:3001/api/productos')
-            .then((res) => res.json())
-            .then(setProductos)
-            .catch((err) => setError('Error al cargar productos'));
+    const fetchProductos = async () => {
+        try {   
+            const data = await apiClient.get('/productos')
+            setProductos(data)
+        } catch (err) {
+            setError('Error al cargar productos');
+        }
     };
 
-    const handleDelete = (id) => {
-        fetch(`http://localhost:3001/api/productos/${id}`, { method: 'DELETE' })
-            .then((res) => {
-                if (res.ok) {
-                    fetchProductos();
-                } else {
-                    return res.json().then((err) => { throw new Error(err.error); });
-                }
-            })
-            .catch((err) => setError(err.message))
-            .finally(() => setOpenDeleteDialog(false));
-    };
+    const handleDelete = async (id) => {
+        try {
+            await apiClient.delete(`/productos/${id}`)
+            fetchProductos(productos.filter((p) => p.id !== id))
+        } catch (err) {
+            setError('Error al eliminar un producto');
+        } finally {
+            setOpenDeleteDialog(false)
+        }
+    }    
 
     return (
         <Container maxWidth="lg" sx={{ mt: 4 }}>

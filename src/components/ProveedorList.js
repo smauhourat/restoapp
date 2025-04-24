@@ -41,16 +41,6 @@ export default function ProveedorList() {
     fetchProveedores();
   }, [page, perPage]);
 
-  // const fetchProveedores = () => {
-  //   fetch(`http://localhost:3001/api/proveedores?page=${page}&perPage=${perPage}`)
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       setProveedores(data.data);
-  //       setTotalPages(data.totalPages);
-  //     })
-  //     .catch((err) => setError('Error al cargar proveedores'));
-  // };  
-
   const fetchProveedores = async () => {
     try {
       const { data, totalPages } = await apiClient.get('/proveedores', {
@@ -63,14 +53,15 @@ export default function ProveedorList() {
     }
   };  
 
-  const handleDelete = (id) => {
-    fetch(`http://localhost:3001/api/proveedores/${id}`, { method: 'DELETE' })
-      .then(() => setProveedores(proveedores.filter((p) => p.id !== id)))
-      .catch((err) => {
-        setError('Error al eliminar');
-        setOpenSnackbar(true);
-      });
-  };
+  const handleDelete = async (id) => {
+    try {
+      await apiClient.delete(`/proveedores/${id}`)
+      setProveedores(proveedores.filter((p) => p.id !== id))
+    } catch (err) {
+      setError('Error al eliminar un proveedor');
+      setOpenSnackbar(true);
+    }    
+  }
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>

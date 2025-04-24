@@ -9,11 +9,11 @@ import {
   Grid,
   Snackbar,
   Alert,
-  FormControl,
-  InputLabel,
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
+import apiClient from '../api/client';
 
 export default function ProveedorForm() {
   const { id } = useParams();
@@ -28,35 +28,36 @@ export default function ProveedorForm() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
   useEffect(() => {
-    if (id) {
-      fetch(`http://localhost:3001/api/proveedores/${id}`)
-        .then((res) => res.json())
-        .then((data) => setProveedor(data))
-        .catch((err) => {
-          setError('Error al cargar proveedor');
-          setOpenSnackbar(true);
-        });
-    }
+      if (id) {
+          fetchProveedor(id)
+      }
   }, [id]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const url = id
-      ? `http://localhost:3001/api/proveedores/${id}`
-      : 'http://localhost:3001/api/proveedores';
-    const method = id ? 'PUT' : 'POST';
-
-    fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(proveedor),
-    })
-      .then(() => navigate('/proveedores'))
-      .catch((err) => {
-        setError('Error al guardar');
+  const fetchProveedor = async (id) => {
+      try {
+        const data = await apiClient.get(`/proveedores/${id}`)
+        setProveedor(data)
+      } catch(err) {
+        setError('Error al cargar proveedor')
         setOpenSnackbar(true);
-      });
-  };
+      }
+  }  
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (id) {
+        await apiClient.put(`/proveedores/${id}`, JSON.stringify(proveedor))
+      } else {
+        await apiClient.post(`/proveedores`, JSON.stringify(proveedor))
+      }
+      navigate('/proveedores')
+    } catch (err) {
+      setError('Error al guardar proveedor')
+      setOpenSnackbar(true);
+    }
+  }
+
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>

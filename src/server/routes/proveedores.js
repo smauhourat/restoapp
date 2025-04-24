@@ -26,6 +26,16 @@ router.get('/', (req, res) => {
     });
 });
 
+router.get('/:id', (req, res) => {
+  const { id } = req.params;
+  const proveedor = db.prepare(`
+    SELECT p.*
+    FROM Proveedor p
+    WHERE p.id = ?
+  `).get(id);
+  res.json(proveedor);
+});
+
 router.post('/', (req, res) => {
     const { nombre, direccion, telefono, email } = req.body;
     const stmt = db.prepare(
@@ -33,6 +43,19 @@ router.post('/', (req, res) => {
     );
     const result = stmt.run(nombre, direccion, telefono, email);
     res.json({ id: result.lastInsertRowid });
+});
+
+// Actualizar un proveedor
+router.put('/:id', (req, res) => {
+    const { id } = req.params;
+    const { nombre, direccion, telefono, email } = req.body;
+    const stmt = db.prepare(`
+    UPDATE Proveedor
+    SET nombre = ?, direccion = ?, telefono = ?, email = ?
+    WHERE id = ?
+  `);
+    stmt.run(nombre, direccion, telefono, email, id);
+    res.json({ success: true });
 });
 
 // CRUD Productos, Pedidos, etc. (similar a lo anterior)

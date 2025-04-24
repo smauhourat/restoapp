@@ -19,6 +19,8 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
+import apiClient from '../api/client';
+
 const ESTADOS = {
     pendiente: { color: 'warning', label: 'Pendiente' },
     enviado: { color: 'info', label: 'Enviado' },
@@ -35,22 +37,23 @@ export default function PedidoList() {
         fetchPedidos();
     }, []);
 
-    const fetchPedidos = () => {
-        fetch('http://localhost:3001/api/pedidos')
-            .then((res) => res.json())
-            .then(setPedidos)
-            .catch((err) => setError('Error al cargar pedidos'));
-    };
+    const fetchPedidos = async () => {
+        try {
+            const data = await apiClient.get('/pedidos')
+            setPedidos(data)
+        } catch (err) {
+            setError('Error al cargar pedidos');
+        }
+    };    
 
-    const handleEstadoChange = (pedidoId, nuevoEstado) => {
-        fetch(`http://localhost:3001/api/pedidos/${pedidoId}/estado`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ estado: nuevoEstado }),
-        })
-            .then(fetchPedidos)
-            .catch((err) => setError('Error al actualizar estado'));
-    };
+    const handleEstadoChange = async (pedidoId, nuevoEstado) => {
+        try {
+            await apiClient.patch(`/pedidos/${pedidoId}/estado`, JSON.stringify({ estado: nuevoEstado }))
+            await fetchPedidos()
+        } catch (err) {
+            setError('Error al actualizar estado');
+        }
+    }
 
     return (
         <Container maxWidth="lg" sx={{ mt: 4 }}>

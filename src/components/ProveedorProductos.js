@@ -18,11 +18,13 @@ import {
   MenuItem,
   Snackbar,
   Alert,
-  Container
+  Container,
+  alpha
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import apiClient from '../api/client';
 
 export default function ProveedorProductos() {
   const { id } = useParams();
@@ -38,41 +40,47 @@ export default function ProveedorProductos() {
 
   const navigate = useNavigate();
 
+  const fetchProductos = async () => {
+    const data = await apiClient.get(`/proveedores/${id}/productos`)
+    setProductos(data)
+  }  
   // Cargar productos del proveedor y todos los productos disponibles
   useEffect(() => {
-    fetch(`http://localhost:3001/api/proveedores/${id}/productos`)
-      .then((res) => res.json())
-      .then(setProductos);
+    const fetchAllProductos = async () => {
+      const data = await apiClient.get(`/productos`)
+      setAllProductos(data)
+    }
 
-    fetch('http://localhost:3001/api/productos')
-      .then((res) => res.json())
-      .then(setAllProductos);
+    fetchProductos()
+    fetchAllProductos()
+
   }, [id]);
 
-  const handleAddProducto = () => {
-    fetch(`http://localhost:3001/api/proveedores/${id}/productos`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    })
-      .then(() => {
-        setOpenDialog(false);
-        // Recargar la lista
-        fetch(`http://localhost:3001/api/proveedores/${id}/productos`)
-          .then((res) => res.json())
-          .then(setProductos);
-      })
-      .catch((err) => setError('Error al agregar producto'));
-  };
+  const addProducto = async () => {
+    try {
+      await apiClient.post(`/proveedores/${id}/productos`, JSON.stringify(formData))
+      setOpenDialog(false);
+      fetchProductos()
+    } catch(err) {
+      setError('Error al agregar producto')
+    }
+  }
 
-  const handleDelete = (productoId) => {
-    fetch(`http://localhost:3001/api/proveedores/${id}/productos/${productoId}`, {
-      method: 'DELETE',
-    })
-      .then(() => {
-        setProductos(productos.filter((p) => p.id !== productoId));
-      })
-      .catch((err) => setError('Error al eliminar'));
+  const handleAddProducto = async () => {
+    await addProducto()
+  };  
+
+  const deleteProducto = async (productoId) => {
+    try {
+      await apiClient.delete(`/proveedores/${id}/productos/${productoId}`)
+      setProductos(productos.filter((p) => p.id !== productoId));
+    } catch (err) {
+      setError('Error al agregar producto')
+    }    
+  }
+
+  const handleDelete = async (productoId) => {
+    await deleteProducto(productoId)
   };
 
   return (

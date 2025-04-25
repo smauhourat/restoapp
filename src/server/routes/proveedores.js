@@ -80,7 +80,7 @@ router.post('/:id/productos', (req, res) => {
     INSERT INTO Proveedor_Producto (proveedor_id, producto_id, precio_compra, tiempo_entrega)
     VALUES (?, ?, ?, ?)
   `);
-    const result = stmt.run(id, producto_id, precio_compra, tiempo_entrega);
+    stmt.run(id, producto_id, precio_compra, tiempo_entrega);
     res.json({ success: true });
 });
 

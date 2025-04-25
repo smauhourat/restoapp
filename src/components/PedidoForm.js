@@ -23,6 +23,8 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
+import apiClient from '../api/client';
+
 export default function PedidoForm() {
     const [proveedores, setProveedores] = useState([]);
     const [productosDisponibles, setProductosDisponibles] = useState([]);
@@ -37,28 +39,33 @@ export default function PedidoForm() {
 
     // Cargar proveedores al inicio
     useEffect(() => {
-        fetch('http://localhost:3001/api/proveedores')
-            .then((res) => res.json())
-            .then((data) => {
-                setProveedores(data.data)
-            })
-            //.then(setProveedores);
+        fetchProveedores()
     }, []);
+
+    const fetchProveedores = async () => {
+        try {
+            const ret = await apiClient.get(`/proveedores`)
+            setProveedores(ret.data)
+        } catch (err) {
+            setError('Error al cargar proveedores');
+        }
+    }    
 
     // Cargar productos cuando se selecciona un proveedor
     useEffect(() => {
+        const fetchProductos = async () => {
+            try {
+                setLoadingProductos(true);
+                const data = await apiClient.get(`/proveedores/${pedido.proveedor_id}/productos`)
+                setProductosDisponibles(data);
+                setLoadingProductos(false);
+            } catch (err) {
+                setError('Error al cargar productos');
+                setLoadingProductos(false);
+            }
+        }        
         if (pedido.proveedor_id) {
-            setLoadingProductos(true);
-            fetch(`http://localhost:3001/api/proveedores/${pedido.proveedor_id}/productos`)
-                .then((res) => res.json())
-                .then((data) => {
-                    setProductosDisponibles(data);
-                    setLoadingProductos(false);
-                })
-                .catch(() => {
-                    setError('Error al cargar productos');
-                    setLoadingProductos(false);
-                });
+            fetchProductos();
         }
     }, [pedido.proveedor_id]);
 
@@ -82,23 +89,24 @@ export default function PedidoForm() {
         setPedido({ ...pedido, renglones: newRenglones });
     };
 
+    const addPedido = async () => {
+        try {
+            await apiClient.post(`/pedidos`, JSON.stringify(pedido))
+        } catch (err) {
+            setError('Error al guardar pedido');
+        } finally {
+            navigate('/pedidos')
+        }
+    }
+
     const handleSubmit = () => {
         if (!pedido.proveedor_id || pedido.renglones.length === 0) {
             setError('Completa todos los campos requeridos');
             return;
         }
 
-        fetch('http://localhost:3001/api/pedidos', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(pedido),
-        })
-            .then(() => navigate('/pedidos'))
-            .catch((err) => setError('Error al guardar pedido'));
+        addPedido()
     };
-
-    console.log('CACAAA')
-    console.log('proveedores =>', proveedores)
 
     return (
         <Container maxWidth="lg" sx={{ mt: 4 }}>

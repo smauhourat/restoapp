@@ -63,6 +63,8 @@ export default function PedidoList() {
                 return "#fff3cd80"
             case 'recibido':
                 return "#d4edda80"
+            default:
+                return ""
         }
     }
 

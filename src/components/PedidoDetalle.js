@@ -78,19 +78,24 @@ export default function PedidoDetalle() {
 
     // Función para generar el mensaje de WhatsApp
     const generateWhatsAppMessage = () => {
-        const itemsText = pedido.renglones.map(item =>
-            `- ${item.producto_nombre}: ${item.cantidad} x $${item.precio_unitario} = $${(item.cantidad * item.precio_unitario).toFixed(2)}`
-        ).join('%0A'); // %0A es el código para salto de línea en URLs
+        // const itemsText = pedido.renglones.map(item =>
+        //     `- ${item.producto_nombre}: ${item.cantidad} x $${item.precio_unitario} = $${(item.cantidad * item.precio_unitario).toFixed(2)}`
+        // ).join('%0A'); // %0A es el código para salto de línea en URLs
 
-        return `https://wa.me/1136801621?text=` + encodeURIComponent(`
-                *Nuevo Pedido*: ${pedido.numero_pedido}
-                *Proveedor*: ${pedido.proveedor_nombre}
-                *Fecha*: ${new Date(pedido.fecha).toLocaleDateString()}
-                *Estado*: ${ESTADOS[pedido.estado].label}
-                %0A%0A*Detalle*:%0A${itemsText}
-                %0A%0A*Total*: $${pedido.total.toFixed(2)}
-                %0A%0APor favor confirmar recepción.
-                `).replace(/\s+/g, ' '); // Elimina espacios múltiples        
+        const itemsText = pedido.renglones.map((item, i) =>
+            `${i+1}.   ${item.cantidad} ${item.producto_nombre}`
+        ).join('\n'); // %0A es el código para salto de línea en URLs
+
+
+        let msg = "*Sapori d’Italia*\n"
+        msg += `*Nuevo Pedido*: ${pedido.numero_pedido}\n`
+        msg += `*Proveedor*: ${pedido.proveedor_nombre}\n`
+        msg += `*Fecha*: ${new Date(pedido.fecha).toLocaleDateString()}\n`
+        msg += `*Detalle*\n`
+        msg += `${itemsText}`
+
+        return `https://wa.me/1136801621?text=` + encodeURIComponent(msg).replace(/\s+/g, ' '); // Elimina espacios múltiples
+   
         // return `https://wa.me/${pedido.proveedor_telefono}?text=` + encodeURIComponent(`
         //         *Nuevo Pedido*: ${pedido.numero_pedido}
         //         *Proveedor*: ${pedido.proveedor_nombre}

@@ -44,7 +44,7 @@ export default function PedidoList() {
         } catch (err) {
             setError('Error al cargar pedidos');
         }
-    };    
+    };
 
     const handleEstadoChange = async (pedidoId, nuevoEstado) => {
         try {
@@ -52,6 +52,17 @@ export default function PedidoList() {
             await fetchPedidos()
         } catch (err) {
             setError('Error al actualizar estado');
+        }
+    }
+
+    const getBackCoor = (estado) => {
+        switch (estado) {
+            case 'pendiente':
+                return "#f8d7da80"
+            case 'enviado':
+                return "#fff3cd80"
+            case 'recibido':
+                return "#d4edda80"
         }
     }
 
@@ -83,7 +94,9 @@ export default function PedidoList() {
                     </TableHead>
                     <TableBody>
                         {pedidos.map((pedido) => (
-                            <TableRow key={pedido.id}>
+                            <TableRow key={pedido.id} sx={{
+                                backgroundColor: getBackCoor(pedido.estado)
+                            }}>
                                 <TableCell>{pedido.numero_pedido}</TableCell>
                                 <TableCell>{new Date(pedido.fecha).toLocaleDateString()}</TableCell>
                                 <TableCell>{pedido.proveedor}</TableCell>

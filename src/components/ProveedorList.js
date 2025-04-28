@@ -28,11 +28,18 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import apiClient from '../api/client';
 
+// Clave para el localStorage
+const LOCALSTORAGE_KEY = 'proveedoresPerPage';
+
 export default function ProveedorList() {
   const [proveedores, setProveedores] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(3);  
+  // Recuperar el valor guardado o usar 10 por defecto
+  const [perPage, setPerPage] = useState(() => {
+    const saved = localStorage.getItem(LOCALSTORAGE_KEY);
+    return saved ? parseInt(saved) : 10;
+  });
   const [error, setError] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const navigate = useNavigate();
@@ -41,6 +48,11 @@ export default function ProveedorList() {
     fetchProveedores();
   }, [page, perPage]);
 
+  // Guardar en localStorage cuando cambie
+  useEffect(() => {
+    localStorage.setItem(LOCALSTORAGE_KEY, perPage.toString());
+  }, [perPage]);
+    
   const fetchProveedores = async () => {
     try {
       const { data, totalPages } = await apiClient.get('/proveedores', {

@@ -4,9 +4,32 @@ import db from '../db.js';
 const router = express.Router();
 
 // Obtener todos los productos
+// router.get('/', (req, res) => {
+//     const productos = db.prepare('SELECT * FROM Producto').all();
+//     res.json(productos);
+// });
+
+// GET /api/productos con paginación
 router.get('/', (req, res) => {
-    const productos = db.prepare('SELECT * FROM Producto').all();
-    res.json(productos);
+  const { page = 1, perPage = 10 } = req.query;
+  const offset = (page - 1) * perPage;
+
+  const proveedores = db.prepare(`
+    SELECT * FROM Producto
+    LIMIT ? OFFSET ?
+  `).all(perPage, offset);
+
+  const total = db.prepare(`
+    SELECT COUNT(*) as total FROM Producto
+  `).get().total;
+
+  res.json({
+    data: proveedores,
+    total,
+    page: parseInt(page),
+    perPage: parseInt(perPage),
+    totalPages: Math.ceil(total / perPage),
+  });
 });
 
 router.get('/:id', (req, res) => {

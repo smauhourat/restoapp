@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
   const { page = 1, perPage = 10 } = req.query;
   const offset = (page - 1) * perPage;
 
-  const proveedores = db.prepare(`
+  const productos = db.prepare(`
     SELECT * FROM Producto
     LIMIT ? OFFSET ?
   `).all(perPage, offset);
@@ -24,7 +24,7 @@ router.get('/', (req, res) => {
   `).get().total;
 
   res.json({
-    data: proveedores,
+    data: productos,
     total,
     page: parseInt(page),
     perPage: parseInt(perPage),

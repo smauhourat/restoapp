@@ -88,7 +88,7 @@ export default function PedidoDetalle() {
 
 
         let msg = "*Sapori d’Italia*\n"
-        msg += `*Nuevo Pedido*: ${pedido.numero_pedido}\n`
+        msg += `*Nro. Pedido*: ${pedido.numero_pedido}\n`
         msg += `*Proveedor*: ${pedido.proveedor_nombre}\n`
         msg += `*Fecha*: ${new Date(pedido.fecha).toLocaleDateString()}\n`
         msg += `*Detalle*\n`

@@ -28,8 +28,8 @@ import apiClient from '../api/client';
 export default function PedidoForm() {
     const [proveedores, setProveedores] = useState([]);
     const [productosDisponibles, setProductosDisponibles] = useState([]);
-    const [loadingProductos, setLoadingProductos] = useState(false);    const [pedido, setPedido] = useState({
-        numero_pedido: `PED-${Date.now()}`,
+    const [loadingProductos, setLoadingProductos] = useState(false);    
+    const [pedido, setPedido] = useState({
         fecha: new Date().toISOString().split('T')[0],
         proveedor_id: null,
         renglones: [],
@@ -40,7 +40,13 @@ export default function PedidoForm() {
     // Cargar proveedores al inicio
     useEffect(() => {
         fetchProveedores()
+        initPedido()
     }, []);
+
+    const initPedido = async () => {
+        const ret = await apiClient.post(`/pedidos/nropedido`);
+        setPedido({ ...pedido, numero_pedido: `PED-${ret.nro_pedido}`})
+    }    
 
     const fetchProveedores = async () => {
         try {
@@ -91,6 +97,7 @@ export default function PedidoForm() {
 
     const addPedido = async () => {
         try {
+            // console.log('pedidoa a agregar:', pedido)
             await apiClient.post(`/pedidos`, JSON.stringify(pedido))
         } catch (err) {
             setError('Error al guardar pedido');
@@ -124,12 +131,14 @@ export default function PedidoForm() {
                 </Typography>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
-                        <TextField
-                            label="Número de Pedido"
-                            fullWidth
-                            value={pedido.numero_pedido}
-                            disabled
-                        />
+                        {pedido.numero_pedido !== undefined ? (
+                            <TextField
+                                label="Número de Pedido"
+                                fullWidth
+                                value={pedido.numero_pedido}
+                                disabled
+                            />
+                        ) : (<CircularProgress />)}
                     </Grid>
                     <Grid item xs={12} sm={6}>
                         <TextField

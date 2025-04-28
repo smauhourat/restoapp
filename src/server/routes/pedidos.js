@@ -102,5 +102,21 @@ router.get('/:id/envios', (req, res) => {
     res.json(historial);
 });
 
+// Generar Nro Pedido
+router.post('/nropedido', (req, res) => {
+
+  const inserted = db.prepare(`
+    INSERT INTO NrosPedidos (estado)
+    VALUES (?)
+  `).run('ok');
+
+  const result = db.prepare(`
+    SELECT nro_pedido FROM NrosPedidos WHERE id = ?
+    `).get(inserted.lastInsertRowid)
+
+
+  //console.log('inserted id =>', result)
+  res.json(result);
+});
 
 export default router;

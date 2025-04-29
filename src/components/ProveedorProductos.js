@@ -50,6 +50,7 @@ export default function ProveedorProductos() {
       const productosDisponibles = ret.data
         .filter(p1 => !productos.some(p2 => p2.id === p1.id))
         .sort((a, b) => a.nombre.localeCompare(b.nombre))
+      console.log('productosDisponibles =>', productosDisponibles)
       setAllProductos(productosDisponibles)
     }
 

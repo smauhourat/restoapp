@@ -64,7 +64,7 @@ router.put('/:id', (req, res) => {
 router.get('/:id/productos', (req, res) => {
     const { id } = req.params;
     const productos = db.prepare(`
-    SELECT p.id, p.nombre, p.precio_unitario, pp.precio_compra, pp.tiempo_entrega 
+    SELECT p.id, p.nombre, p.descripcion, p.precio_unitario, pp.precio_compra, pp.tiempo_entrega 
     FROM Producto p
     JOIN Proveedor_Producto pp ON p.id = pp.producto_id
     WHERE pp.proveedor_id = ?

@@ -101,6 +101,7 @@ export default function ProductoList() {
                     <TableHead>
                         <TableRow>
                             <TableCell>Nombre</TableCell>
+                            <TableCell>Proveedor</TableCell>
                             <TableCell>Precio Unitario</TableCell>
                             <TableCell>Unidad de Medida</TableCell>
                             <TableCell>Descripción</TableCell>
@@ -111,6 +112,7 @@ export default function ProductoList() {
                         {productos.map((producto) => (
                             <TableRow key={producto.id}>
                                 <TableCell>{producto.nombre}</TableCell>
+                                <TableCell>{producto.proveedor}</TableCell>
                                 <TableCell>${producto.precio_unitario}</TableCell>
                                 <TableCell>{producto.unidad_medida}</TableCell>
                                 <TableCell>{producto.descripcion}</TableCell>

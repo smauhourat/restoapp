@@ -7,7 +7,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Button,
   Typography,
   IconButton,
@@ -19,7 +18,7 @@ import {
   Snackbar,
   Alert,
   Container,
-  alpha
+  DialogActions
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -47,8 +46,9 @@ export default function ProveedorProductos() {
   // Cargar productos del proveedor y todos los productos disponibles
   useEffect(() => {
     const fetchAllProductos = async () => {
-      const data = await apiClient.get(`/productos`)
-      setAllProductos(data)
+      const ret = await apiClient.get(`/productos`)
+      console.log('all productos =>', ret.data)
+      setAllProductos(ret.data)
     }
 
     fetchProductos()
@@ -95,13 +95,14 @@ export default function ProveedorProductos() {
           onClick={() => setOpenDialog(true)}
           sx={{ mb: 2 }}
         >
-          Añadir Producto
+          Asignar Producto
         </Button>
         <TableContainer>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell>Producto</TableCell>
+                <TableCell>Descripcion</TableCell>
                 <TableCell>Precio Unitario</TableCell>
                 <TableCell>Precio Compra</TableCell>
                 <TableCell>Tiempo Entrega (días)</TableCell>
@@ -112,6 +113,7 @@ export default function ProveedorProductos() {
               {productos.map((producto) => (
                 <TableRow key={producto.id}>
                   <TableCell>{producto.nombre}</TableCell>
+                  <TableCell>{producto.descripcion}</TableCell>
                   <TableCell>${producto.precio_unitario}</TableCell>
                   <TableCell>${producto.precio_compra}</TableCell>
                   <TableCell>{producto.tiempo_entrega}</TableCell>
@@ -171,6 +173,9 @@ export default function ProveedorProductos() {
               Guardar
             </Button>
           </DialogContent>
+            <DialogActions>
+            <Button onClick={() => setOpenDialog(false)}>Cerrar</Button>
+            </DialogActions>
         </Dialog>
 
         {/* Notificación de error */}

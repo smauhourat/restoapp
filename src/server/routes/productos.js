@@ -11,11 +11,13 @@ const router = express.Router();
 
 // GET /api/productos con paginación
 router.get('/', (req, res) => {
-  const { page = 1, perPage = 10 } = req.query;
+  const { page = 1, perPage = 99999 } = req.query;
   const offset = (page - 1) * perPage;
 
   const productos = db.prepare(`
-    SELECT * FROM Producto
+    SELECT Producto.*, Proveedor.nombre as proveedor FROM Producto
+    LEFT JOIN Proveedor_Producto pp ON Producto.id = pp.producto_id
+    LEFT JOIN Proveedor on pp.proveedor_id = Proveedor.id
     LIMIT ? OFFSET ?
   `).all(perPage, offset);
 

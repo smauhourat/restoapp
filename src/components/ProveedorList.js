@@ -58,7 +58,7 @@ export default function ProveedorList() {
       const { data, totalPages } = await apiClient.get('/proveedores', {
         params: { page, perPage }
       });
-      setProveedores(data);
+      setProveedores(data.sort((a, b) => a.nombre.localeCompare(b.nombre)));
       setTotalPages(totalPages);
     } catch (err) {
       setError('Error al cargar proveedores');

@@ -41,14 +41,16 @@ export default function ProveedorProductos() {
 
   const fetchProductos = async () => {
     const data = await apiClient.get(`/proveedores/${id}/productos`)
-    setProductos(data)
+    setProductos(data.sort((a, b) => a.nombre.localeCompare(b.nombre)))
   }  
   // Cargar productos del proveedor y todos los productos disponibles
   useEffect(() => {
     const fetchAllProductos = async () => {
       const ret = await apiClient.get(`/productos`)
-      console.log('all productos =>', ret.data)
-      setAllProductos(ret.data)
+      const productosDisponibles = ret.data
+        .filter(p1 => !productos.some(p2 => p2.id === p1.id))
+        .sort((a, b) => a.nombre.localeCompare(b.nombre))
+      setAllProductos(productosDisponibles)
     }
 
     fetchProductos()
@@ -131,9 +133,9 @@ export default function ProveedorProductos() {
           </Table>
         </TableContainer>
 
-        {/* Diálogo para añadir producto */}
+        {/* Diálogo para asignar producto */}
         <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-          <DialogTitle>Añadir Producto al Proveedor</DialogTitle>
+          <DialogTitle>Asignar Producto al Proveedor</DialogTitle>
           <DialogContent sx={{ p: 3, minWidth: 400 }}>
             <TextField
               select

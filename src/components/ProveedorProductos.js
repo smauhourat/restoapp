@@ -39,31 +39,29 @@ export default function ProveedorProductos() {
 
   const navigate = useNavigate();
 
-  const fetchProductos = async () => {
-    const data = await apiClient.get(`/proveedores/${id}/productos`)
-    setProductos(data.sort((a, b) => a.nombre.localeCompare(b.nombre)))
-  }  
+  const fetchData = async () => {
+    const productosProveedor = await apiClient.get(`/proveedores/${id}/productos`)
+    const productosTodos = await apiClient.get(`/productos`)
+    const productosDisponibles = productosTodos.data
+      .filter(p1 => !productos.some(p2 => p2.id === p1.id))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre))
+
+    setProductos(productosProveedor.sort((a, b) => a.nombre.localeCompare(b.nombre)))
+    setAllProductos(productosDisponibles)
+  }
+
   // Cargar productos del proveedor y todos los productos disponibles
   useEffect(() => {
-    const fetchAllProductos = async () => {
-      const ret = await apiClient.get(`/productos`)
-      const productosDisponibles = ret.data
-        .filter(p1 => !productos.some(p2 => p2.id === p1.id))
-        .sort((a, b) => a.nombre.localeCompare(b.nombre))
-      console.log('productosDisponibles =>', productosDisponibles)
-      setAllProductos(productosDisponibles)
-    }
-
-    fetchProductos()
-    fetchAllProductos()
-
+    fetchData()
+    console.log('productos =>', productos)
+    console.log('allProductos =>', allProductos)
   }, [id]);
 
   const addProducto = async () => {
     try {
       await apiClient.post(`/proveedores/${id}/productos`, JSON.stringify(formData))
       setOpenDialog(false);
-      fetchProductos()
+      fetchData()
     } catch(err) {
       setError('Error al agregar producto')
     }
@@ -76,7 +74,7 @@ export default function ProveedorProductos() {
   const deleteProducto = async (productoId) => {
     try {
       await apiClient.delete(`/proveedores/${id}/productos/${productoId}`)
-      setProductos(productos.filter((p) => p.id !== productoId));
+      fetchData()
     } catch (err) {
       setError('Error al agregar producto')
     }    

@@ -57,8 +57,8 @@ export default function ProveedorProductos() {
   const addProducto = async () => {
     try {
       await apiClient.post(`/proveedores/${id}/productos`, JSON.stringify(formData))
-      setOpenDialog(false);
-      fetchData()
+      // setOpenDialog(false);
+      // fetchData()
     } catch(err) {
       setError('Error al agregar producto')
     }
@@ -66,7 +66,14 @@ export default function ProveedorProductos() {
 
   const handleAddProducto = async () => {
     await addProducto()
+    setOpenDialog(false);
+    fetchData()
   };  
+
+  const handleAddAndStayProducto = async () => {
+    await addProducto()
+    fetchData()
+  }
 
   const deleteProducto = async (productoId) => {
     try {
@@ -163,13 +170,23 @@ export default function ProveedorProductos() {
               value={formData.tiempo_entrega}
               onChange={(e) => setFormData({ ...formData, tiempo_entrega: e.target.value })}
             />
+          <Button
+            variant="contained"
+            color="success"
+            onClick={handleAddAndStayProducto}
+            fullWidth
+            sx={{ mb: 2 }}
+          >
+            Guardar
+          </Button>            
             <Button
               variant="contained"
               onClick={handleAddProducto}
               fullWidth
             >
-              Guardar
+              Guardar y Cerrar
             </Button>
+
           </DialogContent>
             <DialogActions>
             <Button onClick={() => setOpenDialog(false)}>Cerrar</Button>

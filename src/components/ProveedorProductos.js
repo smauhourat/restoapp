@@ -41,13 +41,10 @@ export default function ProveedorProductos() {
 
   const fetchData = async () => {
     const productosProveedor = await apiClient.get(`/proveedores/${id}/productos`)
-    const productosTodos = await apiClient.get(`/productos`)
-    const productosDisponibles = productosTodos.data
-      .filter(p1 => !productos.some(p2 => p2.id === p1.id))
-      .sort((a, b) => a.nombre.localeCompare(b.nombre))
+    const productosDisponibles = await apiClient.get(`/proveedores/${id}/productos-disponibles`)
 
     setProductos(productosProveedor.sort((a, b) => a.nombre.localeCompare(b.nombre)))
-    setAllProductos(productosDisponibles)
+    setAllProductos(productosDisponibles.sort((a, b) => a.nombre.localeCompare(b.nombre)))
   }
 
   // Cargar productos del proveedor y todos los productos disponibles

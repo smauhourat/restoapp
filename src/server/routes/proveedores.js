@@ -121,5 +121,23 @@ router.get('/:id/productos', (req, res) => {
     res.json(productos);
 });
 
+// Obtener productos NO asignados a un proveedor
+router.get('/:id/productos-disponibles', (req, res) => {
+  const { id } = req.params;
+
+  const productos = db.prepare(`
+    SELECT p.*
+    FROM Producto p
+    WHERE p.id NOT IN (
+      SELECT producto_id
+      FROM Proveedor_Producto
+      WHERE proveedor_id = ?
+    )
+    ORDER BY p.nombre
+  `).all(id);
+
+  res.json(productos);
+});
+
 
 export default router;

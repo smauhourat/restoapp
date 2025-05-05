@@ -23,8 +23,8 @@ import {
     Select,
     Box,
     Pagination,
-    Stack
-
+    Stack,
+    TableSortLabel
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -48,11 +48,15 @@ export default function ProductoList() {
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [productoToDelete, setProductoToDelete] = useState(null);
     const [error, setError] = useState('');
+    const [sortConfig, setSortConfig] = useState({
+        key: 'nombre', // Campo por defecto
+        direction: 'asc', // 'asc' o 'desc'
+    });
     const navigate = useNavigate();
 
     useEffect(() => {
         fetchProductos();
-    }, [page, perPage]);
+    }, [page, perPage, sortConfig]);
 
     // Guardar en localStorage cuando cambie
     useEffect(() => {
@@ -61,11 +65,20 @@ export default function ProductoList() {
 
     const fetchProductos = async () => {
         const { data, totalPages } = await apiClient.get('/productos', {
-            params: { page, perPage }
+            params: { page, perPage, sortBy: sortConfig.key, order: sortConfig.direction }
         });
         setProductos(data)
         setTotalPages(totalPages);
     };
+
+    const handleSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+        setPage(1)
+    };    
 
     const handleDelete = async (id) => {
         await apiClient.delete(`/productos/${id}`)
@@ -91,11 +104,27 @@ export default function ProductoList() {
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>Nombre</TableCell>
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sortConfig.key === 'nombre'}
+                                    direction={sortConfig.direction}
+                                    onClick={() => handleSort('nombre')}
+                                >
+                                    Nombre
+                                </TableSortLabel>                                
+                            </TableCell>
                             <TableCell>Proveedor</TableCell>
                             <TableCell>Precio Unitario</TableCell>
                             <TableCell>Unidad de Medida</TableCell>
-                            <TableCell>Descripción</TableCell>
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sortConfig.key === 'descripcion'}
+                                    direction={sortConfig.direction}
+                                    onClick={() => handleSort('descripcion')}
+                                >
+                                    Descripción
+                                </TableSortLabel>                                
+                            </TableCell>
                             <TableCell align="center">Acciones</TableCell>
                         </TableRow>
                     </TableHead>

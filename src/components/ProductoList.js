@@ -12,6 +12,7 @@ import {
     Container,
     Typography,
     IconButton,
+    MenuItem,
     Dialog,
     DialogActions,
     DialogContent,
@@ -19,6 +20,11 @@ import {
     DialogTitle,
     Snackbar,
     Alert,
+    Select,
+    Box,
+    Pagination,
+    Stack
+
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -27,8 +33,18 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import apiClient from '../api/client';
 
+// Clave para el localStorage
+const LOCALSTORAGE_KEY = 'productosPerPage';
+
 export default function ProductoList() {
     const [productos, setProductos] = useState([]);
+    const [totalPages, setTotalPages] = useState(1);
+    const [page, setPage] = useState(1);
+    // Recuperar el valor guardado o usar 10 por defecto
+    const [perPage, setPerPage] = useState(() => {
+    const saved = localStorage.getItem(LOCALSTORAGE_KEY);
+    return saved ? parseInt(saved) : 10;
+    });
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [productoToDelete, setProductoToDelete] = useState(null);
     const [error, setError] = useState('');
@@ -36,12 +52,20 @@ export default function ProductoList() {
 
     useEffect(() => {
         fetchProductos();
-    }, []);
+    }, [page, perPage]);
+
+    // Guardar en localStorage cuando cambie
+    useEffect(() => {
+    localStorage.setItem(LOCALSTORAGE_KEY, perPage.toString());
+    }, [perPage]);    
 
     const fetchProductos = async () => {
         try {   
-            const data = await apiClient.get('/productos')
+            const { data, totalPages } = await apiClient.get('/productos', {
+                params: { page, perPage }
+            });
             setProductos(data)
+            setTotalPages(totalPages);
         } catch (err) {
             setError('Error al cargar productos');
         }
@@ -77,6 +101,7 @@ export default function ProductoList() {
                     <TableHead>
                         <TableRow>
                             <TableCell>Nombre</TableCell>
+                            <TableCell>Proveedor</TableCell>
                             <TableCell>Precio Unitario</TableCell>
                             <TableCell>Unidad de Medida</TableCell>
                             <TableCell>Descripción</TableCell>
@@ -87,6 +112,7 @@ export default function ProductoList() {
                         {productos.map((producto) => (
                             <TableRow key={producto.id}>
                                 <TableCell>{producto.nombre}</TableCell>
+                                <TableCell>{producto.proveedor}</TableCell>
                                 <TableCell>${producto.precio_unitario}</TableCell>
                                 <TableCell>{producto.unidad_medida}</TableCell>
                                 <TableCell>{producto.descripcion}</TableCell>
@@ -112,7 +138,32 @@ export default function ProductoList() {
                     </TableBody>
                 </Table>
             </TableContainer>
+            {/* Paginación y controles */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography>Filas por página:</Typography>
+                    <Select
+                        value={perPage}
+                        onChange={(e) => setPerPage(e.target.value)}
+                        size="small"
+                        sx={{ width: 80 }}
+                    >
+                        <MenuItem value={5}>5</MenuItem>
+                        <MenuItem value={10}>10</MenuItem>
+                        <MenuItem value={20}>20</MenuItem>
+                        <MenuItem value={50}>50</MenuItem>
+                    </Select>
+                </Stack>
 
+                <Pagination
+                    count={totalPages}
+                    page={page}
+                    onChange={(e, newPage) => setPage(newPage)}
+                    color="primary"
+                    showFirstButton
+                    showLastButton
+                />
+            </Box>  
             {/* Diálogo de confirmación para eliminar */}
             <Dialog
                 open={openDeleteDialog}

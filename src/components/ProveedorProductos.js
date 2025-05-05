@@ -7,7 +7,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Button,
   Typography,
   IconButton,
@@ -19,7 +18,7 @@ import {
   Snackbar,
   Alert,
   Container,
-  alpha
+  DialogActions
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -40,27 +39,26 @@ export default function ProveedorProductos() {
 
   const navigate = useNavigate();
 
-  const fetchProductos = async () => {
-    const data = await apiClient.get(`/proveedores/${id}/productos`)
-    setProductos(data)
-  }  
+  const fetchData = async () => {
+    const productosProveedor = await apiClient.get(`/proveedores/${id}/productos`)
+    const productosDisponibles = await apiClient.get(`/proveedores/${id}/productos-disponibles`)
+
+    setProductos(productosProveedor.sort((a, b) => a.nombre.localeCompare(b.nombre)))
+    setAllProductos(productosDisponibles.sort((a, b) => a.nombre.localeCompare(b.nombre)))
+  }
+
   // Cargar productos del proveedor y todos los productos disponibles
   useEffect(() => {
-    const fetchAllProductos = async () => {
-      const data = await apiClient.get(`/productos`)
-      setAllProductos(data)
-    }
-
-    fetchProductos()
-    fetchAllProductos()
-
+    fetchData()
+    console.log('productos =>', productos)
+    console.log('allProductos =>', allProductos)
   }, [id]);
 
   const addProducto = async () => {
     try {
       await apiClient.post(`/proveedores/${id}/productos`, JSON.stringify(formData))
-      setOpenDialog(false);
-      fetchProductos()
+      // setOpenDialog(false);
+      // fetchData()
     } catch(err) {
       setError('Error al agregar producto')
     }
@@ -68,12 +66,19 @@ export default function ProveedorProductos() {
 
   const handleAddProducto = async () => {
     await addProducto()
+    setOpenDialog(false);
+    fetchData()
   };  
+
+  const handleAddAndStayProducto = async () => {
+    await addProducto()
+    fetchData()
+  }
 
   const deleteProducto = async (productoId) => {
     try {
       await apiClient.delete(`/proveedores/${id}/productos/${productoId}`)
-      setProductos(productos.filter((p) => p.id !== productoId));
+      fetchData()
     } catch (err) {
       setError('Error al agregar producto')
     }    
@@ -95,13 +100,14 @@ export default function ProveedorProductos() {
           onClick={() => setOpenDialog(true)}
           sx={{ mb: 2 }}
         >
-          Añadir Producto
+          Asignar Producto
         </Button>
         <TableContainer>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell>Producto</TableCell>
+                <TableCell>Descripcion</TableCell>
                 <TableCell>Precio Unitario</TableCell>
                 <TableCell>Precio Compra</TableCell>
                 <TableCell>Tiempo Entrega (días)</TableCell>
@@ -112,6 +118,7 @@ export default function ProveedorProductos() {
               {productos.map((producto) => (
                 <TableRow key={producto.id}>
                   <TableCell>{producto.nombre}</TableCell>
+                  <TableCell>{producto.descripcion}</TableCell>
                   <TableCell>${producto.precio_unitario}</TableCell>
                   <TableCell>${producto.precio_compra}</TableCell>
                   <TableCell>{producto.tiempo_entrega}</TableCell>
@@ -129,9 +136,9 @@ export default function ProveedorProductos() {
           </Table>
         </TableContainer>
 
-        {/* Diálogo para añadir producto */}
+        {/* Diálogo para asignar producto */}
         <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-          <DialogTitle>Añadir Producto al Proveedor</DialogTitle>
+          <DialogTitle>Asignar Producto al Proveedor</DialogTitle>
           <DialogContent sx={{ p: 3, minWidth: 400 }}>
             <TextField
               select
@@ -163,14 +170,27 @@ export default function ProveedorProductos() {
               value={formData.tiempo_entrega}
               onChange={(e) => setFormData({ ...formData, tiempo_entrega: e.target.value })}
             />
+          <Button
+            variant="contained"
+            color="success"
+            onClick={handleAddAndStayProducto}
+            fullWidth
+            sx={{ mb: 2 }}
+          >
+            Guardar
+          </Button>            
             <Button
               variant="contained"
               onClick={handleAddProducto}
               fullWidth
             >
-              Guardar
+              Guardar y Cerrar
             </Button>
+
           </DialogContent>
+            <DialogActions>
+            <Button onClick={() => setOpenDialog(false)}>Cerrar</Button>
+            </DialogActions>
         </Dialog>
 
         {/* Notificación de error */}

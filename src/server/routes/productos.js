@@ -4,9 +4,34 @@ import db from '../db.js';
 const router = express.Router();
 
 // Obtener todos los productos
+// router.get('/', (req, res) => {
+//     const productos = db.prepare('SELECT * FROM Producto').all();
+//     res.json(productos);
+// });
+
+// GET /api/productos con paginación
 router.get('/', (req, res) => {
-    const productos = db.prepare('SELECT * FROM Producto').all();
-    res.json(productos);
+  const { page = 1, perPage = 99999 } = req.query;
+  const offset = (page - 1) * perPage;
+
+  const productos = db.prepare(`
+    SELECT Producto.*, Proveedor.nombre as proveedor FROM Producto
+    LEFT JOIN Proveedor_Producto pp ON Producto.id = pp.producto_id
+    LEFT JOIN Proveedor on pp.proveedor_id = Proveedor.id
+    LIMIT ? OFFSET ?
+  `).all(perPage, offset);
+
+  const total = db.prepare(`
+    SELECT COUNT(*) as total FROM Producto
+  `).get().total;
+
+  res.json({
+    data: productos,
+    total,
+    page: parseInt(page),
+    perPage: parseInt(perPage),
+    totalPages: Math.ceil(total / perPage),
+  });
 });
 
 router.get('/:id', (req, res) => {

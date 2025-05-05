@@ -4,13 +4,39 @@ import db from '../db.js';
 const router = express.Router();
 
 // Obtener todos los pedidos
+// router.get('/', (req, res) => {
+//     const pedidos = db.prepare(`
+//     SELECT p.id, p.numero_pedido, p.fecha, pr.nombre as proveedor, p.estado, p.total
+//     FROM Pedido p
+//     JOIN Proveedor pr ON p.proveedor_id = pr.id
+//   `).all();
+//     res.json(pedidos);
+// });
+
+// GET /api/pedidos con paginación
 router.get('/', (req, res) => {
-    const pedidos = db.prepare(`
+  const { page = 1, perPage = 10 } = req.query;
+  const offset = (page - 1) * perPage;
+
+  const pedidos = db.prepare(`
     SELECT p.id, p.numero_pedido, p.fecha, pr.nombre as proveedor, p.estado, p.total
     FROM Pedido p
     JOIN Proveedor pr ON p.proveedor_id = pr.id
-  `).all();
-    res.json(pedidos);
+    LIMIT ? OFFSET ?
+  `).all(perPage, offset);
+
+  const total = db.prepare(`
+    SELECT COUNT(*) as total FROM Pedido p
+    JOIN Proveedor pr ON p.proveedor_id = pr.id
+  `).get().total;
+
+  res.json({
+    data: pedidos,
+    total,
+    page: parseInt(page),
+    perPage: parseInt(perPage),
+    totalPages: Math.ceil(total / perPage),
+  });
 });
 
 // Crear un nuevo pedido
@@ -102,5 +128,21 @@ router.get('/:id/envios', (req, res) => {
     res.json(historial);
 });
 
+// Generar Nro Pedido
+router.post('/nropedido', (req, res) => {
+
+  const inserted = db.prepare(`
+    INSERT INTO NrosPedidos (estado)
+    VALUES (?)
+  `).run('ok');
+
+  const result = db.prepare(`
+    SELECT nro_pedido FROM NrosPedidos WHERE id = ?
+    `).get(inserted.lastInsertRowid)
+
+
+  //console.log('inserted id =>', result)
+  res.json(result);
+});
 
 export default router;

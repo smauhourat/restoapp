@@ -74,4 +74,14 @@ export function initDatabase() {
     FOREIGN KEY (pedido_id) REFERENCES Pedido(id)
   );
 `);  
+
+  // Tabla NrosPedidos
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS NrosPedidos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    fecha_generacion TEXT DEFAULT (datetime('now')),
+    estado TEXT NOT NULL,
+    nro_pedido INTEGER GENERATED ALWAYS AS (id + 1000000)
+  );
+`);
 }

@@ -5,7 +5,9 @@
 /src/server/node_modules
 /.pnp
 .pnp.js
-/*.db
+*.db
+proveedores.db
+/.vscode
 
 # testing
 /coverage

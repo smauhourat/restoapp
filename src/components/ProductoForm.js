@@ -50,7 +50,7 @@ export default function ProductoForm() {
             if (id) {
                 await apiClient.put(`/productos/${id}`, JSON.stringify(producto))
             } else {
-                await apiClient.post(`/productos}`, JSON.stringify(producto))
+                await apiClient.post(`/productos`, JSON.stringify(producto))
             }
             navigate('/productos')
         } catch (err) {

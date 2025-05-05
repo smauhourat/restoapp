@@ -49,33 +49,40 @@ export default function PedidoForm() {
     }    
 
     const fetchProveedores = async () => {
-        try {
-            const ret = await apiClient.get(`/proveedores`)
-            setProveedores(ret.data)
-        } catch (err) {
-            setError('Error al cargar proveedores');
-        }
+        const ret = await apiClient.get(`/proveedores`)
+        setProveedores(ret.data)
     }    
 
     // Cargar productos cuando se selecciona un proveedor
     useEffect(() => {
         const fetchProductos = async () => {
-            try {
-                setLoadingProductos(true);
-                const data = await apiClient.get(`/proveedores/${pedido.proveedor_id}/productos`)
-                setProductosDisponibles(data);
-                setLoadingProductos(false);
-            } catch (err) {
-                setError('Error al cargar productos');
-                setLoadingProductos(false);
-            }
+        setLoadingProductos(true);
+        const data = await apiClient.get(`/proveedores/${pedido.proveedor_id}/productos`)
+        setProductosDisponibles(data);
+        setLoadingProductos(false);
         }        
         if (pedido.proveedor_id) {
             fetchProductos();
         }
     }, [pedido.proveedor_id]);
 
+    const checkRenglonesValidos = () => {
+
+        const ids = new Set();
+        let esValido = true;
+
+        // Detectar si algún renglón es inválido
+        esValido = !pedido.renglones.some(({ producto_id, cantidad }) => {
+            if (!producto_id || typeof cantidad !== 'number' || cantidad <= 0) return true;
+            if (ids.has(producto_id)) return true;
+            ids.add(producto_id);
+            return false;
+        });
+
+        return esValido;    }
+
     const handleAddRenglon = () => {
+
         if (!pedido.proveedor_id) {
             setError('Primero selecciona un proveedor');
             return;
@@ -96,19 +103,19 @@ export default function PedidoForm() {
     };
 
     const addPedido = async () => {
-        try {
-            // console.log('pedidoa a agregar:', pedido)
-            await apiClient.post(`/pedidos`, JSON.stringify(pedido))
-        } catch (err) {
-            setError('Error al guardar pedido');
-        } finally {
-            navigate('/pedidos')
-        }
+        await apiClient.post(`/pedidos`, JSON.stringify(pedido))
+        navigate('/pedidos')
     }
 
     const handleSubmit = () => {
+
         if (!pedido.proveedor_id || pedido.renglones.length === 0) {
             setError('Completa todos los campos requeridos');
+            return;
+        }
+
+        if (!checkRenglonesValidos()) {
+            setError('Hay inconsistencias en la lista de Productos, revise por favor los datos.');
             return;
         }
 

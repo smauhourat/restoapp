@@ -54,25 +54,16 @@ export default function ProveedorList() {
   }, [perPage]);
     
   const fetchProveedores = async () => {
-    try {
-      const { data, totalPages } = await apiClient.get('/proveedores', {
-        params: { page, perPage }
-      });
-      setProveedores(data.sort((a, b) => a.nombre.localeCompare(b.nombre)));
-      setTotalPages(totalPages);
-    } catch (err) {
-      setError('Error al cargar proveedores');
-    }
+    const { data, totalPages } = await apiClient.get('/proveedores', {
+      params: { page, perPage }
+    });
+    setProveedores(data.sort((a, b) => a.nombre.localeCompare(b.nombre)));
+    setTotalPages(totalPages);
   };  
 
   const handleDelete = async (id) => {
-    try {
-      await apiClient.delete(`/proveedores/${id}`)
-      setProveedores(proveedores.filter((p) => p.id !== id))
-    } catch (err) {
-      setError('Error al eliminar un proveedor');
-      setOpenSnackbar(true);
-    }    
+    await apiClient.delete(`/proveedores/${id}`)
+    setProveedores(proveedores.filter((p) => p.id !== id))
   }
 
   return (

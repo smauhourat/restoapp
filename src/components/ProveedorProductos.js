@@ -55,13 +55,7 @@ export default function ProveedorProductos() {
   }, [id]);
 
   const addProducto = async () => {
-    try {
-      await apiClient.post(`/proveedores/${id}/productos`, JSON.stringify(formData))
-      // setOpenDialog(false);
-      // fetchData()
-    } catch(err) {
-      setError('Error al agregar producto')
-    }
+    await apiClient.post(`/proveedores/${id}/productos`, JSON.stringify(formData))
   }
 
   const handleAddProducto = async () => {
@@ -76,12 +70,8 @@ export default function ProveedorProductos() {
   }
 
   const deleteProducto = async (productoId) => {
-    try {
-      await apiClient.delete(`/proveedores/${id}/productos/${productoId}`)
-      fetchData()
-    } catch (err) {
-      setError('Error al agregar producto')
-    }    
+    await apiClient.delete(`/proveedores/${id}/productos/${productoId}`)
+    fetchData()
   }
 
   const handleDelete = async (productoId) => {

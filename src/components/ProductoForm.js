@@ -36,26 +36,19 @@ export default function ProductoForm() {
     }, [id]);
 
     const fetchProducto = async (id) => {
-        try {
-            const data = await apiClient.get(`/productos/${id}`)
-            setProducto(data)
-        } catch(err) {
-            setError('Error al cargar producto')
-        }
+        const data = await apiClient.get(`/productos/${id}`)
+        setProducto(data)
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-            if (id) {
-                await apiClient.put(`/productos/${id}`, JSON.stringify(producto))
-            } else {
-                await apiClient.post(`/productos`, JSON.stringify(producto))
-            }
-            navigate('/productos')
-        } catch (err) {
-            setError('Error al guardar producto')
+
+        if (id) {
+            await apiClient.put(`/productos/${id}`, JSON.stringify(producto))
+        } else {
+            await apiClient.post(`/productos`, JSON.stringify(producto))
         }
+        navigate('/productos')
     }
 
     return (

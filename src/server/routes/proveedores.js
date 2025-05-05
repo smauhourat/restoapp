@@ -38,6 +38,20 @@ router.get('/:id', (req, res) => {
 
 router.post('/', (req, res) => {
     const { nombre, direccion, telefono, email } = req.body;
+
+    // Validaciones básicas
+    if (!nombre || nombre.length < 3) {
+      return res.status(400).json({ error: 'Nombre debe tener al menos 3 caracteres' });
+    }
+
+    if (telefono && !/^[0-9+]{8,15}$/.test(telefono)) {
+      return res.status(400).json({ error: 'Teléfono inválido' });
+    }
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Email inválido' });
+    }
+        
     const stmt = db.prepare(
         'INSERT INTO Proveedor (nombre, direccion, telefono, email) VALUES (?, ?, ?, ?)'
     );
@@ -49,6 +63,20 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
     const { id } = req.params;
     const { nombre, direccion, telefono, email } = req.body;
+
+    // Validaciones básicas
+    if (!nombre || nombre.length < 3) {
+      return res.status(400).json({ error: 'Nombre debe tener al menos 3 caracteres' });
+    }
+
+    if (telefono && !/^[0-9+]{8,15}$/.test(telefono)) {
+      return res.status(400).json({ error: 'Teléfono inválido' });
+    }
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Email inválido' });
+    }    
+    
     const stmt = db.prepare(`
     UPDATE Proveedor
     SET nombre = ?, direccion = ?, telefono = ?, email = ?

@@ -54,12 +54,8 @@ export default function PedidoDetalle() {
     }, [id]);
 
     const fetchPedidoDetalle = async () => {
-        try {
-            const data = await apiClient.get(`/pedidos/${id}`)
-            setPedido(data)
-        } catch (err) {
-            setError('Error al cargar el pedido');
-        }
+        const data = await apiClient.get(`/pedidos/${id}`)
+        setPedido(data)
     }
 
     const generateQR = async () => {
@@ -189,6 +185,7 @@ export default function PedidoDetalle() {
                     <Button
                         variant="contained"
                         color="secondary"
+                        disabled={pedido.estado === 'cancelado'}
                         startIcon={<EmailIcon />}
                         onClick={() => alert('Enviar email al proveedor...')}
                     >
@@ -202,13 +199,14 @@ export default function PedidoDetalle() {
                             saveHistorialEnvioWsp()
                             window.open(generateWhatsAppMessage(), '_blank')
                         }}
-                        disabled={!!pedido.proveedor_telefono}
+                        disabled={!!pedido.proveedor_telefono || pedido.estado === 'cancelado'}
                     >
                         Enviar por WhatsApp
                     </Button>    
                     <Button
                         variant="contained"
                         color="info"
+                        disabled={pedido.estado === 'cancelado'}
                         startIcon={<QrCodeIcon />}
                         onClick={generateQR}
                     >

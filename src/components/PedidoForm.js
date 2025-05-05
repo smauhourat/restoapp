@@ -66,7 +66,23 @@ export default function PedidoForm() {
         }
     }, [pedido.proveedor_id]);
 
+    const checkRenglonesValidos = () => {
+
+        const ids = new Set();
+        let esValido = true;
+
+        // Detectar si algún renglón es inválido
+        esValido = !pedido.renglones.some(({ producto_id, cantidad }) => {
+            if (!producto_id || typeof cantidad !== 'number' || cantidad <= 0) return true;
+            if (ids.has(producto_id)) return true;
+            ids.add(producto_id);
+            return false;
+        });
+
+        return esValido;    }
+
     const handleAddRenglon = () => {
+
         if (!pedido.proveedor_id) {
             setError('Primero selecciona un proveedor');
             return;
@@ -92,8 +108,14 @@ export default function PedidoForm() {
     }
 
     const handleSubmit = () => {
+
         if (!pedido.proveedor_id || pedido.renglones.length === 0) {
             setError('Completa todos los campos requeridos');
+            return;
+        }
+
+        if (!checkRenglonesValidos()) {
+            setError('Hay inconsistencias en la lista de Productos, revise por favor los datos.');
             return;
         }
 

@@ -60,26 +60,17 @@ export default function ProductoList() {
     }, [perPage]);    
 
     const fetchProductos = async () => {
-        try {   
-            const { data, totalPages } = await apiClient.get('/productos', {
-                params: { page, perPage }
-            });
-            setProductos(data)
-            setTotalPages(totalPages);
-        } catch (err) {
-            setError('Error al cargar productos');
-        }
+        const { data, totalPages } = await apiClient.get('/productos', {
+            params: { page, perPage }
+        });
+        setProductos(data)
+        setTotalPages(totalPages);
     };
 
     const handleDelete = async (id) => {
-        try {
-            await apiClient.delete(`/productos/${id}`)
-            fetchProductos(productos.filter((p) => p.id !== id))
-        } catch (err) {
-            setError('Error al eliminar un producto');
-        } finally {
-            setOpenDeleteDialog(false)
-        }
+        await apiClient.delete(`/productos/${id}`)
+        fetchProductos(productos.filter((p) => p.id !== id))
+        setOpenDeleteDialog(false)
     }    
 
     return (

@@ -58,24 +58,16 @@ export default function PedidoList() {
     }, [perPage]);
 
     const fetchPedidos = async () => {
-        try {
-            const { data, totalPages } = await apiClient.get('/pedidos', {
-                params: { page, perPage }
-            });
-            setPedidos(data)
-            setTotalPages(totalPages);
-        } catch (err) {
-            setError('Error al cargar pedidos');
-        }
+        const { data, totalPages } = await apiClient.get('/pedidos', {
+            params: { page, perPage }
+        });
+        setPedidos(data)
+        setTotalPages(totalPages);
     };
 
     const handleEstadoChange = async (pedidoId, nuevoEstado) => {
-        try {
-            await apiClient.patch(`/pedidos/${pedidoId}/estado`, JSON.stringify({ estado: nuevoEstado }))
-            await fetchPedidos()
-        } catch (err) {
-            setError('Error al actualizar estado');
-        }
+        await apiClient.patch(`/pedidos/${pedidoId}/estado`, JSON.stringify({ estado: nuevoEstado }))
+        await fetchPedidos()
     }
 
     const getBackCoor = (estado) => {

@@ -49,26 +49,17 @@ export default function PedidoForm() {
     }    
 
     const fetchProveedores = async () => {
-        try {
-            const ret = await apiClient.get(`/proveedores`)
-            setProveedores(ret.data)
-        } catch (err) {
-            setError('Error al cargar proveedores');
-        }
+        const ret = await apiClient.get(`/proveedores`)
+        setProveedores(ret.data)
     }    
 
     // Cargar productos cuando se selecciona un proveedor
     useEffect(() => {
         const fetchProductos = async () => {
-            try {
-                setLoadingProductos(true);
-                const data = await apiClient.get(`/proveedores/${pedido.proveedor_id}/productos`)
-                setProductosDisponibles(data);
-                setLoadingProductos(false);
-            } catch (err) {
-                setError('Error al cargar productos');
-                setLoadingProductos(false);
-            }
+        setLoadingProductos(true);
+        const data = await apiClient.get(`/proveedores/${pedido.proveedor_id}/productos`)
+        setProductosDisponibles(data);
+        setLoadingProductos(false);
         }        
         if (pedido.proveedor_id) {
             fetchProductos();
@@ -96,14 +87,8 @@ export default function PedidoForm() {
     };
 
     const addPedido = async () => {
-        try {
-            // console.log('pedidoa a agregar:', pedido)
-            await apiClient.post(`/pedidos`, JSON.stringify(pedido))
-        } catch (err) {
-            setError('Error al guardar pedido');
-        } finally {
-            navigate('/pedidos')
-        }
+        await apiClient.post(`/pedidos`, JSON.stringify(pedido))
+        navigate('/pedidos')
     }
 
     const handleSubmit = () => {

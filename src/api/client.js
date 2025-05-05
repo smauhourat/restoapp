@@ -7,15 +7,26 @@ const apiClient = axios.create({
     },
 });
 
+let showToast = () => { };
+
+export const setAxiosErrorToastHandler = (fn) => {
+    showToast = fn;
+};
+
 // Interceptor para manejar errores globalmente
 apiClient.interceptors.response.use(
     (response) => response.data,
     (error) => {
-        console.error('API Error:', error.response?.data || error.message);
+        // console.error('API Error:', error.response?.data || error.message);
+        console.error('API Error:', error)
 
-        // const errorMessage = error.response?.data?.message || 'Error de conexión';
+        const message = error.response?.data?.error || 'Error desconocido del servidor';
+        // Mostrar toast (esto depende de cómo manejes notificaciones)
+        showToast(message)      
 
-        return Promise.reject(error);
+        // Evita que el error se propague si no te interesa manejarlo individualmente
+        return new Promise(() => { }); // NEVER resolves → evita el "Uncaught"        
+        //return Promise.reject(error);
     }
 );  
 

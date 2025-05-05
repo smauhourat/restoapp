@@ -7,8 +7,6 @@ import {
   Typography,
   Paper,
   Grid,
-  Snackbar,
-  Alert,
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -24,8 +22,6 @@ export default function ProveedorForm() {
     telefono: '',
     email: '',
   });
-  const [error, setError] = useState('');
-  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   useEffect(() => {
       if (id) {
@@ -34,28 +30,18 @@ export default function ProveedorForm() {
   }, [id]);
 
   const fetchProveedor = async (id) => {
-      try {
-        const data = await apiClient.get(`/proveedores/${id}`)
-        setProveedor(data)
-      } catch(err) {
-        setError(`Error al cargar proveedor`)
-        setOpenSnackbar(true);
-      }
+    const data = await apiClient.get(`/proveedores/${id}`)
+    setProveedor(data)
   }  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      if (id) {
-        await apiClient.put(`/proveedores/${id}`, JSON.stringify(proveedor))
-      } else {
-        await apiClient.post(`/proveedores`, JSON.stringify(proveedor))
-      }
-      navigate('/proveedores')
-    } catch (err) {
-      setError(`Error al guardar proveedor: ${err.response?.data?.error || 'Error desconocido'}`)
-      setOpenSnackbar(true);
+    if (id) {
+      await apiClient.put(`/proveedores/${id}`, JSON.stringify(proveedor))
+    } else {
+      await apiClient.post(`/proveedores`, JSON.stringify(proveedor))
     }
+    navigate('/proveedores')
   }
 
 
@@ -128,15 +114,6 @@ export default function ProveedorForm() {
           </Button>
         </form>
       </Paper>
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={6000}
-        onClose={() => setOpenSnackbar(false)}
-      >
-        <Alert severity="error" onClose={() => setOpenSnackbar(false)}>
-          {error}
-        </Alert>
-      </Snackbar>
     </Container>
   );
 }

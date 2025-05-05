@@ -54,12 +54,8 @@ export default function PedidoDetalle() {
     }, [id]);
 
     const fetchPedidoDetalle = async () => {
-        try {
-            const data = await apiClient.get(`/pedidos/${id}`)
-            setPedido(data)
-        } catch (err) {
-            setError('Error al cargar el pedido');
-        }
+        const data = await apiClient.get(`/pedidos/${id}`)
+        setPedido(data)
     }
 
     const generateQR = async () => {

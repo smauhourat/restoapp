@@ -48,6 +48,12 @@ router.get('/:id', (req, res) => {
 // Crear un nuevo producto
 router.post('/', (req, res) => {
     const { nombre, descripcion, precio_unitario, unidad_medida } = req.body;
+
+    // Validaciones básicas
+    if (!nombre || nombre.length < 3) {
+      return res.status(400).json({ error: 'Nombre debe tener al menos 3 caracteres' });
+    }
+
     const stmt = db.prepare(`
     INSERT INTO Producto (nombre, descripcion, precio_unitario, unidad_medida)
     VALUES (?, ?, ?, ?)
@@ -60,6 +66,12 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
     const { id } = req.params;
     const { nombre, descripcion, precio_unitario, unidad_medida } = req.body;
+
+    // Validaciones básicas
+    if (!nombre || nombre.length < 3) {
+      return res.status(400).json({ error: 'Nombre debe tener al menos 3 caracteres' });
+    }    
+    
     const stmt = db.prepare(`
     UPDATE Producto 
     SET nombre = ?, descripcion = ?, precio_unitario = ?, unidad_medida = ?

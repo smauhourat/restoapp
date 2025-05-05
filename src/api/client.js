@@ -12,8 +12,11 @@ apiClient.interceptors.response.use(
     (response) => response.data,
     (error) => {
         console.error('API Error:', error.response?.data || error.message);
+
+        // const errorMessage = error.response?.data?.message || 'Error de conexión';
+
         return Promise.reject(error);
     }
-);
+);  
 
 export default apiClient;

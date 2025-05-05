@@ -38,7 +38,7 @@ export default function ProveedorForm() {
         const data = await apiClient.get(`/proveedores/${id}`)
         setProveedor(data)
       } catch(err) {
-        setError('Error al cargar proveedor')
+        setError(`Error al cargar proveedor`)
         setOpenSnackbar(true);
       }
   }  
@@ -53,7 +53,7 @@ export default function ProveedorForm() {
       }
       navigate('/proveedores')
     } catch (err) {
-      setError('Error al guardar proveedor')
+      setError(`Error al guardar proveedor: ${err.response?.data?.error || 'Error desconocido'}`)
       setOpenSnackbar(true);
     }
   }

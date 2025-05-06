@@ -24,12 +24,8 @@ router.get('/', (req, res) => {
     return res.status(400).json({ error: 'Orden inválido (use "asc" o "desc")' });
   }
 
-
-
   const productos = db.prepare(`
-    SELECT Producto.*, Proveedor.nombre as proveedor FROM Producto
-    LEFT JOIN Proveedor_Producto pp ON Producto.id = pp.producto_id
-    LEFT JOIN Proveedor on pp.proveedor_id = Proveedor.id
+    SELECT Producto.*, '' as proveedor FROM Producto
     ORDER BY ${sortBy} ${order}
     LIMIT ? OFFSET ?
   `).all(perPage, offset);

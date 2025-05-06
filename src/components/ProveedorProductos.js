@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Table,
@@ -18,7 +18,8 @@ import {
   Snackbar,
   Alert,
   Container,
-  DialogActions
+  DialogActions,
+  Autocomplete
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -35,6 +36,7 @@ export default function ProveedorProductos() {
     precio_compra: '',
     tiempo_entrega: '',
   });
+  const [searchInput, setSearchInput] = useState('');
   const [error, setError] = useState('');
 
   const navigate = useNavigate();
@@ -47,6 +49,17 @@ export default function ProveedorProductos() {
     setAllProductos(productosDisponibles.sort((a, b) => a.nombre.localeCompare(b.nombre)))
   }
 
+  // Filtrar productos disponibles localmente
+  const filteredProductos = useMemo(() => {
+    if (!searchInput) return allProductos;
+
+    const searchTerm = searchInput.toLowerCase();
+    return allProductos.filter(producto =>
+      producto.nombre.toLowerCase().includes(searchTerm) ||
+      (producto.descripcion && producto.descripcion.toLowerCase().includes(searchTerm))
+    );
+  }, [allProductos, searchInput]);
+
   // Cargar productos del proveedor y todos los productos disponibles
   useEffect(() => {
     fetchData()
@@ -54,18 +67,29 @@ export default function ProveedorProductos() {
     console.log('allProductos =>', allProductos)
   }, [id]);
 
+  // const addProducto = async () => {
+  //   await apiClient.post(`/proveedores/${id}/productos`, JSON.stringify(formData))
+  // }
+
   const addProducto = async () => {
-    await apiClient.post(`/proveedores/${id}/productos`, JSON.stringify(formData))
-  }
+    if (!formData.producto_id) {
+      setError('Selecciona un producto');
+      return;
+    }
+    await apiClient.post(`/proveedores/${id}/productos`, JSON.stringify(formData));
+  };  
 
   const handleAddProducto = async () => {
     await addProducto()
     setOpenDialog(false);
+    setFormData({ producto_id: '', precio_compra: '', tiempo_entrega: '' });
     fetchData()
   };  
 
   const handleAddAndStayProducto = async () => {
     await addProducto()
+    //setFormData({ ...formData, precio_compra: '', tiempo_entrega: '' });
+    setFormData({ producto_id: '', precio_compra: '', tiempo_entrega: '' });
     fetchData()
   }
 
@@ -130,20 +154,28 @@ export default function ProveedorProductos() {
         <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
           <DialogTitle>Asignar Producto al Proveedor</DialogTitle>
           <DialogContent sx={{ p: 3, minWidth: 400 }}>
-            <TextField
-              select
-              label="Producto"
-              fullWidth
-              sx={{ mb: 2 }}
-              value={formData.producto_id}
-              onChange={(e) => setFormData({ ...formData, producto_id: e.target.value })}
-            >
-              {allProductos.map((producto) => (
-                <MenuItem key={producto.id} value={producto.id}>
-                  {producto.nombre} (${producto.precio_unitario})
-                </MenuItem>
-              ))}
-            </TextField>
+            <Autocomplete
+              options={filteredProductos}
+              getOptionLabel={(option) => `${option.nombre} ($${option.precio_unitario})`}
+              inputValue={searchInput}
+              onInputChange={(_, newValue) => setSearchInput(newValue)}
+              onChange={(_, newValue) => {
+                setFormData({
+                  ...formData,
+                  producto_id: newValue?.id || ''
+                });
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Buscar producto"
+                  placeholder="Escribe para buscar..."
+                  fullWidth
+                  sx={{ mb: 2 }}
+                />
+              )}
+              noOptionsText="No se encontraron productos"
+            />
             <TextField
               label="Precio de Compra"
               type="number"

@@ -68,6 +68,7 @@ export default function ProductoList() {
         const { data, totalPages } = await apiClient.get('/productos', {
             params: { page, perPage, sortBy: sortConfig.key, order: sortConfig.direction }
         });
+        console.log('productos =>', data)
         setProductos(data)
         setTotalPages(totalPages);
     };

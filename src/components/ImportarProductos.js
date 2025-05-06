@@ -15,7 +15,9 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
-    Container
+    Container,
+    Snackbar,
+    Alert
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -27,6 +29,7 @@ export default function ImportarProductos() {
     const [previewData, setPreviewData] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [confirmOpen, setConfirmOpen] = useState(false);
+    const [message, setMessage] = useState('');
 
     const handleFileUpload = async (e) => {
         e.preventDefault();
@@ -41,7 +44,7 @@ export default function ImportarProductos() {
             const data = await response.data;
             setPreviewData(data)
         } catch (error) {
-            alert('Error al procesar el archivo: ' + error.message);
+            setMessage('Error al procesar el archivo: ' + error.message);
             console.log(`Error al procesar el archivo: ${error}`)
         } finally {
             setIsLoading(false);
@@ -51,17 +54,12 @@ export default function ImportarProductos() {
     const handleConfirmImport = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:3001/api/productos/confirmar-importacion', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ productos: previewData }),
-            });
-            const result = await response.json();
-            alert(`¡Éxito! Se importaron ${result.imported} productos`);
+            const response = await apiClient.post('/productos/confirmar-importacion', JSON.stringify({ productos: previewData }))
+            setMessage(`¡Éxito! Se importaron ${response.imported} productos`);
             setPreviewData(null);
             setFile(null);
         } catch (error) {
-            alert('Error al guardar: ' + error.message);
+            setMessage('Error al guardar: ' + error.message);
         } finally {
             setIsLoading(false);
             setConfirmOpen(false);
@@ -121,6 +119,15 @@ export default function ImportarProductos() {
                 )}
             </Box>
 
+            <Snackbar
+                open={!!message}
+                autoHideDuration={6000}
+                onClose={() => setMessage('')}
+            >
+                <Alert severity="info" onClose={() => setMessage('')}>
+                    {message}
+                </Alert>
+            </Snackbar>
             {/* Tabla de previsualización */}
             {previewData && (
                 <Box sx={{ mt: 4 }}>

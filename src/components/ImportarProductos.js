@@ -20,6 +20,8 @@ import {
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
+import apiClient from '../api/client';
+
 export default function ImportarProductos() {
     const [file, setFile] = useState(null);
     const [previewData, setPreviewData] = useState(null);
@@ -35,13 +37,9 @@ export default function ImportarProductos() {
         const formData = new FormData();
         formData.append('archivo', file);
         try {
-            const response = await fetch('http://localhost:3001/api/productos/importar', {
-                method: 'POST',
-                body: formData,
-            });
-            const data = await response.json();
-            setPreviewData(data.data);
-            console.log('previewData =>', data.data)
+            const response = await apiClient.post('productos/importar', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+            const data = await response.data;
+            setPreviewData(data)
         } catch (error) {
             alert('Error al procesar el archivo: ' + error.message);
             console.log(`Error al procesar el archivo: ${error}`)
@@ -74,6 +72,9 @@ export default function ImportarProductos() {
         <Container maxWidth="lg" sx={{ mt: 4 }}>
             <Typography variant="h5" gutterBottom>
                 Importar Productos desde Excel
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1, mb:3 }}>
+                El Archivo deberá tener las siguientes columnas: nombre, descripcion, precio, unidad:
             </Typography>
 
             {/* <Box component="form" onSubmit={handleFileUpload} sx={{ mb: 3 }}> */}

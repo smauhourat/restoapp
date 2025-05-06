@@ -29,6 +29,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import apiClient from '../api/client';
@@ -96,10 +97,21 @@ export default function ProductoList() {
                 to="/productos/nuevo"
                 variant="contained"
                 startIcon={<AddIcon />}
-                sx={{ mb: 3 }}
+                sx={{ mb: 3, mr: 3 }}
             >
                 Nuevo Producto
             </Button>
+            <Button
+                component={Link}
+                to="/productos/importar"
+                variant="contained"
+                color="success"
+                startIcon={<FileUploadIcon />}
+                sx={{ mb: 3 }}
+            >
+                Importar Productos
+            </Button>
+
             <TableContainer component={Paper}>
                 <Table>
                     <TableHead>

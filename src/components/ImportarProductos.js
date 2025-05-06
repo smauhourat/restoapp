@@ -14,7 +14,8 @@ import {
     Dialog,
     DialogActions,
     DialogContent,
-    DialogTitle
+    DialogTitle,
+    Container
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -70,7 +71,7 @@ export default function ImportarProductos() {
     };
 
     return (
-        <Box sx={{ p: 3 }}>
+        <Container maxWidth="lg" sx={{ mt: 4 }}>
             <Typography variant="h5" gutterBottom>
                 Importar Productos desde Excel
             </Typography>
@@ -180,6 +181,6 @@ export default function ImportarProductos() {
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Box>
+        </Container>
     );
 }

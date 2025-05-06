@@ -1,23 +1,36 @@
 import express from 'express';
 import db from '../db.js';
+import multer from 'multer';
+import xlsx from 'xlsx';
+import fs from 'fs';
 
+const upload = multer({ dest: 'uploads/' }); // Carpeta temporal
 const router = express.Router();
 
 // Obtener todos los productos
-// router.get('/', (req, res) => {
-//     const productos = db.prepare('SELECT * FROM Producto').all();
-//     res.json(productos);
-// });
-
 // GET /api/productos con paginación
 router.get('/', (req, res) => {
-  const { page = 1, perPage = 99999 } = req.query;
+  const { page = 1, perPage = 99999, sortBy = 'nombre', order = 'asc' } = req.query;
   const offset = (page - 1) * perPage;
+
+  // Validar campos de ordenamiento
+  const validSortFields = ['nombre', 'descripcion', 'precio_unitario'];
+  if (!validSortFields.includes(sortBy)) {
+    return res.status(400).json({ error: 'Campo de ordenamiento inválido' });
+  }
+
+  const validOrders = ['asc', 'desc'];
+  if (!validOrders.includes(order.toLowerCase())) {
+    return res.status(400).json({ error: 'Orden inválido (use "asc" o "desc")' });
+  }
+
+
 
   const productos = db.prepare(`
     SELECT Producto.*, Proveedor.nombre as proveedor FROM Producto
     LEFT JOIN Proveedor_Producto pp ON Producto.id = pp.producto_id
     LEFT JOIN Proveedor on pp.proveedor_id = Proveedor.id
+    ORDER BY ${sortBy} ${order}
     LIMIT ? OFFSET ?
   `).all(perPage, offset);
 
@@ -95,6 +108,60 @@ router.delete('/:id', (req, res) => {
 
     db.prepare('DELETE FROM Producto WHERE id = ?').run(id);
     res.json({ success: true });
+});
+
+router.post('/importar', upload.single('archivo'), (req, res) => {
+  console.log('entro en la api de importacion')
+  try {
+    const workbook = xlsx.readFile(req.file.path);
+    const sheetName = workbook.SheetNames[0];
+    const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+    // Validar estructura mínima
+    const validatedData = data.map(row => ({
+      nombre: row.Nombre || row.nombre || 'Sin nombre',
+      descripcion: row.Descripcion || row.descripcion || '',
+      precio: parseFloat(row.Precio || row.precio) || 0,
+      unidad: row.Unidad || row.unidad || 'unidad'
+    }));
+
+    console.log('req.file.path=>', req.file.path)
+
+    fs.unlinkSync(req.file.path); // Limpiar archivo temporal
+
+    res.json({
+      success: true,
+      data: validatedData,
+      preview: true // Indica que es una previsualización
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Ruta para confirmar importación
+router.post('/confirmar-importacion', (req, res) => {
+  const { productos } = req.body;
+
+  const stmt = db.prepare(`
+    INSERT INTO Producto (nombre, descripcion, precio_unitario, unidad_medida)
+    VALUES (?, ?, ?, ?)
+  `);
+
+  try {
+    productos.forEach(producto => {
+      stmt.run(
+        producto.nombre,
+        producto.descripcion,
+        producto.precio,
+        producto.unidad
+      );
+    });
+    res.json({ success: true, imported: productos.length });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al guardar en base de datos' });
+  }
 });
 
 export default router;

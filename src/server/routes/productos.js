@@ -37,10 +37,9 @@ router.get('/', (req, res) => {
   if (!validSortFields.includes(sortBy) || !validOrders.includes(order.toLowerCase())) {
     return res.status(400).json({ error: 'Parámetros de orden inválidos' });
   }
-
   
   const productos = db.prepare(`
-    SELECT Producto.*, '' as proveedor FROM Producto
+    SELECT Producto.*, (select count(*) from Proveedor_Producto pp where pp.producto_id == Producto.id) as proveedores FROM Producto
     ORDER BY ${sortBy} ${order}
     LIMIT ? OFFSET ?
   `).all(perPage, offset);

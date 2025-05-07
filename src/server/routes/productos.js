@@ -7,6 +7,32 @@ import fs from 'fs';
 const upload = multer({ dest: 'uploads/' }); // Carpeta temporal
 const router = express.Router();
 
+// function removeDuplicatesByColumn(file, columnName) {
+//   const reader = new FileReader();
+
+//   reader.onload = (e) => {
+//     const data = new Uint8Array(e.target.result);
+//     const workbook = xlsx.read(data, { type: 'array' });
+
+//     const sheetName = workbook.SheetNames[0];
+//     const worksheet = workbook.Sheets[sheetName];
+
+//     const jsonData = xlsx.utils.sheet_to_json(worksheet);
+
+//     const uniqueData = jsonData.filter((obj, index, self) =>
+//       index === self.findIndex((o) => (o[columnName] === obj[columnName]))
+//     );
+
+//     const newWorksheet = xlsx.utils.json_to_sheet(uniqueData);
+//     const newWorkbook = xlsx.utils.book_new();
+//     xlsx.utils.book_append_sheet(newWorkbook, newWorksheet, sheetName);
+
+//     xlsx.writeFile(newWorkbook, 'new_file.xlsx');
+//   };
+
+//   reader.readAsArrayBuffer(file);
+// }
+
 // Obtener todos los productos
 // GET /api/productos con paginación
 router.get('/', (req, res) => {
@@ -107,7 +133,7 @@ router.delete('/:id', (req, res) => {
 });
 
 router.post('/importar', upload.single('archivo'), (req, res) => {
-  console.log('entro en la api de importacion')
+  
   try {
     const workbook = xlsx.readFile(req.file.path);
     const sheetName = workbook.SheetNames[0];
@@ -121,13 +147,16 @@ router.post('/importar', upload.single('archivo'), (req, res) => {
       unidad: row.Unidad || row.unidad || 'unidad'
     }));
 
-    console.log('req.file.path=>', req.file.path)
+    // No permitimos duplicados por la columna 'Nombre'
+    const filteredData = validatedData.filter((obj, index, self) =>
+      index === self.findIndex((o) => (o["nombre"] === obj["nombre"]))
+    );
 
     fs.unlinkSync(req.file.path); // Limpiar archivo temporal
 
     res.json({
       success: true,
-      data: validatedData,
+      data: filteredData,
       preview: true // Indica que es una previsualización
     });
 

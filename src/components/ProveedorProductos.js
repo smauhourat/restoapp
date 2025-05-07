@@ -63,8 +63,6 @@ export default function ProveedorProductos() {
   // Cargar productos del proveedor y todos los productos disponibles
   useEffect(() => {
     fetchData()
-    console.log('productos =>', productos)
-    console.log('allProductos =>', allProductos)
   }, [id]);
 
   // const addProducto = async () => {

@@ -38,6 +38,7 @@ export default function ProveedorProductos() {
   });
   const [searchInput, setSearchInput] = useState('');
   const [error, setError] = useState('');
+  const [selectedProducto, setSelectedProducto] = useState(null);
 
   const navigate = useNavigate();
 
@@ -86,8 +87,8 @@ export default function ProveedorProductos() {
 
   const handleAddAndStayProducto = async () => {
     await addProducto()
-    //setFormData({ ...formData, precio_compra: '', tiempo_entrega: '' });
-    setFormData({ producto_id: '', precio_compra: '', tiempo_entrega: '' });
+    setFormData({ ...formData, precio_compra: '', tiempo_entrega: '' });
+    setSelectedProducto(null);
     fetchData()
   }
 
@@ -157,7 +158,9 @@ export default function ProveedorProductos() {
               getOptionLabel={(option) => `${option.nombre} ($${option.precio_unitario})`}
               inputValue={searchInput}
               onInputChange={(_, newValue) => setSearchInput(newValue)}
+              value={selectedProducto}
               onChange={(_, newValue) => {
+                setSelectedProducto(newValue);
                 setFormData({
                   ...formData,
                   producto_id: newValue?.id || ''

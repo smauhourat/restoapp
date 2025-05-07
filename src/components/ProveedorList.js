@@ -106,7 +106,9 @@ export default function ProveedorList() {
                   </IconButton>
                   <IconButton
                     color="primary"
-                    onClick={() => navigate(`/proveedores/${proveedor.id}/productos`)}
+                    onClick={() => navigate(`/proveedores/${proveedor.id}/productos`, {
+                      state: { proveedorNombre: proveedor.nombre }
+                    })}
                   >
                     <InventoryIcon />
                   </IconButton>                  

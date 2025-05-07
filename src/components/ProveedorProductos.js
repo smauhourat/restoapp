@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -14,7 +14,6 @@ import {
   DialogTitle,
   DialogContent,
   TextField,
-  MenuItem,
   Snackbar,
   Alert,
   Container,
@@ -40,7 +39,11 @@ export default function ProveedorProductos() {
   const [error, setError] = useState('');
   const [selectedProducto, setSelectedProducto] = useState(null);
 
+  const location = useLocation();
   const navigate = useNavigate();
+
+  // Obtenemos el nombre del proveedor desde el estado de la navegación
+  const proveedorNombre = location.state?.proveedorNombre || 'Proveedor';
 
   const fetchData = async () => {
     const productosProveedor = await apiClient.get(`/proveedores/${id}/productos`)
@@ -65,10 +68,6 @@ export default function ProveedorProductos() {
   useEffect(() => {
     fetchData()
   }, [id]);
-
-  // const addProducto = async () => {
-  //   await apiClient.post(`/proveedores/${id}/productos`, JSON.stringify(formData))
-  // }
 
   const addProducto = async () => {
     if (!formData.producto_id) {
@@ -105,7 +104,7 @@ export default function ProveedorProductos() {
     // <Paper sx={{ p: 3, mt: 3 }}>
       <Container maxWidth="lg" sx={{ mt: 4 }}>
         <Typography variant="h4" gutterBottom>
-          Productos del Proveedor
+          Productos del Proveedor: {proveedorNombre}
         </Typography>
         <Button
           variant="contained"

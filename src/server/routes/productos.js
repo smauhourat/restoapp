@@ -7,31 +7,25 @@ import fs from 'fs';
 const upload = multer({ dest: 'uploads/' }); // Carpeta temporal
 const router = express.Router();
 
-// function removeDuplicatesByColumn(file, columnName) {
-//   const reader = new FileReader();
+const validSortFields = ['nombre', 'descripcion', 'precio_unitario'];
+const validOrders = ['asc', 'desc'];
 
-//   reader.onload = (e) => {
-//     const data = new Uint8Array(e.target.result);
-//     const workbook = xlsx.read(data, { type: 'array' });
+// Helper: Validate product data
+const validateProducto = ({ nombre }) => {
+  if (!nombre || nombre.length < 3) return 'Nombre debe tener al menos 3 caracteres';
+  return null;
+};
 
-//     const sheetName = workbook.SheetNames[0];
-//     const worksheet = workbook.Sheets[sheetName];
+const productoExiste = (nombre, id = null) => {
+  const query = id
+    ? `SELECT COUNT(*) as count FROM Producto WHERE nombre = ? AND id != ?`
+    : `SELECT COUNT(*) as count FROM Producto WHERE nombre = ?`;  
 
-//     const jsonData = xlsx.utils.sheet_to_json(worksheet);
+  const params = id ? [nombre, id] : [nombre];
 
-//     const uniqueData = jsonData.filter((obj, index, self) =>
-//       index === self.findIndex((o) => (o[columnName] === obj[columnName]))
-//     );
-
-//     const newWorksheet = xlsx.utils.json_to_sheet(uniqueData);
-//     const newWorkbook = xlsx.utils.book_new();
-//     xlsx.utils.book_append_sheet(newWorkbook, newWorksheet, sheetName);
-
-//     xlsx.writeFile(newWorkbook, 'new_file.xlsx');
-//   };
-
-//   reader.readAsArrayBuffer(file);
-// }
+  const result = db.prepare(query).get(...params);
+  return result.count > 0;  
+};
 
 // Obtener todos los productos
 // GET /api/productos con paginación
@@ -40,16 +34,11 @@ router.get('/', (req, res) => {
   const offset = (page - 1) * perPage;
 
   // Validar campos de ordenamiento
-  const validSortFields = ['nombre', 'descripcion', 'precio_unitario'];
-  if (!validSortFields.includes(sortBy)) {
-    return res.status(400).json({ error: 'Campo de ordenamiento inválido' });
+  if (!validSortFields.includes(sortBy) || !validOrders.includes(order.toLowerCase())) {
+    return res.status(400).json({ error: 'Parámetros de orden inválidos' });
   }
 
-  const validOrders = ['asc', 'desc'];
-  if (!validOrders.includes(order.toLowerCase())) {
-    return res.status(400).json({ error: 'Orden inválido (use "asc" o "desc")' });
-  }
-
+  
   const productos = db.prepare(`
     SELECT Producto.*, '' as proveedor FROM Producto
     ORDER BY ${sortBy} ${order}
@@ -85,9 +74,9 @@ router.post('/', (req, res) => {
     const { nombre, descripcion, precio_unitario, unidad_medida } = req.body;
 
     // Validaciones básicas
-    if (!nombre || nombre.length < 3) {
-      return res.status(400).json({ error: 'Nombre debe tener al menos 3 caracteres' });
-    }
+    const error = validateProducto({ nombre });
+    if (error) return res.status(400).json({ error });
+    if (productoExiste(nombre)) return res.status(400).json({ error: 'El producto ya existe' })    
 
     const stmt = db.prepare(`
     INSERT INTO Producto (nombre, descripcion, precio_unitario, unidad_medida)
@@ -103,10 +92,11 @@ router.put('/:id', (req, res) => {
     const { nombre, descripcion, precio_unitario, unidad_medida } = req.body;
 
     // Validaciones básicas
-    if (!nombre || nombre.length < 3) {
-      return res.status(400).json({ error: 'Nombre debe tener al menos 3 caracteres' });
-    }    
-    
+    const error = validateProducto({ nombre });
+    if (error) return res.status(400).json({ error });
+    if (productoExiste(nombre, id)) return res.status(400).json({ error: 'El producto ya existe' });
+
+
     const stmt = db.prepare(`
     UPDATE Producto 
     SET nombre = ?, descripcion = ?, precio_unitario = ?, unidad_medida = ?

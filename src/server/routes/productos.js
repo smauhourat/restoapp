@@ -7,6 +7,26 @@ import fs from 'fs';
 const upload = multer({ dest: 'uploads/' }); // Carpeta temporal
 const router = express.Router();
 
+const validSortFields = ['nombre', 'descripcion', 'precio_unitario'];
+const validOrders = ['asc', 'desc'];
+
+// Helper: Validate product data
+const validateProducto = ({ nombre }) => {
+  if (!nombre || nombre.length < 3) return 'Nombre debe tener al menos 3 caracteres';
+  return null;
+};
+
+const productoExiste = (nombre, id = null) => {
+  const query = id
+    ? `SELECT COUNT(*) as count FROM Producto WHERE nombre = ? AND id != ?`
+    : `SELECT COUNT(*) as count FROM Producto WHERE nombre = ?`;  
+
+  const params = id ? [nombre, id] : [nombre];
+
+  const result = db.prepare(query).get(...params);
+  return result.count > 0;  
+};
+
 // Obtener todos los productos
 // GET /api/productos con paginación
 router.get('/', (req, res) => {
@@ -14,22 +34,12 @@ router.get('/', (req, res) => {
   const offset = (page - 1) * perPage;
 
   // Validar campos de ordenamiento
-  const validSortFields = ['nombre', 'descripcion', 'precio_unitario'];
-  if (!validSortFields.includes(sortBy)) {
-    return res.status(400).json({ error: 'Campo de ordenamiento inválido' });
+  if (!validSortFields.includes(sortBy) || !validOrders.includes(order.toLowerCase())) {
+    return res.status(400).json({ error: 'Parámetros de orden inválidos' });
   }
-
-  const validOrders = ['asc', 'desc'];
-  if (!validOrders.includes(order.toLowerCase())) {
-    return res.status(400).json({ error: 'Orden inválido (use "asc" o "desc")' });
-  }
-
-
-
+  
   const productos = db.prepare(`
-    SELECT Producto.*, Proveedor.nombre as proveedor FROM Producto
-    LEFT JOIN Proveedor_Producto pp ON Producto.id = pp.producto_id
-    LEFT JOIN Proveedor on pp.proveedor_id = Proveedor.id
+    SELECT Producto.*, (select count(*) from Proveedor_Producto pp where pp.producto_id == Producto.id) as proveedores FROM Producto
     ORDER BY ${sortBy} ${order}
     LIMIT ? OFFSET ?
   `).all(perPage, offset);
@@ -63,9 +73,9 @@ router.post('/', (req, res) => {
     const { nombre, descripcion, precio_unitario, unidad_medida } = req.body;
 
     // Validaciones básicas
-    if (!nombre || nombre.length < 3) {
-      return res.status(400).json({ error: 'Nombre debe tener al menos 3 caracteres' });
-    }
+    const error = validateProducto({ nombre });
+    if (error) return res.status(400).json({ error });
+    if (productoExiste(nombre)) return res.status(400).json({ error: 'El producto ya existe' })    
 
     const stmt = db.prepare(`
     INSERT INTO Producto (nombre, descripcion, precio_unitario, unidad_medida)
@@ -81,10 +91,11 @@ router.put('/:id', (req, res) => {
     const { nombre, descripcion, precio_unitario, unidad_medida } = req.body;
 
     // Validaciones básicas
-    if (!nombre || nombre.length < 3) {
-      return res.status(400).json({ error: 'Nombre debe tener al menos 3 caracteres' });
-    }    
-    
+    const error = validateProducto({ nombre });
+    if (error) return res.status(400).json({ error });
+    if (productoExiste(nombre, id)) return res.status(400).json({ error: 'El producto ya existe' });
+
+
     const stmt = db.prepare(`
     UPDATE Producto 
     SET nombre = ?, descripcion = ?, precio_unitario = ?, unidad_medida = ?
@@ -111,7 +122,7 @@ router.delete('/:id', (req, res) => {
 });
 
 router.post('/importar', upload.single('archivo'), (req, res) => {
-  console.log('entro en la api de importacion')
+  
   try {
     const workbook = xlsx.readFile(req.file.path);
     const sheetName = workbook.SheetNames[0];
@@ -125,13 +136,16 @@ router.post('/importar', upload.single('archivo'), (req, res) => {
       unidad: row.Unidad || row.unidad || 'unidad'
     }));
 
-    console.log('req.file.path=>', req.file.path)
+    // No permitimos duplicados por la columna 'Nombre'
+    const filteredData = validatedData.filter((obj, index, self) =>
+      index === self.findIndex((o) => (o["nombre"] === obj["nombre"]))
+    );
 
     fs.unlinkSync(req.file.path); // Limpiar archivo temporal
 
     res.json({
       success: true,
-      data: validatedData,
+      data: filteredData,
       preview: true // Indica que es una previsualización
     });
 

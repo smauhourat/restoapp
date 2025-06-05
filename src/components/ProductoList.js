@@ -31,9 +31,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { amber } from '@mui/material/colors';
 
 import apiClient from '../api/client';
 
+const colorAlert = amber[100];
 // Clave para el localStorage
 const LOCALSTORAGE_KEY = 'productosPerPage';
 
@@ -68,6 +70,7 @@ export default function ProductoList() {
         const { data, totalPages } = await apiClient.get('/productos', {
             params: { page, perPage, sortBy: sortConfig.key, order: sortConfig.direction }
         });
+        console.log('productos =>', productos)
         setProductos(data)
         setTotalPages(totalPages);
     };
@@ -125,7 +128,7 @@ export default function ProductoList() {
                                     Nombre
                                 </TableSortLabel>                                
                             </TableCell>
-                            <TableCell>Proveedor</TableCell>
+                            <TableCell>#Proveedores</TableCell>
                             <TableCell>Precio Unitario</TableCell>
                             <TableCell>Unidad de Medida</TableCell>
                             <TableCell>
@@ -144,7 +147,9 @@ export default function ProductoList() {
                         {productos.map((producto) => (
                             <TableRow key={producto.id}>
                                 <TableCell>{producto.nombre}</TableCell>
-                                <TableCell>{producto.proveedor}</TableCell>
+                                <TableCell sx={{ 
+                                    ...(producto.proveedores === 0 && {backgroundColor: colorAlert})
+                                }}>{producto.proveedores}</TableCell>
                                 <TableCell>${producto.precio_unitario}</TableCell>
                                 <TableCell>{producto.unidad_medida}</TableCell>
                                 <TableCell>{producto.descripcion}</TableCell>

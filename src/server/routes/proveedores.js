@@ -13,6 +13,8 @@ router.get('/', (req, res) => {
     LIMIT ? OFFSET ?
   `).all(perPage, offset);
 
+  console.log('Proveedores =>', proveedores)
+
     const total = db.prepare(`
     SELECT COUNT(*) as total FROM Proveedor
   `).get().total;

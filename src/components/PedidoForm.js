@@ -18,7 +18,12 @@ import {
     Snackbar,
     Alert,
     CircularProgress,
-    Box, // Importar Box para layout
+    Box,
+    Dialog, // Importar Dialog
+    DialogActions, // Importar DialogActions
+    DialogContent, // Importar DialogContent
+    DialogContentText, // Importar DialogContentText
+    DialogTitle, // Importar DialogTitle
 } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -30,17 +35,22 @@ export default function PedidoForm() {
     const [proveedores, setProveedores] = useState([]);
     const [productosDisponibles, setProductosDisponibles] = useState([]);
     const [loadingProductos, setLoadingProductos] = useState(false);
-    const [searchTerm, setSearchTerm] = useState(''); // Nuevo estado para el buscador
-    const [availableProductQuantities, setAvailableProductQuantities] = useState({}); // Nuevo estado para cantidades de productos disponibles
+    const [searchTerm, setSearchTerm] = useState('');
+    const [availableProductQuantities, setAvailableProductQuantities] = useState({});
 
     const [pedido, setPedido] = useState({
         fecha: new Date().toISOString().split('T')[0],
         proveedor_id: null,
         renglones: [],
-        numero_pedido: '', // Inicializar numero_pedido
+        numero_pedido: '',
     });
     const [error, setError] = useState('');
     const navigate = useNavigate();
+
+    // Estados para el diálogo de confirmación
+    const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+    const [pendingProveedorId, setPendingProveedorId] = useState(null);
+    const [pendingProveedorValue, setPendingProveedorValue] = useState(null); // Para revertir el Autocomplete
 
     // Cargar proveedores al inicio
     useEffect(() => {
@@ -75,7 +85,7 @@ export default function PedidoForm() {
             try {
                 const data = await apiClient.get(`/proveedores/${pedido.proveedor_id}/productos`);
                 setProductosDisponibles(data);
-                // Inicializar las cantidades de los productos disponibles a 1
+
                 const initialQuantities = {};
                 data.forEach(product => {
                     initialQuantities[product.id] = 1;
@@ -91,14 +101,14 @@ export default function PedidoForm() {
 
         if (pedido.proveedor_id) {
             fetchProductos();
-            setPedido(prevPedido => ({ ...prevPedido, renglones: [] })); // Limpiar renglones al cambiar de proveedor
+
         } else {
             setProductosDisponibles([]);
             setAvailableProductQuantities({});
         }
     }, [pedido.proveedor_id]);
 
-    // Filtrar productos disponibles según el término de búsqueda
+
     const filteredProductosDisponibles = productosDisponibles.filter(product =>
         product.nombre.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -126,7 +136,7 @@ export default function PedidoForm() {
     const handleAvailableProductQuantityChange = (productId, quantity) => {
         setAvailableProductQuantities(prevQuantities => ({
             ...prevQuantities,
-            [productId]: Math.max(1, parseInt(quantity) || 1), // Asegurar que la cantidad sea al menos 1
+            [productId]: Math.max(1, parseInt(quantity) || 1),
         }));
     };
 
@@ -143,26 +153,26 @@ export default function PedidoForm() {
         );
 
         if (existingRenglonIndex > -1) {
-            // Si el producto ya está en el pedido, actualizar la cantidad
+
             const newRenglones = [...pedido.renglones];
             newRenglones[existingRenglonIndex].cantidad += quantity;
             setPedido({ ...pedido, renglones: newRenglones });
         } else {
-            // Si es un producto nuevo, añadirlo al pedido
+
             setPedido({
                 ...pedido,
                 renglones: [
                     ...pedido.renglones,
                     {
                         producto_id: product.id,
-                        nombre_producto: product.nombre, // Guardar el nombre para mostrarlo
+                        nombre_producto: product.nombre,
                         cantidad: quantity,
                         precio_unitario: product.precio_unitario,
                     },
                 ],
             });
         }
-        setError(''); // Limpiar cualquier error previo
+        setError('');
     };
 
     const handleRemoveRenglon = (index) => {
@@ -188,10 +198,37 @@ export default function PedidoForm() {
         }
 
         if (!checkRenglonesValidos()) {
-            return; // El error ya se estableció en checkRenglonesValidos
+            return;
         }
 
         addPedido();
+    };
+
+    // Manejo del cambio de proveedor con confirmación
+    const handleProveedorChange = (event, value) => {
+        const newProveedorId = value?.id || null;
+        if (pedido.renglones.length > 0 && newProveedorId !== pedido.proveedor_id) {
+            setPendingProveedorId(newProveedorId);
+            setPendingProveedorValue(value); // Guardar el objeto completo para el Autocomplete
+            setOpenConfirmDialog(true);
+        } else {
+            setPedido({ ...pedido, proveedor_id: newProveedorId, renglones: [] });
+        }
+    };
+
+    const handleConfirmChangeProveedor = () => {
+        setPedido({ ...pedido, proveedor_id: pendingProveedorId, renglones: [] });
+        setOpenConfirmDialog(false);
+        setPendingProveedorId(null);
+        setPendingProveedorValue(null);
+    };
+
+    const handleCancelChangeProveedor = () => {
+        setOpenConfirmDialog(false);
+        setPendingProveedorId(null);
+        setPendingProveedorValue(null);
+        // Revertir la selección del Autocomplete si es necesario
+        // Esto se maneja mejor si el Autocomplete tiene un 'value' controlado
     };
 
     return (
@@ -236,9 +273,9 @@ export default function PedidoForm() {
                             <Autocomplete
                                 options={Array.isArray(proveedores) ? proveedores : []}
                                 getOptionLabel={(option) => option.nombre}
-                                onChange={(e, value) =>
-                                    setPedido({ ...pedido, proveedor_id: value?.id || null })
-                                }
+                                value={proveedores.find(p => p.id === pedido.proveedor_id) || null} // Controlar el valor
+                                onChange={handleProveedorChange} // Usar el nuevo handler
+
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
@@ -397,6 +434,29 @@ export default function PedidoForm() {
             <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError('')}>
                 <Alert severity="error">{error}</Alert>
             </Snackbar>
+
+            {/* Diálogo de Confirmación */}
+            <Dialog
+                open={openConfirmDialog}
+                onClose={handleCancelChangeProveedor}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">{"Cambiar Proveedor"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Si cambias el proveedor, se limpiará el pedido actual. ¿Deseas continuar?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCancelChangeProveedor} color="primary">
+                        Cancelar
+                    </Button>
+                    <Button onClick={handleConfirmChangeProveedor} color="primary" autoFocus>
+                        Continuar
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Container>
     );
 }

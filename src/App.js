@@ -12,6 +12,8 @@ import PedidoDetalle from './components/PedidoDetalle';
 import ImportarProductos from './components/ImportarProductos';
 import { ToastProvider, useToast } from './components/ToastProvider';
 import { setAxiosErrorToastHandler } from './api/client';
+import { ThemeProvider } from '@mui/material/styles';
+import theme from './theme'; // Asegúrate de que la ruta sea correcta
 
 function AppWrapper() {
   const { showToast } = useToast();
@@ -19,8 +21,29 @@ function AppWrapper() {
   return null; // este componente solo conecta axios con el toast
 }
 
+// const theme = createTheme({
+//   components: {
+//     MuiButton: {
+//       styleOverrides: {
+//         root: {
+//           borderRadius: '8px', // Botones redondeados
+//         },
+//       },
+//       defaultProps: {
+//         size: 'medium', // Tamaño por defecto
+//       },
+//     },
+//     MuiTextField: {
+//       defaultProps: {
+//         variant: 'outlined', // Todos los TextFields serán outlined por defecto
+//       },
+//     },
+//   },
+// });
+
 function App() {
   return (
+    <ThemeProvider theme={theme}>
     <Router>
       <Navbar />
       <ToastProvider>
@@ -41,6 +64,7 @@ function App() {
         </Routes>
       </ToastProvider>
     </Router>
+    </ThemeProvider>
   );
 }
 

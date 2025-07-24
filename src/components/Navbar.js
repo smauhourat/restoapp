@@ -1,6 +1,6 @@
 import { AppBar, Toolbar, Typography, Button, Container, Box } from '@mui/material';
 import { Link } from 'react-router-dom';
-import logo from './../logo.png'; // Importa tu SVG
+import logo from './../logo.png'; 
 
 export default function Navbar() {
     return (

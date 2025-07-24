@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import ResponsiveNavbar from './components/ResponsiveNavbar';
 import Home from './components/Home';
 import ProveedorList from './components/ProveedorList';
 import ProveedorForm from './components/ProveedorForm';

@@ -35,13 +35,14 @@ const theme = createTheme({
         MuiTextField: {
             defaultProps: {
                 variant: 'outlined',
-                borderRadius: '16px' // Todos los TextFields serán outlined por defecto
+                borderRadius: '16px',
             },
         },
         MuiOutlinedInput: {
             styleOverrides: {
                 root: {
                     borderRadius: '6px',
+                    height: '40px'
                 },
             },
           },

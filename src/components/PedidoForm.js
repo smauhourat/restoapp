@@ -28,7 +28,7 @@ import {
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-
+import Stack from '@mui/material/Stack';
 import apiClient from '../api/client';
 
 export default function PedidoForm() {
@@ -243,19 +243,9 @@ export default function PedidoForm() {
             </Button>
             <Paper elevation={3} sx={{ p: 3 }}>
                 <Typography variant="h5" gutterBottom>
-                    Nuevo Pedido
+                    Nuevo Pedido: #{pedido.numero_pedido}
                 </Typography>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
-                        {pedido.numero_pedido ? (
-                            <TextField
-                                label="Número de Pedido"
-                                fullWidth
-                                value={pedido.numero_pedido}
-                                disabled
-                            />
-                        ) : (<CircularProgress size={24} />)}
-                    </Grid>
                     <Grid item xs={12} sm={6}>
                         <TextField
                             label="Fecha"
@@ -295,7 +285,7 @@ export default function PedidoForm() {
                 {pedido.proveedor_id && (
                     <Box sx={{ mt: 4 }}>
                         <Typography variant="h6" gutterBottom>
-                            Productos Disponibles de {proveedores.find(p => p.id === pedido.proveedor_id)?.nombre}
+                            Productos de {proveedores.find(p => p.id === pedido.proveedor_id)?.nombre}
                         </Typography>
                         <TextField
                             label="Buscar Producto"
@@ -315,7 +305,6 @@ export default function PedidoForm() {
                                     <TableHead>
                                         <TableRow>
                                             <TableCell>Producto</TableCell>
-                                            <TableCell>Precio Unitario</TableCell>
                                             <TableCell sx={{ width: '120px' }}>Cantidad</TableCell>
                                             <TableCell sx={{ width: '100px' }}>Acción</TableCell>
                                         </TableRow>
@@ -330,8 +319,14 @@ export default function PedidoForm() {
                                         ) : (
                                             filteredProductosDisponibles.map((product) => (
                                                 <TableRow key={product.id}>
-                                                    <TableCell>{product.nombre}</TableCell>
-                                                    <TableCell>${product.precio_unitario?.toFixed(2)}</TableCell>
+                                                    <TableCell>
+                                                        <Stack spacing={0.5}>
+                                                            <Typography variant="body2">{product.nombre}</Typography>
+                                                            <Typography variant="caption" color="textSecondary">
+                                                                ${product.precio_unitario?.toFixed(2)}
+                                                            </Typography>
+                                                        </Stack>
+                                                    </TableCell>
                                                     <TableCell>
                                                         <TextField
                                                             type="number"
@@ -367,7 +362,7 @@ export default function PedidoForm() {
                 {pedido.renglones.length > 0 && (
                     <Box sx={{ mt: 4 }}>
                         <Typography variant="h6" gutterBottom>
-                            Productos en el Pedido
+                            Pedido
                         </Typography>
                         <TableContainer component={Paper}>
                             <Table size="small">
@@ -375,7 +370,6 @@ export default function PedidoForm() {
                                     <TableRow>
                                         <TableCell>Producto</TableCell>
                                         <TableCell>Cantidad</TableCell>
-                                        <TableCell>Precio Unitario</TableCell>
                                         <TableCell>Subtotal</TableCell>
                                         <TableCell>Acciones</TableCell>
                                     </TableRow>
@@ -383,7 +377,14 @@ export default function PedidoForm() {
                                 <TableBody>
                                     {pedido.renglones.map((renglon, index) => (
                                         <TableRow key={renglon.producto_id || index}>
-                                            <TableCell>{renglon.nombre_producto}</TableCell>
+                                            <TableCell>
+                                                <Stack spacing={0.5}>
+                                                    <Typography variant="body2">{renglon.nombre_producto}</Typography>
+                                                    <Typography variant="caption" color="textSecondary">
+                                                        ${renglon.precio_unitario?.toFixed(2)}
+                                                    </Typography>
+                                                </Stack>
+                                            </TableCell>                                            
                                             <TableCell>
                                                 <TextField
                                                     type="number"
@@ -397,7 +398,6 @@ export default function PedidoForm() {
                                                     inputProps={{ min: 1, step: 1 }}
                                                 />
                                             </TableCell>
-                                            <TableCell>${renglon.precio_unitario?.toFixed(2)}</TableCell>
                                             <TableCell>
                                                 ${(renglon.cantidad * renglon.precio_unitario)?.toFixed(2)}
                                             </TableCell>

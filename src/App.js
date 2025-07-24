@@ -21,26 +21,6 @@ function AppWrapper() {
   return null; // este componente solo conecta axios con el toast
 }
 
-// const theme = createTheme({
-//   components: {
-//     MuiButton: {
-//       styleOverrides: {
-//         root: {
-//           borderRadius: '8px', // Botones redondeados
-//         },
-//       },
-//       defaultProps: {
-//         size: 'medium', // Tamaño por defecto
-//       },
-//     },
-//     MuiTextField: {
-//       defaultProps: {
-//         variant: 'outlined', // Todos los TextFields serán outlined por defecto
-//       },
-//     },
-//   },
-// });
-
 function App() {
   return (
     <ThemeProvider theme={theme}>

@@ -24,6 +24,8 @@ import {
     DialogContent, // Importar DialogContent
     DialogContentText, // Importar DialogContentText
     DialogTitle, // Importar DialogTitle
+    Breadcrumbs,
+    Link,
 } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -233,14 +235,17 @@ export default function PedidoForm() {
 
     return (
         <Container maxWidth="lg" sx={{ mt: 4 }}>
-            <Button
+            {/* <Button
                 variant="outlined"
                 startIcon={<ArrowBackIcon />}
                 sx={{ mb: 2 }}
                 onClick={() => navigate('/pedidos')}
             >
                 Volver a Pedidos
-            </Button>
+            </Button> */}
+            <Breadcrumbs aria-label="ruta" gutterBottom>
+                <Link color="inherit" onClick={() => navigate('/pedidos')} sx={{ cursor: 'pointer', textDecoration: 'none' }}>&lt;&lt; Volver</Link>
+            </Breadcrumbs>            
             <Paper elevation={3} sx={{ p: 3 }}>
                 <Typography variant="h5" gutterBottom>
                     Nuevo Pedido: #{pedido.numero_pedido}
@@ -371,7 +376,7 @@ export default function PedidoForm() {
                                         <TableCell>Producto</TableCell>
                                         <TableCell>Cantidad</TableCell>
                                         <TableCell>Subtotal</TableCell>
-                                        <TableCell>Acciones</TableCell>
+                                        <TableCell sx={{ width: '100px' }}>Acción</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -396,6 +401,7 @@ export default function PedidoForm() {
                                                     }}
                                                     size="small"
                                                     inputProps={{ min: 1, step: 1 }}
+                                                    sx={{ width: '80px' }}
                                                 />
                                             </TableCell>
                                             <TableCell>

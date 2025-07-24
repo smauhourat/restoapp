@@ -1,14 +1,24 @@
-import { AppBar, Toolbar, Typography, Button, Container } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Container, Box } from '@mui/material';
 import { Link } from 'react-router-dom';
+import logo from './../logo.png'; // Importa tu SVG
 
 export default function Navbar() {
     return (
         <AppBar position="static">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                    {/* <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         Gestión de Proveedores
-                    </Typography>
+                    </Typography> */}
+                    <Box
+                        component="img"
+                        src={logo}
+                        alt="Logo de la empresa"
+                        sx={{
+                            height: 40, // Ajusta según necesites
+                            mr: 2 // Margen a la derecha
+                        }}
+                    />                  
                     <Button
                         component={Link}
                         to="/proveedores"

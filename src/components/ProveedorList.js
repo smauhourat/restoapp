@@ -88,7 +88,7 @@ export default function ProveedorList() {
               <TableCell>Nombre</TableCell>
               <TableCell>Teléfono</TableCell>
               <TableCell>Email</TableCell>
-              <TableCell align="center">Acciones</TableCell>
+              <TableCell align="right" sx={{ paddingRight:'2rem' }}>Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -97,7 +97,7 @@ export default function ProveedorList() {
                 <TableCell>{proveedor.nombre}</TableCell>
                 <TableCell>{proveedor.telefono}</TableCell>
                 <TableCell>{proveedor.email}</TableCell>
-                <TableCell align="center">
+                <TableCell align="right">
                   <IconButton
                     color="primary"
                     onClick={() => navigate(`/proveedores/editar/${proveedor.id}`)}

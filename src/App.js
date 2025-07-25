@@ -11,6 +11,7 @@ import PedidoList from './components/PedidoList';
 import PedidoForm from './components/PedidoForm';
 import PedidoDetalle from './components/PedidoDetalle';
 import ImportarProductos from './components/ImportarProductos';
+import Dashboard from './components/Dashboard';
 import { ToastProvider, useToast } from './components/ToastProvider';
 import { setAxiosErrorToastHandler } from './api/client';
 import { ThemeProvider } from '@mui/material/styles';
@@ -31,6 +32,7 @@ function App() {
         <AppWrapper />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/proveedores" element={<ProveedorList />} />
           <Route path="/proveedores/nuevo" element={<ProveedorForm />} />
           <Route path="/proveedores/editar/:id" element={<ProveedorForm />} />

@@ -17,6 +17,11 @@ const theme = createTheme({
             fontSize: '2.5rem',
             fontWeight: 500,
         },
+        body1: {
+            fontSize: '0.85rem', // Default is 1rem (16px)
+            // You can also use px:
+            // fontSize: '18px',
+          },
         // button: {
         //     textTransform: 'none', // Para que los botones no estén en mayúsculas
         // },
@@ -45,7 +50,24 @@ const theme = createTheme({
                     height: '50px'
                 },
             },
-          },
+        },
+        MuiTableCell: {
+            styleOverrides: {
+                root: {
+                    //fontFamily: "'Open Sans', sans-serif",
+                    fontSize: '1rem',
+                },
+                head: {
+                    fontWeight: 500,
+                    fontSize: '0.95rem',
+                    letterSpacing: '0.5px',
+                },
+                body: {
+                    fontWeight: 400,
+                    fontSize: '0.9rem',
+                },
+            },
+        },
     },
 });
 

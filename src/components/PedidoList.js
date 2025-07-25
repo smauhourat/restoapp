@@ -17,7 +17,8 @@ import {
     Alert,
     Box,
     Pagination,
-    Stack
+    Stack,
+    Tooltip
 
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -133,12 +134,13 @@ export default function PedidoList() {
                                     </Select>
                                 </TableCell>
                                 <TableCell>
-                                    <Button
-                                        startIcon={<VisibilityIcon />}
-                                        onClick={() => navigate(`/pedidos/${pedido.id}`)}
-                                    >
-                                        Detalles
-                                    </Button>
+                                    <Tooltip title="Ver Detalle" arrow>
+                                        <Button
+                                            startIcon={<VisibilityIcon />}
+                                            onClick={() => navigate(`/pedidos/${pedido.id}`)}
+                                            >
+                                        </Button>
+                                    </Tooltip>
                                 </TableCell>
                             </TableRow>
                         ))}

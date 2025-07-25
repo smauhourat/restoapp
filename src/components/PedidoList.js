@@ -107,7 +107,7 @@ export default function PedidoList() {
                             <TableCell>Proveedor</TableCell>
                             <TableCell>Total</TableCell>
                             <TableCell>Estado</TableCell>
-                            <TableCell>Acciones</TableCell>
+                            <TableCell align="right" sx={{ paddingRight: '2rem' }}>Acciones</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -133,7 +133,7 @@ export default function PedidoList() {
                                         ))}
                                     </Select>
                                 </TableCell>
-                                <TableCell>
+                                <TableCell align="right">
                                     <Tooltip title="Ver Detalle" arrow>
                                         <Button
                                             startIcon={<VisibilityIcon />}

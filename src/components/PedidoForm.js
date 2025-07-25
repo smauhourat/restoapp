@@ -431,11 +431,19 @@ export default function PedidoForm() {
                     color="primary"
                     size="large"
                     onClick={handleSubmit}
-                    sx={{ mt: 3 }}
+                    sx={{ mt: 2, mr: 2 }}
                     disabled={!pedido.proveedor_id || pedido.renglones.length === 0}
                 >
                     Guardar Pedido
                 </Button>
+                    <Button
+                        variant="outlined"
+                        startIcon={<ArrowBackIcon />}
+                        sx={{ mt: 2 }}
+                        onClick={() => navigate('/pedidos')}
+                    >
+                        Cancelar
+                    </Button>                
             </Paper>
             <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError('')}>
                 <Alert severity="error">{error}</Alert>

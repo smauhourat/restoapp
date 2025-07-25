@@ -1,6 +1,8 @@
 import { useTheme, useMediaQuery } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { AppBar, Toolbar, Button, Box, IconButton } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Box, IconButton, Container } from '@mui/material';
+import { Drawer, List, ListItem, ListItemText } from '@mui/material';
+import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import logo from './../logo.png'; 
 
@@ -8,19 +10,25 @@ export default function ResponsiveNavbar() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [mobileOpen, setMobileOpen] = useState(false);
+    
+    // Función para cerrar el menú al seleccionar un ítem
+    const handleCloseMobileMenu = () => {
+        setMobileOpen(false);
+    };
 
     return (
         <AppBar position="static">
-            <Toolbar sx={{ justifyContent: 'space-between' }}>
-                <Box
-                    component="img"
-                    src={logo}
-                    alt="Logo de la empresa"
-                    sx={{
-                        height: 40, // Ajusta según necesites
-                        mr: 2 // Margen a la derecha
-                    }}
-                />  
+            <Container maxWidth="xl">
+            <Toolbar >
+                <Box sx={{ flexGrow: 1 }}>
+                    <Typography variant="h6" component="div">
+                        <img
+                            src={logo}
+                            alt="Logo"
+                            style={{ height: '45px', paddingTop: '5px', paddingBottom: '5px' }}
+                        />
+                    </Typography>
+                </Box>
 
                 {isMobile ? (
                     <IconButton
@@ -31,29 +39,85 @@ export default function ResponsiveNavbar() {
                     </IconButton>
                 ) : (
                     <Box sx={{ display: 'flex' }}>
-                        {/* Mismos botones del ejemplo anterior */}
+                        <Button
+                            component={Link}
+                            to="/proveedores"
+                            color="inherit"
+                            sx={{ mx: 1 }}
+                                onClick={handleCloseMobileMenu}
+                        >
+                            Proveedores
+                        </Button>
+                        <Button
+                            component={Link}
+                            to="/productos"
+                            color="inherit"
+                            sx={{ mx: 1 }}
+                                onClick={handleCloseMobileMenu}
+                        >
+                            Productos
+                        </Button>
+                        <Button
+                            component={Link}
+                            to="/pedidos"
+                            color="inherit"
+                            sx={{ mx: 1 }}
+                                onClick={handleCloseMobileMenu}
+                        >
+                            Pedidos
+                        </Button>
                     </Box>
                 )}
             </Toolbar>
-
+            </Container>
             {/* Menú desplegable para móviles */}
             {isMobile && mobileOpen && (
-                <Box sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                    <Button href="/productos" fullWidth sx={{ my: 1 }}>
-                        Productos
-                    </Button>
-                    <Button href="/servicios" fullWidth sx={{ my: 1 }}>
-                        Servicios
-                    </Button>
-                    <Button
-                        variant="contained"
-                        href="/contacto"
-                        fullWidth
-                        sx={{ my: 1 }}
-                    >
-                        Contacto
-                    </Button>
-                </Box>
+                <Drawer
+                    anchor="right"
+                    open={mobileOpen}
+                    onClose={() => setMobileOpen(false)}
+                >
+                    <List>
+                        {['Proveedores', 'Productos', 'Pedidos'].map((text) => (
+                            <ListItem
+                                button
+                                key={text}
+                                component={Link}
+                                to={`/${text.toLowerCase()}`}
+                                onClick={handleCloseMobileMenu}
+                            >
+                                <ListItemText primary={text} sx={{ color: "#000000"}} />
+                            </ListItem>
+                        ))}
+                    </List>
+                </Drawer>                
+                // <Box sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+                //     <Button
+                //         component={Link}
+                //         to="/proveedores"
+                //         color="inherit"
+                //         sx={{ mx: 1 }}
+                //     >
+                //         Proveedores
+                //     </Button>                    
+                //     <Button
+                //         component={Link}
+                //         to="/productos"
+                //         color="inherit"
+                //         sx={{ mx: 1 }}
+                //     >
+                //         Productos
+                //     </Button>
+                //     <Button
+                //         component={Link}
+                //         to="/pedidos"
+                //         color="inherit"
+                //         sx={{ mx: 1 }}
+                //     >
+                //         Pedidos
+                //     </Button>
+
+                // </Box>
             )}
         </AppBar>
     );

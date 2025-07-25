@@ -7,18 +7,15 @@ export default function Navbar() {
         <AppBar position="static">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
-                    {/* <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        Gestión de Proveedores
-                    </Typography> */}
-                    <Box
-                        component="img"
-                        src={logo}
-                        alt="Logo de la empresa"
-                        sx={{
-                            height: 40, // Ajusta según necesites
-                            mr: 2 // Margen a la derecha
-                        }}
-                    />                  
+                    <Box sx={{ flexGrow: 1 }}>
+                        <Typography variant="h6" component="div">
+                            <img
+                                src={logo}
+                                alt="Logo"
+                                style={{ height: '45px' }}
+                            />
+                        </Typography>
+                    </Box>                                   
                     <Button
                         component={Link}
                         to="/proveedores"

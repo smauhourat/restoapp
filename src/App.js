@@ -26,7 +26,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
     <Router>
-      <Navbar />
+        <ResponsiveNavbar />
       <ToastProvider>
         <AppWrapper />
         <Routes>

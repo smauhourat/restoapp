@@ -38,7 +38,7 @@ export default function Dashboard() {
             />
             <CardContent>
               <Typography variant="h4">{estadisticas.total_proveedores}</Typography>
-              <Typography color="text.secondary">+12% this month</Typography>
+              <Typography color="text.secondary"></Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -54,7 +54,7 @@ export default function Dashboard() {
             />
             <CardContent>
               <Typography variant="h4">{estadisticas.total_productos}</Typography>
-              <Typography color="text.secondary">+12% this month</Typography>
+              <Typography color="text.secondary"></Typography>
             </CardContent>
           </Card>
         </Grid>        
@@ -70,7 +70,7 @@ export default function Dashboard() {
             />
             <CardContent>
               <Typography variant="h4">{estadisticas.total_pedidos}</Typography>
-              <Typography color="text.secondary">+12% this month</Typography>
+              <Typography color="text.secondary"></Typography>
             </CardContent>
           </Card>
         </Grid> 

@@ -116,7 +116,7 @@ export default function ProductoList() {
             </Button>
 
             <TableContainer component={Paper}>
-                <Table>
+                <Table size="small">
                     <TableHead>
                         <TableRow>
                             <TableCell>
@@ -234,14 +234,14 @@ export default function ProductoList() {
                     {error}
                 </Alert>
             </Snackbar>
-            <Button
+            {/* <Button
                 variant="outlined"
                 startIcon={<ArrowBackIcon />}
                 sx={{ mt: 2 }}
-                onClick={() => navigate('/')} // Vuelve a la Home
+                onClick={() => navigate('/')}
             >
                 Volver atrás
-            </Button>      
+            </Button>       */}
 
         </Container>
     );

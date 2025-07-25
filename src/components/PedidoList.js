@@ -99,7 +99,7 @@ export default function PedidoList() {
                 Nuevo Pedido
             </Button>
             <TableContainer component={Paper}>
-                <Table>
+                <Table size="small">
                     <TableHead>
                         <TableRow>
                             <TableCell>Número</TableCell>

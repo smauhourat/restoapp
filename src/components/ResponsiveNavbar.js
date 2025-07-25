@@ -22,11 +22,13 @@ export default function ResponsiveNavbar() {
             <Toolbar >
                 <Box sx={{ flexGrow: 1 }}>
                     <Typography variant="h6" component="div">
-                        <img
-                            src={logo}
-                            alt="Logo"
-                            style={{ height: '45px', paddingTop: '5px', paddingBottom: '5px' }}
-                        />
+                        <Link to="/">
+                            <img
+                                src={logo}
+                                alt="Logo"
+                                style={{ height: '45px', paddingTop: '5px', paddingBottom: '5px' }}
+                            />
+                        </Link>
                     </Typography>
                 </Box>
 

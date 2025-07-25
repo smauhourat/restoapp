@@ -82,7 +82,7 @@ export default function ProveedorList() {
         Nuevo Proveedor
       </Button>
       <TableContainer component={Paper}>
-        <Table>
+        <Table size="small">
           <TableHead>
             <TableRow>
               <TableCell>Nombre</TableCell>
@@ -161,14 +161,14 @@ export default function ProveedorList() {
         </Alert>
       </Snackbar>
 
-      <Button
+      {/* <Button
         variant="outlined"
         startIcon={<ArrowBackIcon />}
         sx={{ mt: 2 }}
-        onClick={() => navigate('/')} // Vuelve a la Home
+        onClick={() => navigate('/')}
       >
         Volver atrás
-      </Button>      
+      </Button>       */}
     </Container>
   );
 }

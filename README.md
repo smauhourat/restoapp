@@ -80,3 +80,98 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+
+
+### TODO
+
+
+GET /api/stats/products
+
+```
+{
+  "products_by_category": [
+    {"category": "Electrónicos", "count": 320},
+    {"category": "Hogar", "count": 150}
+  ],
+  "low_stock_products": 18,
+  "out_of_stock_products": 5,
+  "average_price": 45.99,
+  "most_expensive_product": {
+    "id": 789,
+    "name": "Laptop Premium",
+    "price": 1299.99
+  }
+}
+```
+
+
+GET /api/stats/suppliers
+
+```
+{
+  "suppliers_by_region": [
+    {"region": "Norte", "count": 15},
+    {"region": "Sur", "count": 10}
+  ],
+  "top_suppliers": [
+    {
+      "supplier_id": 23,
+      "name": "TecnoSuministros",
+      "product_count": 85,
+      "last_order_date": "2023-11-15"
+    }
+  ],
+  "average_lead_time": 7.5
+}
+
+```
+
+
+GET /api/stats/orders?timeframe=monthly
+
+**Parámetros opcionales:**
+
+    - timeframe (daily, weekly, monthly, yearly)
+
+    - start_date & end_date (para rangos personalizados)
+
+```
+{
+  "total_orders": 568,
+  "total_revenue": 284500.75,
+  "average_order_value": 500.88,
+  "orders_by_status": {
+    "completed": 420,
+    "pending": 45,
+    "cancelled": 23
+  },
+  "order_trends": [
+    {"period": "Ene", "count": 45, "revenue": 22500.00},
+    {"period": "Feb", "count": 52, "revenue": 26000.00}
+  ]
+}
+```
+
+GET /api/stats/suppliers/{supplierId}/performance
+
+```
+{
+  "supplier_id": 23,
+  "name": "TecnoSuministros",
+  "total_products_supplied": 85,
+  "total_orders": 42,
+  "total_revenue_generated": 125000.50,
+  "order_fulfillment_rate": 0.98,
+  "average_delivery_time": 3.2,
+  "products": [
+    {
+      "product_id": 456,
+      "name": "Teclado inalámbrico",
+      "units_sold": 125,
+      "revenue": 6250.00
+    }
+  ]
+}
+```

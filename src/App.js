@@ -31,8 +31,9 @@ function App() {
       <ToastProvider>
         <AppWrapper />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          {/* <Route path="/" element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} /> */}
+          <Route path="/" element={<Dashboard />} />          
           <Route path="/proveedores" element={<ProveedorList />} />
           <Route path="/proveedores/nuevo" element={<ProveedorForm />} />
           <Route path="/proveedores/editar/:id" element={<ProveedorForm />} />

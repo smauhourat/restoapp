@@ -6,7 +6,8 @@ export default function Dashboard() {
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Grid container spacing={3}>
-        {/* Card 1 - Stats */}
+
+
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardHeader
@@ -15,7 +16,7 @@ export default function Dashboard() {
                   <MoreVert />
                 </IconButton>
               }
-              title="Total Users"
+              title="Total Proveedores"
             />
             <CardContent>
               <Typography variant="h4">1,254</Typography>
@@ -23,22 +24,52 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </Grid>
-
-        {/* Card 2 - Chart */}
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card>
+            <CardHeader
+              action={
+                <IconButton aria-label="settings">
+                  <MoreVert />
+                </IconButton>
+              }
+              title="Total Productos"
+            />
+            <CardContent>
+              <Typography variant="h4">1,254</Typography>
+              <Typography color="text.secondary">+12% this month</Typography>
+            </CardContent>
+          </Card>
+        </Grid>        
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card>
+            <CardHeader
+              action={
+                <IconButton aria-label="settings">
+                  <MoreVert />
+                </IconButton>
+              }
+              title="Total Pedidos"
+            />
+            <CardContent>
+              <Typography variant="h4">1,254</Typography>
+              <Typography color="text.secondary">+12% this month</Typography>
+            </CardContent>
+          </Card>
+        </Grid> 
+        
+        {/* <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card>
             <CardHeader title="Revenue" />
             <CardContent sx={{ height: 200 }}>
-              {/* Placeholder for chart */}
+
               <Typography variant="h4">$24,300</Typography>
             </CardContent>
           </Card>
-        </Grid>
-
-        {/* Add more cards similarly */}
+        </Grid> */}
+{/* 
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <Card>
-            <CardHeader title="Revenue Sources" />
+            <CardHeader title="Ventas x Proveedor" />
             <CardContent>
               <Box sx={{ height: 300 }}>
                 <PieChart
@@ -56,7 +87,8 @@ export default function Dashboard() {
               </Box>
             </CardContent>
           </Card>
-        </Grid>
+        </Grid> */}
+
 
       </Grid>
     </Container>

@@ -17,7 +17,8 @@ import {
     Box,
     DialogTitle,
     DialogContent,
-    DialogActions
+    DialogActions,
+    Tooltip
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PrintIcon from '@mui/icons-material/Print';
@@ -174,47 +175,55 @@ export default function PedidoDetalle() {
                 </TableContainer>
 
                 {/* Acciones */}
-                <Box sx={{ mt: 4, display: 'flex', gap: 2 }}>
-                    <Button
-                        variant="contained"
-                        startIcon={<PrintIcon />}
-                        onClick={() => window.print()}
-                    >
-                        Imprimir
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="secondary"
-                        disabled={pedido.estado === 'cancelado'}
-                        startIcon={<EmailIcon />}
-                        onClick={() => alert('Enviar email al proveedor...')}
-                    >
-                        Enviar por Email
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="success"
-                        startIcon={<WhatsAppIcon />}
-                        onClick={() => { 
-                            saveHistorialEnvioWsp()
-                            window.open(generateWhatsAppMessage(), '_blank')
-                        }}
-                        disabled={!!pedido.proveedor_telefono || pedido.estado === 'cancelado'}
-                    >
-                        Enviar por WhatsApp
-                    </Button>    
-                    <Button
-                        variant="contained"
-                        color="info"
-                        disabled={pedido.estado === 'cancelado'}
-                        startIcon={<QrCodeIcon />}
-                        onClick={generateQR}
-                    >
-                        Generar QR
-                    </Button>
-
+                <Box sx={{ mt: 4, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                    <Tooltip title="Imprimir" arrow>
+                        <Button
+                            variant="contained"
+                            startIcon={<PrintIcon />}
+                            onClick={() => window.print()}
+                            >
+                            <Box component="span" sx={{ display: { xs: 'none', sm: 'block' } }}>Imprimir</Box>
+                        </Button>
+                    </Tooltip>
+                    <Tooltip title="Enviar por Email" arrow>
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            disabled={pedido.estado === 'cancelado'}
+                            startIcon={<EmailIcon />}
+                            onClick={() => alert('Enviar email al proveedor...')}
+                            >
+                            <Box component="span" sx={{ display: { xs: 'none', sm: 'block' } }}>Enviar por Email</Box>
+                        </Button>
+                    </Tooltip>
+                    <Tooltip title="Enviar por WhatsApp" arrow>
+                        <Button
+                            variant="contained"
+                            color="success"
+                            startIcon={<WhatsAppIcon />}
+                            onClick={() => { 
+                                saveHistorialEnvioWsp()
+                                window.open(generateWhatsAppMessage(), '_blank')
+                            }}
+                            disabled={!!pedido.proveedor_telefono || pedido.estado === 'cancelado'}
+                            >
+                            <Box component="span" sx={{ display: { xs: 'none', sm: 'block' } }}>Enviar por WhatsApp</Box>
+                        </Button>
+                    </Tooltip>
+                    <Tooltip title="Generar QR" arrow>
+                        <Button
+                            variant="contained"
+                            color="info"
+                            disabled={pedido.estado === 'cancelado'}
+                            startIcon={<QrCodeIcon />}
+                            onClick={generateQR}
+                            >
+                            <Box component="span" sx={{ display: { xs: 'none', sm: 'block' } }}>Generar QR</Box>
+                        </Button>
+                    </Tooltip>
                 </Box>
             </Paper>
+
             {/* Diálogo para mostrar QR */}
             <Dialog open={qrOpen} onClose={() => setQrOpen(false)}>
                 <DialogTitle>Compartir Pedido</DialogTitle>

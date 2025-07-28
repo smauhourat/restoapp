@@ -63,6 +63,7 @@ export default function ProductoForm() {
                             <TextField
                                 label="Nombre"
                                 variant="outlined"
+                                size="small"
                                 fullWidth
                                 value={producto.nombre}
                                 onChange={(e) => setProducto({ ...producto, nombre: e.target.value })}
@@ -74,6 +75,7 @@ export default function ProductoForm() {
                                 label="Precio Unitario"
                                 type="number"
                                 variant="outlined"
+                                size="small"
                                 fullWidth
                                 value={producto.precio_unitario}
                                 onChange={(e) => setProducto({ ...producto, precio_unitario: e.target.value })}
@@ -85,6 +87,7 @@ export default function ProductoForm() {
                             <TextField
                                 select
                                 label="Unidad de Medida"
+                                size="small"
                                 variant="outlined"
                                 fullWidth
                                 value={producto.unidad_medida}

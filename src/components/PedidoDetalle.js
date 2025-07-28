@@ -18,11 +18,13 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    Tooltip
+    Tooltip,
+    Breadcrumbs,
+    Link
 } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PrintIcon from '@mui/icons-material/Print';
 import EmailIcon from '@mui/icons-material/Email';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'; // Importar el icono
 import QrCodeIcon from '@mui/icons-material/QrCode';
 
@@ -108,15 +110,15 @@ export default function PedidoDetalle() {
 
     return (
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Button
-                variant="outlined"
-                startIcon={<ArrowBackIcon />}
-                onClick={() => navigate('/pedidos')}
-                sx={{ mb: 3 }}
-            >
-                Volver a Pedidos
-            </Button>
-
+            <Breadcrumbs aria-label="ruta" gutterBottom>
+                <Button
+                    variant="text" // O "outlined", "text"
+                    startIcon={<ArrowBackIosIcon />} // Usa startIcon para el icono a la izquierda
+                    onClick={() => navigate('/pedidos')}
+                >
+                    VOLVER
+                </Button>                 
+            </Breadcrumbs>
             <Paper elevation={3} sx={{ p: 4 }}>
                 {/* Cabecera del Pedido */}
                 <Grid container spacing={2}>

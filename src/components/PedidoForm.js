@@ -24,12 +24,14 @@ import {
     DialogContent, // Importar DialogContent
     DialogContentText, // Importar DialogContentText
     DialogTitle, // Importar DialogTitle
-    Breadcrumbs,
-    Link,
+    Breadcrumbs
 } from '@mui/material';
+import SaveIcon from '@mui/icons-material/Save';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+
 import Stack from '@mui/material/Stack';
 import apiClient from '../api/client';
 
@@ -235,16 +237,14 @@ export default function PedidoForm() {
 
     return (
         <Container maxWidth="lg" sx={{ mt: 4 }}>
-            {/* <Button
-                variant="outlined"
-                startIcon={<ArrowBackIcon />}
-                sx={{ mb: 2 }}
-                onClick={() => navigate('/pedidos')}
-            >
-                Volver a Pedidos
-            </Button> */}
             <Breadcrumbs aria-label="ruta" gutterBottom>
-                <Link color="inherit" onClick={() => navigate('/pedidos')} sx={{ cursor: 'pointer', textDecoration: 'none' }}>&lt;&lt; Volver</Link>
+                <Button
+                    variant="text" // O "outlined", "text"
+                    startIcon={<ArrowBackIosIcon />} // Usa startIcon para el icono a la izquierda
+                    onClick={() => navigate('/pedidos')}
+                >
+                    VOLVER
+                </Button>
             </Breadcrumbs>            
             <Paper elevation={3} sx={{ p: 3 }}>
                 <Typography variant="h5" gutterBottom>
@@ -255,6 +255,7 @@ export default function PedidoForm() {
                         <TextField
                             label="Fecha"
                             type="date"
+                            size="small"
                             fullWidth
                             value={pedido.fecha}
                             onChange={(e) => setPedido({ ...pedido, fecha: e.target.value })}
@@ -275,6 +276,7 @@ export default function PedidoForm() {
                                     <TextField
                                         {...params}
                                         label="Proveedor *"
+                                        size="small"
                                         error={!pedido.proveedor_id && !!error}
                                         helperText={!pedido.proveedor_id && error ? error : "Selecciona un proveedor"}
                                     />
@@ -429,12 +431,13 @@ export default function PedidoForm() {
                 <Button
                     variant="contained"
                     color="primary"
-                    size="large"
+                    size="small"
                     onClick={handleSubmit}
+                    startIcon={<SaveIcon />}
                     sx={{ mt: 2, mr: 2 }}
                     disabled={!pedido.proveedor_id || pedido.renglones.length === 0}
                 >
-                    Guardar Pedido
+                    Guardar
                 </Button>
                     <Button
                         variant="outlined"

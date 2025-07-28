@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Button,
     Typography,
@@ -19,6 +20,7 @@ import {
     Snackbar,
     Alert
 } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
@@ -30,6 +32,7 @@ export default function ImportarProductos() {
     const [isLoading, setIsLoading] = useState(false);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [message, setMessage] = useState('');
+    const navigate = useNavigate();
 
     const handleFileUpload = async (e) => {
         e.preventDefault();
@@ -108,10 +111,17 @@ export default function ImportarProductos() {
                     disabled={!file || isLoading}
                     onClick={(e) => handleFileUpload(e)}
                     startIcon={isLoading ? <CircularProgress size={20} /> : null}
+                    sx={{ mr: 2 }}
                 >
                     Previsualizar
                 </Button>
-
+                <Button
+                    variant="outlined"
+                    startIcon={<ArrowBackIcon />}
+                    onClick={() => navigate('/productos')}
+                >
+                    Cancelar
+                </Button>
                 {file && (
                     <Typography variant="body2" sx={{ mt: 1 }}>
                         Archivo seleccionado: {file.name}

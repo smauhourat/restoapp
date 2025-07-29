@@ -63,6 +63,7 @@ export default function ProductoForm() {
                             <TextField
                                 label="Nombre"
                                 variant="outlined"
+                                size="small"
                                 fullWidth
                                 value={producto.nombre}
                                 onChange={(e) => setProducto({ ...producto, nombre: e.target.value })}
@@ -74,6 +75,7 @@ export default function ProductoForm() {
                                 label="Precio Unitario"
                                 type="number"
                                 variant="outlined"
+                                size="small"
                                 fullWidth
                                 value={producto.precio_unitario}
                                 onChange={(e) => setProducto({ ...producto, precio_unitario: e.target.value })}
@@ -85,6 +87,7 @@ export default function ProductoForm() {
                             <TextField
                                 select
                                 label="Unidad de Medida"
+                                size="small"
                                 variant="outlined"
                                 fullWidth
                                 value={producto.unidad_medida}
@@ -100,12 +103,16 @@ export default function ProductoForm() {
                         <Grid item xs={12} size={12}>
                             <TextField
                                 label="Descripción"
-                                variant="outlined"
                                 fullWidth
                                 multiline
                                 rows={3}
                                 value={producto.descripcion}
                                 onChange={(e) => setProducto({ ...producto, descripcion: e.target.value })}
+                                sx={{
+                                    '& .MuiInputBase-root': {
+                                        height: 'auto', // Permite crecimiento
+                                        minHeight: '56px', // Altura mínima
+                                    }}}
                             />
                         </Grid>
                     </Grid>

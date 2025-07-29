@@ -82,13 +82,13 @@ export default function ProveedorList() {
         Nuevo Proveedor
       </Button>
       <TableContainer component={Paper}>
-        <Table>
+        <Table size="small">
           <TableHead>
             <TableRow>
               <TableCell>Nombre</TableCell>
               <TableCell>Teléfono</TableCell>
               <TableCell>Email</TableCell>
-              <TableCell align="center">Acciones</TableCell>
+              <TableCell align="right" sx={{ paddingRight:'2rem' }}>Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -97,7 +97,7 @@ export default function ProveedorList() {
                 <TableCell>{proveedor.nombre}</TableCell>
                 <TableCell>{proveedor.telefono}</TableCell>
                 <TableCell>{proveedor.email}</TableCell>
-                <TableCell align="center">
+                <TableCell align="right">
                   <IconButton
                     color="primary"
                     onClick={() => navigate(`/proveedores/editar/${proveedor.id}`)}
@@ -161,14 +161,14 @@ export default function ProveedorList() {
         </Alert>
       </Snackbar>
 
-      <Button
+      {/* <Button
         variant="outlined"
         startIcon={<ArrowBackIcon />}
         sx={{ mt: 2 }}
-        onClick={() => navigate('/')} // Vuelve a la Home
+        onClick={() => navigate('/')}
       >
         Volver atrás
-      </Button>      
+      </Button>       */}
     </Container>
   );
 }

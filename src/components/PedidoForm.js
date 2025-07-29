@@ -24,11 +24,15 @@ import {
     DialogContent, // Importar DialogContent
     DialogContentText, // Importar DialogContentText
     DialogTitle, // Importar DialogTitle
+    Breadcrumbs
 } from '@mui/material';
+import SaveIcon from '@mui/icons-material/Save';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
+import Stack from '@mui/material/Stack';
 import apiClient from '../api/client';
 
 export default function PedidoForm() {
@@ -233,33 +237,25 @@ export default function PedidoForm() {
 
     return (
         <Container maxWidth="lg" sx={{ mt: 4 }}>
-            <Button
-                variant="outlined"
-                startIcon={<ArrowBackIcon />}
-                sx={{ mb: 2 }}
-                onClick={() => navigate('/pedidos')}
-            >
-                Volver a Pedidos
-            </Button>
+            <Breadcrumbs aria-label="ruta" gutterBottom>
+                <Button
+                    variant="text" // O "outlined", "text"
+                    startIcon={<ArrowBackIosIcon />} // Usa startIcon para el icono a la izquierda
+                    onClick={() => navigate('/pedidos')}
+                >
+                    VOLVER
+                </Button>
+            </Breadcrumbs>            
             <Paper elevation={3} sx={{ p: 3 }}>
                 <Typography variant="h5" gutterBottom>
-                    Nuevo Pedido
+                    Nuevo Pedido: #{pedido.numero_pedido}
                 </Typography>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
-                        {pedido.numero_pedido ? (
-                            <TextField
-                                label="Número de Pedido"
-                                fullWidth
-                                value={pedido.numero_pedido}
-                                disabled
-                            />
-                        ) : (<CircularProgress size={24} />)}
-                    </Grid>
                     <Grid item xs={12} sm={6}>
                         <TextField
                             label="Fecha"
                             type="date"
+                            size="small"
                             fullWidth
                             value={pedido.fecha}
                             onChange={(e) => setPedido({ ...pedido, fecha: e.target.value })}
@@ -280,6 +276,7 @@ export default function PedidoForm() {
                                     <TextField
                                         {...params}
                                         label="Proveedor *"
+                                        size="small"
                                         error={!pedido.proveedor_id && !!error}
                                         helperText={!pedido.proveedor_id && error ? error : "Selecciona un proveedor"}
                                     />
@@ -295,7 +292,7 @@ export default function PedidoForm() {
                 {pedido.proveedor_id && (
                     <Box sx={{ mt: 4 }}>
                         <Typography variant="h6" gutterBottom>
-                            Productos Disponibles de {proveedores.find(p => p.id === pedido.proveedor_id)?.nombre}
+                            Productos de {proveedores.find(p => p.id === pedido.proveedor_id)?.nombre}
                         </Typography>
                         <TextField
                             label="Buscar Producto"
@@ -315,7 +312,6 @@ export default function PedidoForm() {
                                     <TableHead>
                                         <TableRow>
                                             <TableCell>Producto</TableCell>
-                                            <TableCell>Precio Unitario</TableCell>
                                             <TableCell sx={{ width: '120px' }}>Cantidad</TableCell>
                                             <TableCell sx={{ width: '100px' }}>Acción</TableCell>
                                         </TableRow>
@@ -330,8 +326,14 @@ export default function PedidoForm() {
                                         ) : (
                                             filteredProductosDisponibles.map((product) => (
                                                 <TableRow key={product.id}>
-                                                    <TableCell>{product.nombre}</TableCell>
-                                                    <TableCell>${product.precio_unitario?.toFixed(2)}</TableCell>
+                                                    <TableCell>
+                                                        <Stack spacing={0.5}>
+                                                            <Typography variant="body2">{product.nombre}</Typography>
+                                                            <Typography variant="caption" color="textSecondary">
+                                                                ${product.precio_unitario?.toFixed(2)}
+                                                            </Typography>
+                                                        </Stack>
+                                                    </TableCell>
                                                     <TableCell>
                                                         <TextField
                                                             type="number"
@@ -367,7 +369,7 @@ export default function PedidoForm() {
                 {pedido.renglones.length > 0 && (
                     <Box sx={{ mt: 4 }}>
                         <Typography variant="h6" gutterBottom>
-                            Productos en el Pedido
+                            Pedido
                         </Typography>
                         <TableContainer component={Paper}>
                             <Table size="small">
@@ -375,15 +377,21 @@ export default function PedidoForm() {
                                     <TableRow>
                                         <TableCell>Producto</TableCell>
                                         <TableCell>Cantidad</TableCell>
-                                        <TableCell>Precio Unitario</TableCell>
                                         <TableCell>Subtotal</TableCell>
-                                        <TableCell>Acciones</TableCell>
+                                        <TableCell sx={{ width: '100px' }}>Acción</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {pedido.renglones.map((renglon, index) => (
                                         <TableRow key={renglon.producto_id || index}>
-                                            <TableCell>{renglon.nombre_producto}</TableCell>
+                                            <TableCell>
+                                                <Stack spacing={0.5}>
+                                                    <Typography variant="body2">{renglon.nombre_producto}</Typography>
+                                                    <Typography variant="caption" color="textSecondary">
+                                                        ${renglon.precio_unitario?.toFixed(2)}
+                                                    </Typography>
+                                                </Stack>
+                                            </TableCell>                                            
                                             <TableCell>
                                                 <TextField
                                                     type="number"
@@ -395,9 +403,9 @@ export default function PedidoForm() {
                                                     }}
                                                     size="small"
                                                     inputProps={{ min: 1, step: 1 }}
+                                                    sx={{ width: '80px' }}
                                                 />
                                             </TableCell>
-                                            <TableCell>${renglon.precio_unitario?.toFixed(2)}</TableCell>
                                             <TableCell>
                                                 ${(renglon.cantidad * renglon.precio_unitario)?.toFixed(2)}
                                             </TableCell>
@@ -423,13 +431,22 @@ export default function PedidoForm() {
                 <Button
                     variant="contained"
                     color="primary"
-                    size="large"
+                    size="small"
                     onClick={handleSubmit}
-                    sx={{ mt: 3 }}
+                    startIcon={<SaveIcon />}
+                    sx={{ mt: 2, mr: 2 }}
                     disabled={!pedido.proveedor_id || pedido.renglones.length === 0}
                 >
-                    Guardar Pedido
+                    Guardar
                 </Button>
+                    <Button
+                        variant="outlined"
+                        startIcon={<ArrowBackIcon />}
+                        sx={{ mt: 2 }}
+                        onClick={() => navigate('/pedidos')}
+                    >
+                        Cancelar
+                    </Button>                
             </Paper>
             <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError('')}>
                 <Alert severity="error">{error}</Alert>

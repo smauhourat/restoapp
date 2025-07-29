@@ -17,7 +17,8 @@ import {
     Alert,
     Box,
     Pagination,
-    Stack
+    Stack,
+    Tooltip
 
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -98,7 +99,7 @@ export default function PedidoList() {
                 Nuevo Pedido
             </Button>
             <TableContainer component={Paper}>
-                <Table>
+                <Table size="small">
                     <TableHead>
                         <TableRow>
                             <TableCell>Número</TableCell>
@@ -106,7 +107,7 @@ export default function PedidoList() {
                             <TableCell>Proveedor</TableCell>
                             <TableCell>Total</TableCell>
                             <TableCell>Estado</TableCell>
-                            <TableCell>Acciones</TableCell>
+                            <TableCell align="right" sx={{ paddingRight: '2rem' }}>Acciones</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -132,13 +133,14 @@ export default function PedidoList() {
                                         ))}
                                     </Select>
                                 </TableCell>
-                                <TableCell>
-                                    <Button
-                                        startIcon={<VisibilityIcon />}
-                                        onClick={() => navigate(`/pedidos/${pedido.id}`)}
-                                    >
-                                        Detalles
-                                    </Button>
+                                <TableCell align="right">
+                                    <Tooltip title="Ver Detalle" arrow>
+                                        <Button
+                                            startIcon={<VisibilityIcon />}
+                                            onClick={() => navigate(`/pedidos/${pedido.id}`)}
+                                            >
+                                        </Button>
+                                    </Tooltip>
                                 </TableCell>
                             </TableRow>
                         ))}

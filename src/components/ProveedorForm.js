@@ -58,6 +58,7 @@ export default function ProveedorForm() {
                   helperText="Por favor ingrese el nombre"
                   label="Nombre"
                   variant="outlined"
+                  size="small"
                   fullWidth
                   value={proveedor.nombre}
                   onChange={(e) => setProveedor({ ...proveedor, nombre: e.target.value })}
@@ -68,6 +69,7 @@ export default function ProveedorForm() {
               <TextField
                 label="Direccion"
                 variant="outlined"
+                size="small"
                 fullWidth
                 value={proveedor.direccion}
                 onChange={(e) => setProveedor({ ...proveedor, direccion: e.target.value })}
@@ -78,6 +80,7 @@ export default function ProveedorForm() {
                 helperText="Por favor ingrese el telefono"
                 label="Teléfono"
                 variant="outlined"
+                size="small"
                 fullWidth
                 value={proveedor.telefono}
                 onChange={(e) => setProveedor({ ...proveedor, telefono: e.target.value })}
@@ -88,6 +91,7 @@ export default function ProveedorForm() {
                 helperText="Por favor ingrese el email"
                 label="Email"
                 variant="outlined"
+                size="small"
                 fullWidth
                 value={proveedor.email}
                 onChange={(e) => setProveedor({ ...proveedor, email: e.target.value })}

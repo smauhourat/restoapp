@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Button,
     Typography,
@@ -19,6 +20,7 @@ import {
     Snackbar,
     Alert
 } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
@@ -30,6 +32,7 @@ export default function ImportarProductos() {
     const [isLoading, setIsLoading] = useState(false);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [message, setMessage] = useState('');
+    const navigate = useNavigate();
 
     const handleFileUpload = async (e) => {
         e.preventDefault();
@@ -71,9 +74,12 @@ export default function ImportarProductos() {
             <Typography variant="h5" gutterBottom>
                 Importar Productos desde Excel
             </Typography>
-            <Typography variant="body2" sx={{ mt: 1, mb:3 }}>
-                El Archivo deberá tener las siguientes columnas: nombre, descripcion, precio, unidad:
+            <Typography variant="body2" sx={{ mt: 1, mb:1 }}>
+                El Archivo deberá tener las siguientes columnas:
             </Typography>
+            <Typography variant="body1" sx={{ mt: 1, mb: 3, fontWeight: 'normal' }}>
+                 [ NOMBRE ] (string) ; [ DESCRIPCION ] (string), [ PRECIO ] (decimal), [ UNIDAD ] (kg | unidad | litro | metro | caja)
+            </Typography>            
 
             {/* <Box component="form" onSubmit={handleFileUpload} sx={{ mb: 3 }}> */}
             <Box component="form" sx={{ mb: 3 }}>
@@ -108,10 +114,17 @@ export default function ImportarProductos() {
                     disabled={!file || isLoading}
                     onClick={(e) => handleFileUpload(e)}
                     startIcon={isLoading ? <CircularProgress size={20} /> : null}
+                    sx={{ mr: 2 }}
                 >
                     Previsualizar
                 </Button>
-
+                <Button
+                    variant="outlined"
+                    startIcon={<ArrowBackIcon />}
+                    onClick={() => navigate('/productos')}
+                >
+                    Cancelar
+                </Button>
                 {file && (
                     <Typography variant="body2" sx={{ mt: 1 }}>
                         Archivo seleccionado: {file.name}

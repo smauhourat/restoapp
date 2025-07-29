@@ -22,7 +22,7 @@ router.get('/', (req, res) => {
     SELECT p.id, p.numero_pedido, p.fecha, pr.nombre as proveedor, p.estado, p.total
     FROM Pedido p
     JOIN Proveedor pr ON p.proveedor_id = pr.id
-    ORDER BY p.fecha DESC
+    ORDER BY p.numero_pedido DESC
     LIMIT ? OFFSET ?
   `).all(perPage, offset);
 

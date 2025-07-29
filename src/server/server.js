@@ -6,6 +6,7 @@ import { initDatabase } from './models.js';
 import productosRoutes from './routes/productos.js'
 import proveedoresRoutes from './routes/proveedores.js'
 import pedidosRoutes from './routes/pedidos.js'
+import statsRoutes from './routes/stats.js'
 
 const app = express();
 //const PORT = process.env.PORT || 3001;
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/api/productos', productosRoutes);
 app.use('/api/proveedores', proveedoresRoutes);
 app.use('/api/pedidos', pedidosRoutes);
+app.use('/api/stats', statsRoutes);
 
 initDatabase(); // Crear tablas si no existen
 

@@ -24,7 +24,8 @@ import {
     Box,
     Pagination,
     Stack,
-    TableSortLabel
+    TableSortLabel,
+    Tooltip
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -129,7 +130,7 @@ export default function ProductoList() {
                                 </TableSortLabel>                                
                             </TableCell>
                             <TableCell>#Proveedores</TableCell>
-                            <TableCell>Precio Unitario</TableCell>
+                            <TableCell>Precio Promedio</TableCell>
                             <TableCell>Unidad de Medida</TableCell>
                             <TableCell>
                                 <TableSortLabel
@@ -149,8 +150,12 @@ export default function ProductoList() {
                                 <TableCell>{producto.nombre}</TableCell>
                                 <TableCell sx={{ 
                                     ...(producto.proveedores === 0 && {backgroundColor: colorAlert})
-                                }}>{producto.proveedores}</TableCell>
-                                <TableCell>${producto.precio_unitario}</TableCell>
+                                }}>
+                                    <Tooltip title="Cantidad de Proveedores" arrow>
+                                        {producto.proveedores}
+                                    </Tooltip>
+                                </TableCell>
+                                <TableCell><Tooltip title="Es el precio promedio entre todos los Proveedores" arrow> ${producto.precio_promedio}</Tooltip></TableCell>
                                 <TableCell>{producto.unidad_medida}</TableCell>
                                 <TableCell>{producto.descripcion}</TableCell>
                                 <TableCell align="center">

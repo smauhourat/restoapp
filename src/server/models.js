@@ -18,7 +18,6 @@ export function initDatabase() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nombre TEXT NOT NULL,
       descripcion TEXT,
-      precio_unitario REAL NOT NULL,
       unidad_medida TEXT
     );
   `);
@@ -28,7 +27,7 @@ export function initDatabase() {
     CREATE TABLE IF NOT EXISTS Proveedor_Producto (
       proveedor_id INTEGER,
       producto_id INTEGER,
-      precio_compra REAL NOT NULL,
+      precio_unitario REAL NOT NULL,
       tiempo_entrega INTEGER,
       PRIMARY KEY (proveedor_id, producto_id),
       FOREIGN KEY (proveedor_id) REFERENCES Proveedor(id) ON DELETE CASCADE,

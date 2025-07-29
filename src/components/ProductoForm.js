@@ -24,7 +24,6 @@ export default function ProductoForm() {
     const [producto, setProducto] = useState({
         nombre: '',
         descripcion: '',
-        precio_unitario: '',
         unidad_medida: 'unidad',
     });
     const [error, setError] = useState('');
@@ -70,19 +69,7 @@ export default function ProductoForm() {
                                 required
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                label="Precio Unitario"
-                                type="number"
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                value={producto.precio_unitario}
-                                onChange={(e) => setProducto({ ...producto, precio_unitario: e.target.value })}
-                                required
-                                inputProps={{ step: "0.01", min: "0" }}
-                            />
-                        </Grid>
+
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 select

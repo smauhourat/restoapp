@@ -7,7 +7,7 @@ import fs from 'fs';
 const upload = multer({ dest: 'uploads/' }); // Carpeta temporal
 const router = express.Router();
 
-const validSortFields = ['nombre', 'descripcion', 'precio_unitario'];
+const validSortFields = ['nombre', 'descripcion'];
 const validOrders = ['asc', 'desc'];
 
 // Helper: Validate product data
@@ -39,7 +39,12 @@ router.get('/', (req, res) => {
   }
   
   const productos = db.prepare(`
-    SELECT Producto.*, (select count(*) from Proveedor_Producto pp where pp.producto_id == Producto.id) as proveedores FROM Producto
+    SELECT 
+      Producto.*, 
+      (select count(*) from Proveedor_Producto pp where pp.producto_id == Producto.id) as proveedores,
+      (select sum(pp.precio_unitario)/count(*) from Proveedor_Producto pp where pp.producto_id == Producto.id) as precio_promedio
+    FROM 
+      Producto
     ORDER BY ${sortBy} ${order}
     LIMIT ? OFFSET ?
   `).all(perPage, offset);
@@ -70,7 +75,7 @@ router.get('/:id', (req, res) => {
 
 // Crear un nuevo producto
 router.post('/', (req, res) => {
-    const { nombre, descripcion, precio_unitario, unidad_medida } = req.body;
+    const { nombre, descripcion, unidad_medida } = req.body;
 
     // Validaciones básicas
     const error = validateProducto({ nombre });
@@ -78,17 +83,17 @@ router.post('/', (req, res) => {
     if (productoExiste(nombre)) return res.status(400).json({ error: 'El producto ya existe' })    
 
     const stmt = db.prepare(`
-    INSERT INTO Producto (nombre, descripcion, precio_unitario, unidad_medida)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO Producto (nombre, descripcion, unidad_medida)
+    VALUES (?, ?, ?)
   `);
-    const result = stmt.run(nombre, descripcion, precio_unitario, unidad_medida);
+    const result = stmt.run(nombre, descripcion, unidad_medida);
     res.json({ id: result.lastInsertRowid });
 });
 
 // Actualizar un producto
 router.put('/:id', (req, res) => {
     const { id } = req.params;
-    const { nombre, descripcion, precio_unitario, unidad_medida } = req.body;
+    const { nombre, descripcion, unidad_medida } = req.body;
 
     // Validaciones básicas
     const error = validateProducto({ nombre });
@@ -98,10 +103,10 @@ router.put('/:id', (req, res) => {
 
     const stmt = db.prepare(`
     UPDATE Producto 
-    SET nombre = ?, descripcion = ?, precio_unitario = ?, unidad_medida = ?
+    SET nombre = ?, descripcion = ?, unidad_medida = ?
     WHERE id = ?
   `);
-    stmt.run(nombre, descripcion, precio_unitario, unidad_medida, id);
+    stmt.run(nombre, descripcion, unidad_medida, id);
     res.json({ success: true });
 });
 
@@ -128,11 +133,12 @@ router.post('/importar', upload.single('archivo'), (req, res) => {
     const sheetName = workbook.SheetNames[0];
     const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
+    console.log('Datos importados:', data);
+
     // Validar estructura mínima
     const validatedData = data.map(row => ({
       nombre: row.Nombre || row.nombre || 'Sin nombre',
       descripcion: row.Descripcion || row.descripcion || '',
-      precio: parseFloat(row.Precio || row.precio) || 0,
       unidad: row.Unidad || row.unidad || 'unidad'
     }));
 
@@ -159,8 +165,8 @@ router.post('/confirmar-importacion', (req, res) => {
   const { productos } = req.body;
 
   const stmt = db.prepare(`
-    INSERT INTO Producto (nombre, descripcion, precio_unitario, unidad_medida)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO Producto (nombre, descripcion, unidad_medida)
+    VALUES (?, ?, ?)
   `);
 
   try {
@@ -168,7 +174,6 @@ router.post('/confirmar-importacion', (req, res) => {
       stmt.run(
         producto.nombre,
         producto.descripcion,
-        producto.precio,
         producto.unidad
       );
     });

@@ -88,13 +88,12 @@ router.put('/:id', (req, res) => {
     res.json({ success: true });
 });
 
-// CRUD Productos, Pedidos, etc. (similar a lo anterior)
-// ...
+
 // Obtener todos los productos de un proveedor
 router.get('/:id/productos', (req, res) => {
     const { id } = req.params;
     const productos = db.prepare(`
-    SELECT p.id, p.nombre, p.descripcion, p.precio_unitario, pp.precio_compra, pp.tiempo_entrega 
+    SELECT p.id, p.nombre, p.descripcion, pp.precio_unitario, pp.tiempo_entrega, p.unidad_medida
     FROM Producto p
     JOIN Proveedor_Producto pp ON p.id = pp.producto_id
     WHERE pp.proveedor_id = ?
@@ -104,14 +103,14 @@ router.get('/:id/productos', (req, res) => {
 
 // Añadir producto a un proveedor
 router.post('/:id/productos', (req, res) => {
-    const { id } = req.params;
-    const { producto_id, precio_compra, tiempo_entrega } = req.body;
+  const { id } = req.params;
+  const { producto_id, precio_unitario, tiempo_entrega } = req.body;
     const stmt = db.prepare(`
-    INSERT INTO Proveedor_Producto (proveedor_id, producto_id, precio_compra, tiempo_entrega)
+    INSERT INTO Proveedor_Producto (proveedor_id, producto_id, precio_unitario, tiempo_entrega)
     VALUES (?, ?, ?, ?)
   `);
-    stmt.run(id, producto_id, precio_compra, tiempo_entrega);
-    res.json({ success: true });
+  stmt.run(id, producto_id, precio_unitario, tiempo_entrega);
+  res.json({ success: true });
 });
 
 
@@ -137,18 +136,6 @@ router.delete('/:proveedorId/productos/:productoId', (req, res) => {
   `);
     stmt.run(proveedorId, productoId);
     res.json({ success: true });
-});
-
-// routes.js
-router.get('/:id/productos', (req, res) => {
-    const { id } = req.params;
-    const productos = db.prepare(`
-    SELECT p.*, pp.precio_compra 
-    FROM Producto p
-    JOIN Proveedor_Producto pp ON p.id = pp.producto_id
-    WHERE pp.proveedor_id = ?
-  `).all(id);
-    res.json(productos);
 });
 
 // Obtener productos NO asignados a un proveedor

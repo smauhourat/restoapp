@@ -78,7 +78,7 @@ export default function ImportarProductos() {
                 El Archivo deberá tener las siguientes columnas:
             </Typography>
             <Typography variant="body1" sx={{ mt: 1, mb: 3, fontWeight: 'normal' }}>
-                 [ NOMBRE ] (string) ; [ DESCRIPCION ] (string), [ PRECIO ] (decimal), [ UNIDAD ] (kg | unidad | litro | metro | caja)
+                 [ NOMBRE ] (string) ; [ DESCRIPCION ] (string), [ UNIDAD ] (kg | unidad | litro | metro | caja)
             </Typography>            
 
             {/* <Box component="form" onSubmit={handleFileUpload} sx={{ mb: 3 }}> */}
@@ -154,7 +154,6 @@ export default function ImportarProductos() {
                                 <TableRow>
                                     <TableCell>Nombre</TableCell>
                                     <TableCell>Descripción</TableCell>
-                                    <TableCell>Precio</TableCell>
                                     <TableCell>Unidad</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -163,7 +162,6 @@ export default function ImportarProductos() {
                                     <TableRow key={index}>
                                         <TableCell>{producto.nombre}</TableCell>
                                         <TableCell>{producto.descripcion}</TableCell>
-                                        <TableCell>${producto.precio.toFixed(2)}</TableCell>
                                         <TableCell>{producto.unidad}</TableCell>
                                     </TableRow>
                                 ))}

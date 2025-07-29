@@ -74,9 +74,12 @@ export default function ImportarProductos() {
             <Typography variant="h5" gutterBottom>
                 Importar Productos desde Excel
             </Typography>
-            <Typography variant="body2" sx={{ mt: 1, mb:3 }}>
-                El Archivo deberá tener las siguientes columnas: nombre, descripcion, precio, unidad:
+            <Typography variant="body2" sx={{ mt: 1, mb:1 }}>
+                El Archivo deberá tener las siguientes columnas:
             </Typography>
+            <Typography variant="body1" sx={{ mt: 1, mb: 3, fontWeight: 'normal' }}>
+                 [ NOMBRE ] (string) ; [ DESCRIPCION ] (string), [ PRECIO ] (decimal), [ UNIDAD ] (kg | unidad | litro | metro | caja)
+            </Typography>            
 
             {/* <Box component="form" onSubmit={handleFileUpload} sx={{ mb: 3 }}> */}
             <Box component="form" sx={{ mb: 3 }}>

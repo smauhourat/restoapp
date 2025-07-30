@@ -24,6 +24,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import SaveIcon from '@mui/icons-material/Save';
 import apiClient from '../api/client';
 const UNIDADES_MEDIDA = ['unidad', 'kg', 'litro', 'metro', 'caja'];
 
@@ -187,7 +188,7 @@ export default function ProveedorProductos() {
         <DialogContent sx={{ p: 3, minWidth: 400 }}>
           <Autocomplete
             options={filteredProductos}
-            getOptionLabel={(option) => option.nombre ? `${option.nombre} ($${option.precio_unitario})` : ''}
+            getOptionLabel={(option) => option.nombre ? `${option.nombre} (${option.descripcion})` : ''}
             inputValue={searchInput}
             onInputChange={(_, newInputValue) => setSearchInput(newInputValue)}
             value={selectedProducto}
@@ -244,6 +245,7 @@ export default function ProveedorProductos() {
             label="Precio Unitario"
             type="number"
             fullWidth
+            required
             sx={{ mb: 2 }}
             value={formData.precio_unitario}
             onChange={(e) => setFormData({ ...formData, precio_unitario: e.target.value })}
@@ -281,39 +283,20 @@ export default function ProveedorProductos() {
 
       {/* Nuevo Diálogo para crear producto */}
       <Dialog open={openNewProductDialog} onClose={() => setOpenNewProductDialog(false)}>
-        <DialogTitle>Crear Nuevo Producto</DialogTitle>
+        <DialogTitle>Nuevo Producto</DialogTitle>
         <DialogContent sx={{ p: 3, minWidth: 400 }}>
           <TextField
             autoFocus
             margin="dense"
-            label="Nombre del Producto"
+            label="Nombre"
             type="text"
             fullWidth
             variant="outlined"
             value={newProductFormData.nombre}
             onChange={(e) => setNewProductFormData({ ...newProductFormData, nombre: e.target.value })}
             sx={{ mb: 2 }}
+            required
           />
-          <TextField
-            margin="dense"
-            label="Descripción (opcional)"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={newProductFormData.descripcion}
-            onChange={(e) => setNewProductFormData({ ...newProductFormData, descripcion: e.target.value })}
-            sx={{ mb: 2 }}
-          />
-          {/* <TextField
-            margin="dense"
-            label="Precio Unitario"
-            type="number"
-            fullWidth
-            variant="outlined"
-            value={newProductFormData.precio_unitario}
-            onChange={(e) => setNewProductFormData({ ...newProductFormData, precio_unitario: e.target.value })}
-            sx={{ mb: 2 }}
-          /> */}
           <TextField
             select
             label="Unidad de Medida"
@@ -328,18 +311,36 @@ export default function ProveedorProductos() {
                 {unidad}
               </MenuItem>
             ))}
-          </TextField>
-
-
+          </TextField>          
+          <TextField
+            margin="dense"
+            label="Descripción (opcional)"
+            type="text"
+            fullWidth
+            multiline
+            rows={3}
+            variant="outlined"
+            value={newProductFormData.descripcion}
+            onChange={(e) => setNewProductFormData({ ...newProductFormData, descripcion: e.target.value })}
+            sx={{ mb: 2 }}
+          />
           {newProductError && (
             <Alert severity="error" sx={{ mb: 2 }}>{newProductError}</Alert>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenNewProductDialog(false)}>Cancelar</Button>
-          <Button onClick={handleCreateNewProduct} variant="contained" color="primary">
-            Crear Producto
+          <Button 
+            onClick={handleCreateNewProduct} 
+            variant="contained" 
+            startIcon={<SaveIcon />}
+            color="primary">
+            Guardar
           </Button>
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBackIcon />}
+            onClick={() => setOpenNewProductDialog(false)}>
+            Cancelar</Button>          
         </DialogActions>
       </Dialog>
 

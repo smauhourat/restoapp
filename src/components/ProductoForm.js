@@ -58,7 +58,7 @@ export default function ProductoForm() {
                 </Typography>
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={2}>
-                        <Grid item xs={12}>
+                        <Grid item size={12}>
                             <TextField
                                 label="Nombre"
                                 variant="outlined"
@@ -70,7 +70,7 @@ export default function ProductoForm() {
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid item size={12}>
                             <TextField
                                 select
                                 label="Unidad de Medida"
@@ -87,7 +87,7 @@ export default function ProductoForm() {
                                 ))}
                             </TextField>
                         </Grid>
-                        <Grid item xs={12} size={12}>
+                        <Grid item size={12}>
                             <TextField
                                 label="Descripción"
                                 fullWidth

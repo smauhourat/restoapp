@@ -18,12 +18,14 @@ import {
   Alert,
   Container,
   DialogActions,
-  Autocomplete
+  Autocomplete,
+  MenuItem
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import apiClient from '../api/client';
+const UNIDADES_MEDIDA = ['unidad', 'kg', 'litro', 'metro', 'caja'];
 
 export default function ProveedorProductos() {
   const { id } = useParams();
@@ -32,12 +34,22 @@ export default function ProveedorProductos() {
   const [openDialog, setOpenDialog] = useState(false);
   const [formData, setFormData] = useState({
     producto_id: '',
-    precio_compra: '',
+    precio_unitario: '',
     tiempo_entrega: '',
   });
   const [searchInput, setSearchInput] = useState('');
   const [error, setError] = useState('');
   const [selectedProducto, setSelectedProducto] = useState(null);
+
+  // Nuevos estados para la creación de productos
+  const [openNewProductDialog, setOpenNewProductDialog] = useState(false);
+  const [newProductFormData, setNewProductFormData] = useState({
+    nombre: '',
+    descripcion: '',
+    precio_unitario: '',
+  });
+  const [newProductError, setNewProductError] = useState('');
+
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -75,18 +87,18 @@ export default function ProveedorProductos() {
       return;
     }
     await apiClient.post(`/proveedores/${id}/productos`, JSON.stringify(formData));
-  };  
+  };
 
   const handleAddProducto = async () => {
     await addProducto()
     setOpenDialog(false);
-    setFormData({ producto_id: '', precio_compra: '', tiempo_entrega: '' });
+    setFormData({ producto_id: '', precio_unitario: '', tiempo_entrega: '' });
     fetchData()
-  };  
+  };
 
   const handleAddAndStayProducto = async () => {
     await addProducto()
-    setFormData({ ...formData, precio_compra: '', tiempo_entrega: '' });
+    setFormData({ ...formData, precio_unitario: '', tiempo_entrega: '' });
     setSelectedProducto(null);
     fetchData()
   }
@@ -100,98 +112,150 @@ export default function ProveedorProductos() {
     await deleteProducto(productoId)
   };
 
+  // Nueva función para crear un producto
+  const handleCreateNewProduct = async () => {
+    if (!newProductFormData.nombre || !newProductFormData.unidad_medida) {
+      setNewProductError('El nombre y la unidad de medida son obligatorios.');
+      return;
+    }
+    try {
+      const response = await apiClient.post('/productos', JSON.stringify(newProductFormData));
+      // Asignar el nuevo producto creado al formulario de asignación
+      setSelectedProducto(response); // Asume que la API devuelve el objeto completo del producto creado
+      setFormData({
+        ...formData,
+        producto_id: response.id,
+      });
+      setOpenNewProductDialog(false);
+      setNewProductFormData({ nombre: '', descripcion: '', unidad_medida: '' });
+      setNewProductError('');
+      fetchData(); // Recargar la lista de todos los productos para incluir el nuevo
+    } catch (err) {
+      setNewProductError('Error al crear el producto: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
   return (
     // <Paper sx={{ p: 3, mt: 3 }}>
-      <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <Typography variant="h4" gutterBottom>
-          Productos del Proveedor: {proveedorNombre}
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setOpenDialog(true)}
-          sx={{ mb: 2 }}
-        >
-          Asignar Producto
-        </Button>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Producto</TableCell>
-                <TableCell>Descripcion</TableCell>
-                <TableCell>Precio Unitario</TableCell>
-                <TableCell>Precio Compra</TableCell>
-                <TableCell>Tiempo Entrega (días)</TableCell>
-                <TableCell>Acciones</TableCell>
+    <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Typography variant="h4" gutterBottom>
+        Productos del Proveedor: {proveedorNombre}
+      </Typography>
+      <Button
+        variant="contained"
+        startIcon={<AddIcon />}
+        onClick={() => setOpenDialog(true)}
+        sx={{ mb: 2 }}
+      >
+        Asignar Producto
+      </Button>
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Producto</TableCell>
+              <TableCell>Descripcion</TableCell>
+              <TableCell>Precio Unitario</TableCell>
+              <TableCell>Tiempo Entrega (días)</TableCell>
+              <TableCell>Acciones</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {productos.map((producto) => (
+              <TableRow key={producto.id}>
+                <TableCell>{producto.nombre}</TableCell>
+                <TableCell>{producto.descripcion}</TableCell>
+                <TableCell>${producto.precio_unitario}</TableCell>
+                <TableCell>{producto.tiempo_entrega}</TableCell>
+                <TableCell>
+                  <IconButton
+                    color="error"
+                    onClick={() => handleDelete(producto.id)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
               </TableRow>
-            </TableHead>
-            <TableBody>
-              {productos.map((producto) => (
-                <TableRow key={producto.id}>
-                  <TableCell>{producto.nombre}</TableCell>
-                  <TableCell>{producto.descripcion}</TableCell>
-                  <TableCell>${producto.precio_unitario}</TableCell>
-                  <TableCell>${producto.precio_compra}</TableCell>
-                  <TableCell>{producto.tiempo_entrega}</TableCell>
-                  <TableCell>
-                    <IconButton
-                      color="error"
-                      onClick={() => handleDelete(producto.id)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
-        {/* Diálogo para asignar producto */}
-        <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-          <DialogTitle>Asignar Producto al Proveedor</DialogTitle>
-          <DialogContent sx={{ p: 3, minWidth: 400 }}>
-            <Autocomplete
-              options={filteredProductos}
-              getOptionLabel={(option) => `${option.nombre} ($${option.precio_unitario})`}
-              inputValue={searchInput}
-              onInputChange={(_, newValue) => setSearchInput(newValue)}
-              value={selectedProducto}
-              onChange={(_, newValue) => {
+      {/* Diálogo para asignar producto */}
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>Asignar Producto al Proveedor</DialogTitle>
+        <DialogContent sx={{ p: 3, minWidth: 400 }}>
+          <Autocomplete
+            options={filteredProductos}
+            getOptionLabel={(option) => option.nombre ? `${option.nombre} ($${option.precio_unitario})` : ''}
+            inputValue={searchInput}
+            onInputChange={(_, newInputValue) => setSearchInput(newInputValue)}
+            value={selectedProducto}
+            onChange={(_, newValue) => {
+              if (typeof newValue === 'string') {
+                // El usuario ha escrito un nuevo producto
+                setNewProductFormData({ ...newProductFormData, nombre: newValue });
+                setOpenNewProductDialog(true);
+              } else if (newValue && newValue.inputValue) {
+                // Esto es para el caso de "Add X" que Autocomplete puede generar
+                setNewProductFormData({ ...newProductFormData, nombre: newValue.inputValue });
+                setOpenNewProductDialog(true);
+              } else {
                 setSelectedProducto(newValue);
                 setFormData({
                   ...formData,
                   producto_id: newValue?.id || ''
                 });
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Buscar producto"
-                  placeholder="Escribe para buscar..."
-                  fullWidth
-                  sx={{ mb: 2 }}
-                />
-              )}
-              noOptionsText="No se encontraron productos"
-            />
-            <TextField
-              label="Precio de Compra"
-              type="number"
-              fullWidth
-              sx={{ mb: 2 }}
-              value={formData.precio_compra}
-              onChange={(e) => setFormData({ ...formData, precio_compra: e.target.value })}
-            />
-            <TextField
-              label="Tiempo de Entrega (días)"
-              type="number"
-              fullWidth
-              sx={{ mb: 2 }}
-              value={formData.tiempo_entrega}
-              onChange={(e) => setFormData({ ...formData, tiempo_entrega: e.target.value })}
-            />
+              }
+            }}
+            filterOptions={(options, params) => {
+              const filtered = filteredProductos.filter(option =>
+                option.nombre.toLowerCase().includes(params.inputValue.toLowerCase()) ||
+                (option.descripcion && option.descripcion.toLowerCase().includes(params.inputValue.toLowerCase()))
+              );
+
+              // Sugerir la opción de "Crear nuevo producto" si no hay coincidencias exactas
+              if (params.inputValue !== '' && !filtered.some(option => option.nombre.toLowerCase() === params.inputValue.toLowerCase())) {
+                filtered.push({
+                  inputValue: params.inputValue,
+                  nombre: `Añadir "${params.inputValue}"`,
+                });
+              }
+
+              return filtered;
+            }}
+            selectOnFocus
+            clearOnBlur
+            handleHomeEndKeys
+            renderOption={(props, option) => <li {...props}>{option.nombre}</li>}
+            freeSolo // Permite la entrada de texto libre
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Buscar o crear producto"
+                placeholder="Escribe para buscar o añadir..."
+                fullWidth
+                sx={{ mb: 2 }}
+              />
+            )}
+            noOptionsText="No se encontraron productos"
+          />
+          <TextField
+            label="Precio Unitario"
+            type="number"
+            fullWidth
+            sx={{ mb: 2 }}
+            value={formData.precio_unitario}
+            onChange={(e) => setFormData({ ...formData, precio_unitario: e.target.value })}
+          />
+          <TextField
+            label="Tiempo de Entrega (días)"
+            type="number"
+            fullWidth
+            sx={{ mb: 2 }}
+            value={formData.tiempo_entrega}
+            onChange={(e) => setFormData({ ...formData, tiempo_entrega: e.target.value })}
+          />
           <Button
             variant="contained"
             color="success"
@@ -200,29 +264,93 @@ export default function ProveedorProductos() {
             sx={{ mb: 2 }}
           >
             Guardar
-          </Button>            
-            <Button
-              variant="contained"
-              onClick={handleAddProducto}
-              fullWidth
-            >
-              Guardar y Cerrar
-            </Button>
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleAddProducto}
+            fullWidth
+          >
+            Guardar y Cerrar
+          </Button>
 
-          </DialogContent>
-            <DialogActions>
-            <Button onClick={() => setOpenDialog(false)}>Cerrar</Button>
-            </DialogActions>
-        </Dialog>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
 
-        {/* Notificación de error */}
-        <Snackbar
-          open={!!error}
-          autoHideDuration={6000}
-          onClose={() => setError('')}
-        >
-          <Alert severity="error">{error}</Alert>
-        </Snackbar>
+      {/* Nuevo Diálogo para crear producto */}
+      <Dialog open={openNewProductDialog} onClose={() => setOpenNewProductDialog(false)}>
+        <DialogTitle>Crear Nuevo Producto</DialogTitle>
+        <DialogContent sx={{ p: 3, minWidth: 400 }}>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Nombre del Producto"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={newProductFormData.nombre}
+            onChange={(e) => setNewProductFormData({ ...newProductFormData, nombre: e.target.value })}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            margin="dense"
+            label="Descripción (opcional)"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={newProductFormData.descripcion}
+            onChange={(e) => setNewProductFormData({ ...newProductFormData, descripcion: e.target.value })}
+            sx={{ mb: 2 }}
+          />
+          {/* <TextField
+            margin="dense"
+            label="Precio Unitario"
+            type="number"
+            fullWidth
+            variant="outlined"
+            value={newProductFormData.precio_unitario}
+            onChange={(e) => setNewProductFormData({ ...newProductFormData, precio_unitario: e.target.value })}
+            sx={{ mb: 2 }}
+          /> */}
+          <TextField
+            select
+            label="Unidad de Medida"
+            size="small"
+            variant="outlined"
+            fullWidth
+            value={newProductFormData.unidad_medida}
+            onChange={(e) => setNewProductFormData({ ...newProductFormData, unidad_medida: e.target.value })}
+          >
+            {UNIDADES_MEDIDA.map((unidad) => (
+              <MenuItem key={unidad} value={unidad}>
+                {unidad}
+              </MenuItem>
+            ))}
+          </TextField>
+
+
+          {newProductError && (
+            <Alert severity="error" sx={{ mb: 2 }}>{newProductError}</Alert>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenNewProductDialog(false)}>Cancelar</Button>
+          <Button onClick={handleCreateNewProduct} variant="contained" color="primary">
+            Crear Producto
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Notificación de error */}
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={() => setError('')}
+      >
+        <Alert severity="error">{error}</Alert>
+      </Snackbar>
       <Button
         variant="outlined"
         startIcon={<ArrowBackIcon />}
@@ -230,8 +358,8 @@ export default function ProveedorProductos() {
         onClick={() => navigate(-1)} // Vuelve a la Home
       >
         Volver atrás
-      </Button>           
-      </Container>
-  //   </Paper>
-   );
+      </Button>
+    </Container>
+    //   </Paper>
+  );
 }

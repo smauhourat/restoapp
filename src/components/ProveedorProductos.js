@@ -50,6 +50,7 @@ export default function ProveedorProductos() {
     precio_unitario: '',
   });
   const [newProductError, setNewProductError] = useState('');
+  const [asignProductError, setAsignProductError] = useState('');
 
 
   const location = useLocation();
@@ -91,16 +92,26 @@ export default function ProveedorProductos() {
   };
 
   const handleAddProducto = async () => {
+    if (!formData.nombre || !formData.unidad_medida) {
+      setAsignProductError('El nombre y la unidad de medida son obligatorios.');
+      return;
+    }    
     await addProducto()
+    setAsignProductError('');
     setOpenDialog(false);
     setFormData({ producto_id: '', precio_unitario: '', tiempo_entrega: '' });
     fetchData()
   };
 
   const handleAddAndStayProducto = async () => {
+    if (!formData.nombre || !formData.unidad_medida) {
+      setAsignProductError('El nombre y la unidad de medida son obligatorios.');
+      return;
+    }        
     await addProducto()
     setFormData({ ...formData, precio_unitario: '', tiempo_entrega: '' });
     setSelectedProducto(null);
+    setAsignProductError('');
     fetchData()
   }
 
@@ -258,6 +269,9 @@ export default function ProveedorProductos() {
             value={formData.tiempo_entrega}
             onChange={(e) => setFormData({ ...formData, tiempo_entrega: e.target.value })}
           />
+          {asignProductError && (
+            <Alert severity="error" sx={{ mb: 2 }}>{asignProductError}</Alert>
+          )}          
           <Button
             variant="contained"
             color="success"
@@ -277,7 +291,9 @@ export default function ProveedorProductos() {
 
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Cerrar</Button>
+          <Button onClick={() => {
+            setAsignProductError('');
+            setOpenDialog(false)}}>Cerrar</Button>
         </DialogActions>
       </Dialog>
 

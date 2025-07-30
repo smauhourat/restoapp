@@ -92,8 +92,11 @@ export default function ProveedorProductos() {
   };
 
   const handleAddProducto = async () => {
-    if (!formData.nombre || !formData.unidad_medida) {
-      setAsignProductError('El nombre y la unidad de medida son obligatorios.');
+    console.log('handleAddProducto called');
+    console.log('formData', formData);
+    console.log('!formData.producto_id', !formData.producto_id);
+    if (!formData.producto_id || !formData.precio_unitario) {
+      setAsignProductError('El nombre y el precio unitario son obligatorios.');
       return;
     }    
     await addProducto()
@@ -104,10 +107,10 @@ export default function ProveedorProductos() {
   };
 
   const handleAddAndStayProducto = async () => {
-    if (!formData.nombre || !formData.unidad_medida) {
-      setAsignProductError('El nombre y la unidad de medida son obligatorios.');
+    if (!formData.producto_id || !formData.precio_unitario) {
+      setAsignProductError('El nombre y el precio unitario son obligatorios.');
       return;
-    }        
+    }          
     await addProducto()
     setFormData({ ...formData, precio_unitario: '', tiempo_entrega: '' });
     setSelectedProducto(null);
@@ -239,7 +242,7 @@ export default function ProveedorProductos() {
             selectOnFocus
             clearOnBlur
             handleHomeEndKeys
-            renderOption={(props, option) => <li {...props}>{option.nombre}</li>}
+            renderOption={(props, option) => <li key={option.id} {...props}>{option.nombre}</li>}
             freeSolo // Permite la entrada de texto libre
             renderInput={(params) => (
               <TextField
@@ -269,6 +272,7 @@ export default function ProveedorProductos() {
             value={formData.tiempo_entrega}
             onChange={(e) => setFormData({ ...formData, tiempo_entrega: e.target.value })}
           />
+          {/* <Alert severity="error" sx={{ mb: 2 }}>{asignProductError}</Alert> */}
           {asignProductError && (
             <Alert severity="error" sx={{ mb: 2 }}>{asignProductError}</Alert>
           )}          

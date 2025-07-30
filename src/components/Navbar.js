@@ -40,6 +40,14 @@ export default function Navbar() {
                     >
                         Pedidos
                     </Button>
+                    <Button
+                        component={Link}
+                        to="/suppliers"
+                        color="inherit"
+                        sx={{ mx: 1 }}
+                    >
+                        Suppliers
+                    </Button>                    
                 </Toolbar>
             </Container>
         </AppBar>

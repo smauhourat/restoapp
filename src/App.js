@@ -11,6 +11,7 @@ import PedidoList from './components/PedidoList';
 import PedidoForm from './components/PedidoForm';
 import PedidoDetalle from './components/PedidoDetalle';
 import ImportarProductos from './components/ImportarProductos';
+import ProductSupplierAssignment from './components/ProductSupplierAssignment';
 import Dashboard from './components/Dashboard';
 import { ToastProvider, useToast } from './components/ToastProvider';
 import { setAxiosErrorToastHandler } from './api/client';
@@ -34,6 +35,7 @@ function App() {
           {/* <Route path="/" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} /> */}
           <Route path="/" element={<Dashboard />} />          
+          <Route path="/suppliers" element={<ProductSupplierAssignment />} />
           <Route path="/proveedores" element={<ProveedorList />} />
           <Route path="/proveedores/nuevo" element={<ProveedorForm />} />
           <Route path="/proveedores/editar/:id" element={<ProveedorForm />} />

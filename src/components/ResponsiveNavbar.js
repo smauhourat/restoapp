@@ -68,6 +68,15 @@ export default function ResponsiveNavbar() {
                         >
                             Pedidos
                         </Button>
+                        {/* <Button
+                            component={Link}
+                            to="/suppliers"
+                            color="inherit"
+                            sx={{ mx: 1 }}
+                            onClick={handleCloseMobileMenu}
+                        >
+                            Suppliers
+                        </Button>                         */}
                     </Box>
                 )}
             </Toolbar>

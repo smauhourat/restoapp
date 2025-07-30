@@ -31,10 +31,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { amber } from '@mui/material/colors';
 
-import apiClient from '../api/client';
+import productService from '../services/productoServices';
 
 const colorAlert = amber[100];
 // Clave para el localStorage
@@ -68,10 +67,7 @@ export default function ProductoList() {
     }, [perPage]);    
 
     const fetchProductos = async () => {
-        const { data, totalPages } = await apiClient.get('/productos', {
-            params: { page, perPage, sortBy: sortConfig.key, order: sortConfig.direction }
-        });
-        console.log('productos =>', productos)
+        const { data, totalPages } = await productService.getAll(page, perPage, sortConfig.key, sortConfig.direction);
         setProductos(data)
         setTotalPages(totalPages);
     };
@@ -86,7 +82,7 @@ export default function ProductoList() {
     };    
 
     const handleDelete = async (id) => {
-        await apiClient.delete(`/productos/${id}`)
+        await productService.delete(id);
         fetchProductos(productos.filter((p) => p.id !== id))
         setOpenDeleteDialog(false)
     }    
@@ -239,15 +235,6 @@ export default function ProductoList() {
                     {error}
                 </Alert>
             </Snackbar>
-            {/* <Button
-                variant="outlined"
-                startIcon={<ArrowBackIcon />}
-                sx={{ mt: 2 }}
-                onClick={() => navigate('/')}
-            >
-                Volver atrás
-            </Button>       */}
-
         </Container>
     );
 }

@@ -14,7 +14,7 @@ import {
 import SaveIcon from '@mui/icons-material/Save';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-import apiClient from '../api/client';
+import productService from '../services/productoServices';
 
 const UNIDADES_MEDIDA = ['unidad', 'kg', 'litro', 'metro', 'caja'];
 
@@ -35,7 +35,7 @@ export default function ProductoForm() {
     }, [id]);
 
     const fetchProducto = async (id) => {
-        const data = await apiClient.get(`/productos/${id}`)
+        const data = await productService.getById(id);
         setProducto(data)
     }
 
@@ -43,9 +43,9 @@ export default function ProductoForm() {
         e.preventDefault();
 
         if (id) {
-            await apiClient.put(`/productos/${id}`, JSON.stringify(producto))
+            await productService.update(id, producto);
         } else {
-            await apiClient.post(`/productos`, JSON.stringify(producto))
+            await productService.create(producto);
         }
         navigate('/productos')
     }

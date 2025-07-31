@@ -325,6 +325,7 @@ export default function ProveedorProductos() {
             fullWidth
             value={newProductFormData.unidad_medida}
             onChange={(e) => setNewProductFormData({ ...newProductFormData, unidad_medida: e.target.value })}
+            required
           >
             {UNIDADES_MEDIDA.map((unidad) => (
               <MenuItem key={unidad} value={unidad}>

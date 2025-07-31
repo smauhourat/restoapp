@@ -87,7 +87,8 @@ router.post('/', (req, res) => {
     VALUES (?, ?, ?)
   `);
     const result = stmt.run(nombre, descripcion, unidad_medida);
-    res.json({ id: result.lastInsertRowid });
+    console.log('Producto creado:', result);
+    res.json({ id: result.lastInsertRowid, nombre, descripcion, unidad_medida });
 });
 
 // Actualizar un producto
@@ -107,7 +108,7 @@ router.put('/:id', (req, res) => {
     WHERE id = ?
   `);
     stmt.run(nombre, descripcion, unidad_medida, id);
-    res.json({ success: true });
+  res.json({ id, nombre, descripcion, unidad_medida  });
 });
 
 // Eliminar un producto

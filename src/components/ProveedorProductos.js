@@ -88,7 +88,18 @@ export default function ProveedorProductos() {
       setError('Selecciona un producto');
       return;
     }
-    await apiClient.post(`/proveedores/${id}/productos`, JSON.stringify(formData));
+    if (!formData.precio_unitario) {
+      setAsignProductError('El precio unitario es obligatorio.');
+      return;
+    }    
+    
+    try {
+      await apiClient.post(`/proveedores/${id}/productos`, JSON.stringify(formData));
+      setAsignProductError('');
+    } catch (err) {
+      setAsignProductError('Error al asignar el producto: ' + (err.response?.data?.message || err.message));
+      throw err;
+    }    
   };
 
   const handleAddProducto = async () => {
@@ -121,6 +132,10 @@ export default function ProveedorProductos() {
   const deleteProducto = async (productoId) => {
     await apiClient.delete(`/proveedores/${id}/productos/${productoId}`)
     fetchData()
+  // } catch (err) {
+  //   setError('Error al eliminar el producto: ' + (err.response?.data?.message || err.message));
+  // }
+
   }
 
   const handleDelete = async (productoId) => {
@@ -206,6 +221,7 @@ export default function ProveedorProductos() {
             inputValue={searchInput}
             onInputChange={(_, newInputValue) => setSearchInput(newInputValue)}
             value={selectedProducto}
+            size="small"
             onChange={(_, newValue) => {
               if (typeof newValue === 'string') {
                 // El usuario ha escrito un nuevo producto
@@ -242,15 +258,19 @@ export default function ProveedorProductos() {
             selectOnFocus
             clearOnBlur
             handleHomeEndKeys
-            renderOption={(props, option) => <li key={option.id} {...props}>{option.nombre}</li>}
+            renderOption={(props, option) => <li key={option.id || option.inputValue} {...props}>{option.nombre}</li>}
             freeSolo // Permite la entrada de texto libre
+            
             renderInput={(params) => (
               <TextField
                 {...params}
                 label="Buscar o crear producto"
                 placeholder="Escribe para buscar o añadir..."
                 fullWidth
-                sx={{ mb: 2 }}
+                size='small'
+                sx={{
+                  mb: 2
+                }}
               />
             )}
             noOptionsText="No se encontraron productos"
@@ -259,6 +279,7 @@ export default function ProveedorProductos() {
             label="Precio Unitario"
             type="number"
             fullWidth
+            size="small"
             required
             sx={{ mb: 2 }}
             value={formData.precio_unitario}
@@ -267,15 +288,28 @@ export default function ProveedorProductos() {
           <TextField
             label="Tiempo de Entrega (días)"
             type="number"
+            size="small"
             fullWidth
             sx={{ mb: 2 }}
             value={formData.tiempo_entrega}
             onChange={(e) => setFormData({ ...formData, tiempo_entrega: e.target.value })}
           />
-          {/* <Alert severity="error" sx={{ mb: 2 }}>{asignProductError}</Alert> */}
-          {asignProductError && (
-            <Alert severity="error" sx={{ mb: 2 }}>{asignProductError}</Alert>
-          )}          
+
+          <Alert
+            severity="error"
+            sx={{
+              mb: 2,
+              opacity: asignProductError ? 1 : 0,
+              maxHeight: asignProductError ? '100px' : '0px', // Altura máxima cuando visible, 0 cuando oculto
+              padding: asignProductError ? '8px 16px' : '0px 16px', // Ajustar padding
+              overflow: 'hidden', // Ocultar contenido que exceda la altura
+              transition: 'opacity 0.3s ease-in-out, max-height 0.3s ease-in-out, padding 0.3s ease-in-out', // Transición suave
+              width: '100%', // Asegurar que ocupe todo el ancho disponible
+              boxSizing: 'border-box', // Incluir padding y borde en el ancho total
+            }}
+          >
+            {asignProductError}
+          </Alert>          
           <Button
             variant="contained"
             color="success"
@@ -310,6 +344,7 @@ export default function ProveedorProductos() {
             margin="dense"
             label="Nombre"
             type="text"
+            size="small"
             fullWidth
             variant="outlined"
             value={newProductFormData.nombre}

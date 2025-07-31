@@ -47,7 +47,7 @@ export default function ProveedorProductos() {
   const [newProductFormData, setNewProductFormData] = useState({
     nombre: '',
     descripcion: '',
-    precio_unitario: '',
+    unidad_medida: '',
   });
   const [newProductError, setNewProductError] = useState('');
   const [asignProductError, setAsignProductError] = useState('');

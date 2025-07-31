@@ -269,7 +269,8 @@ export default function ProveedorProductos() {
                 fullWidth
                 size='small'
                 sx={{
-                  mb: 2
+                  mb: 2,
+                  '& label': { top: 4 },
                 }}
               />
             )}

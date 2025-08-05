@@ -1,3 +1,4 @@
+import { useTheme, useMediaQuery } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -56,6 +57,10 @@ export default function ProductoList() {
         direction: 'asc', // 'asc' o 'desc'
     });
     const navigate = useNavigate();
+    
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));  
+
 
     useEffect(() => {
         fetchProductos();
@@ -99,7 +104,7 @@ export default function ProductoList() {
                 startIcon={<AddIcon />}
                 sx={{ mb: 3, mr: 3 }}
             >
-                Nuevo Producto
+                {isMobile ? 'Nuevo' : 'Nuevo Producto'}
             </Button>
             <Button
                 component={Link}
@@ -109,7 +114,7 @@ export default function ProductoList() {
                 startIcon={<FileUploadIcon />}
                 sx={{ mb: 3 }}
             >
-                Importar Productos
+                {isMobile ? 'Importar' : 'Importar Productos'}
             </Button>
 
             <TableContainer component={Paper}>
@@ -125,9 +130,12 @@ export default function ProductoList() {
                                     Nombre
                                 </TableSortLabel>                                
                             </TableCell>
-                            <TableCell>#Proveedores</TableCell>
-                            <TableCell>Precio Promedio</TableCell>
-                            <TableCell>Unidad de Medida</TableCell>
+                            {!isMobile ? (
+                                <>
+                                    <TableCell>#Proveedores</TableCell>
+                                    <TableCell>Precio Promedio</TableCell>
+                                    <TableCell>Unidad de Medida</TableCell>
+                                </>) : null}
                             <TableCell>
                                 <TableSortLabel
                                     active={sortConfig.key === 'descripcion'}
@@ -143,16 +151,34 @@ export default function ProductoList() {
                     <TableBody>
                         {productos.map((producto) => (
                             <TableRow key={producto.id}>
-                                <TableCell>{producto.nombre}</TableCell>
-                                <TableCell sx={{ 
-                                    ...(producto.proveedores === 0 && {backgroundColor: colorAlert})
-                                }}>
-                                    <Tooltip title="Cantidad de Proveedores" arrow>
-                                        {producto.proveedores}
-                                    </Tooltip>
+                                <TableCell>
+                                    <Stack spacing={0.5}>
+                                        <Typography variant="body2">{producto.nombre}</Typography>
+                                        {isMobile ? (<>
+                                            <Typography variant="caption" color="textSecondary">
+                                                ${producto.precio_promedio?.toFixed(2)} | {producto.unidad_medida}
+                                            </Typography>
+                                            <Typography variant="caption" color="textSecondary" sx={{ ...(producto.proveedores === 0 && { backgroundColor: colorAlert }) }} >
+                                                <Tooltip title="Cantidad de Proveedores" arrow>
+                                                    {producto.proveedores} Proveedores
+                                                </Tooltip>
+                                            </Typography>                                        
+                                        </>) : null}
+                                    </Stack>
                                 </TableCell>
-                                <TableCell><Tooltip title="Es el precio promedio entre todos los Proveedores" arrow> ${producto.precio_promedio}</Tooltip></TableCell>
-                                <TableCell>{producto.unidad_medida}</TableCell>
+                                {!isMobile ? (<>
+                                    <TableCell sx={{
+                                        ...(producto.proveedores === 0 && { backgroundColor: colorAlert })
+                                    }}>
+                                        <Tooltip title="Cantidad de Proveedores" arrow>
+                                            {producto.proveedores}
+                                        </Tooltip>
+                                    </TableCell>
+                                    <TableCell><Tooltip title="Es el precio promedio entre todos los Proveedores" arrow> ${producto.precio_promedio}</Tooltip></TableCell>
+                                    <TableCell>{producto.unidad_medida}</TableCell>
+                                </>) : null}
+
+                                
                                 <TableCell>{producto.descripcion}</TableCell>
                                 <TableCell align="center">
                                     <IconButton

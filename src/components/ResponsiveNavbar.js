@@ -40,6 +40,7 @@ export default function ResponsiveNavbar() {
                         <MenuIcon />
                     </IconButton>
                 ) : (
+                    <>
                     <Box sx={{ display: 'flex' }}>
                         <Button
                             component={Link}
@@ -78,6 +79,12 @@ export default function ResponsiveNavbar() {
                             Suppliers
                         </Button>                         */}
                     </Box>
+                    <Box sx={{ display: 'flex' }}>
+                        <Typography variant="body1" sx={{ color: "#FFFF00", marginRight: 2 }}>
+                            v0.0.2
+                        </Typography>
+                    </Box>
+                    </>
                 )}
             </Toolbar>
             </Container>

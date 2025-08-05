@@ -1,3 +1,4 @@
+import { useTheme, useMediaQuery } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -33,6 +34,9 @@ export default function ImportarProductos() {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
+
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));  
 
     const handleFileUpload = async (e) => {
         e.preventDefault();
@@ -122,6 +126,7 @@ export default function ImportarProductos() {
                     variant="outlined"
                     startIcon={<ArrowBackIcon />}
                     onClick={() => navigate('/productos')}
+                    sx={{ mr: 2, ...(isMobile && { mt: 4 }) }}
                 >
                     Cancelar
                 </Button>

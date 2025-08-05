@@ -214,7 +214,7 @@ export default function ProveedorProductos() {
       {/* Diálogo para asignar producto */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Asignar Producto al Proveedor</DialogTitle>
-        <DialogContent sx={{ p: 3, minWidth: 400 }}>
+        <DialogContent sx={{ p: 3, minWidth: 260 }}>
           <Autocomplete
             options={filteredProductos}
             getOptionLabel={(option) => option.nombre ? `${option.nombre} (${option.descripcion})` : ''}
@@ -339,7 +339,7 @@ export default function ProveedorProductos() {
       {/* Nuevo Diálogo para crear producto */}
       <Dialog open={openNewProductDialog} onClose={() => setOpenNewProductDialog(false)}>
         <DialogTitle>Nuevo Producto</DialogTitle>
-        <DialogContent sx={{ p: 3, minWidth: 400 }}>
+        <DialogContent sx={{ p: 3, minWidth: 260 }}>
           <TextField
             autoFocus
             margin="dense"

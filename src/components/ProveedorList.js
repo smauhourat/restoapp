@@ -1,3 +1,4 @@
+import { useTheme, useMediaQuery } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -24,7 +25,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import InventoryIcon from '@mui/icons-material/Inventory';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import apiClient from '../api/client';
 
@@ -43,6 +43,9 @@ export default function ProveedorList() {
   const [error, setError] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const navigate = useNavigate();
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));  
 
   useEffect(() => {
     fetchProveedores();
@@ -85,18 +88,45 @@ export default function ProveedorList() {
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>Nombre</TableCell>
-              <TableCell>Teléfono</TableCell>
-              <TableCell>Email</TableCell>
+              {!isMobile ? (
+                <>
+                  <TableCell>Nombre</TableCell>
+                  <TableCell>Teléfono</TableCell>
+                  <TableCell>Email</TableCell>
+                </>
+              ) : (
+                <>
+                    <TableCell>Nombre</TableCell>
+                </>
+              )}
+
               <TableCell align="right" sx={{ paddingRight:'2rem' }}>Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {proveedores.map((proveedor) => (
               <TableRow key={proveedor.id}>
-                <TableCell>{proveedor.nombre}</TableCell>
-                <TableCell>{proveedor.telefono}</TableCell>
-                <TableCell>{proveedor.email}</TableCell>
+                {!isMobile ? (
+                    <>
+                      <TableCell>{proveedor.nombre}</TableCell>
+                      <TableCell>{proveedor.telefono}</TableCell>
+                      <TableCell>{proveedor.email}</TableCell>
+                    </>
+                  ) : (
+                    <>
+                      <TableCell>
+                        <Stack spacing={0.5}>
+                          <Typography variant="body2">{proveedor.nombre}</Typography>
+                          <Typography variant="caption" color="textSecondary">
+                            {proveedor.email}
+                          </Typography>
+                          <Typography variant="caption" color="textSecondary">
+                            {proveedor.telefono}
+                          </Typography>                          
+                        </Stack>
+                      </TableCell>                      
+                    </>
+                  )}
                 <TableCell align="right">
                   <IconButton
                     color="primary"
@@ -160,15 +190,6 @@ export default function ProveedorList() {
           {error}
         </Alert>
       </Snackbar>
-
-      {/* <Button
-        variant="outlined"
-        startIcon={<ArrowBackIcon />}
-        sx={{ mt: 2 }}
-        onClick={() => navigate('/')}
-      >
-        Volver atrás
-      </Button>       */}
     </Container>
   );
 }

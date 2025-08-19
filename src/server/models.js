@@ -83,4 +83,7 @@ export function initDatabase() {
     nro_pedido INTEGER GENERATED ALWAYS AS (id + 1000000)
   );
 `);
+
+// Indices
+  //CREATE UNIQUE INDEX IF NOT EXISTS idx_producto_nombre ON Producto (nombre)
 }

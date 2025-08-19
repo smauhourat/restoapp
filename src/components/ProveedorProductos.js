@@ -291,7 +291,7 @@ export default function ProveedorProductos() {
             type="number"
             size="small"
             fullWidth
-            sx={{ mb: 2 }}
+            sx={{ mb: 2, display: 'none' }}
             value={formData.tiempo_entrega}
             onChange={(e) => setFormData({ ...formData, tiempo_entrega: e.target.value })}
           />

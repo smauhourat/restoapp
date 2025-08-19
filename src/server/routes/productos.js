@@ -3,7 +3,6 @@ import db from '../db.js';
 import multer from 'multer';
 import xlsx from 'xlsx';
 import fs from 'fs';
-import cleanRequestBody from '../lib/helper.js';
 
 const upload = multer({ dest: 'uploads/' }); // Carpeta temporal
 const router = express.Router();
@@ -76,7 +75,7 @@ router.get('/:id', (req, res) => {
 
 // Crear un nuevo producto
 router.post('/', (req, res) => {
-  const { nombre, descripcion, unidad_medida } = cleanRequestBody(req.body);
+  const { nombre, descripcion, unidad_medida } = req.body;
 
     // Validaciones básicas
     const error = validateProducto({ nombre });
@@ -97,7 +96,7 @@ router.post('/', (req, res) => {
 // Actualizar un producto
 router.put('/:id', (req, res) => {
     const { id } = req.params;
-  const { nombre, descripcion, unidad_medida } = cleanRequestBody(req.body);
+  const { nombre, descripcion, unidad_medida } = req.body;
 
     // Validaciones básicas
     const error = validateProducto({ nombre });

@@ -133,7 +133,7 @@ export default function ProductoList() {
                             {!isMobile ? (
                                 <>
                                     <TableCell>#Proveedores</TableCell>
-                                    <TableCell>Precio Promedio</TableCell>
+                                    <TableCell align="right">Precio Promedio</TableCell>
                                     <TableCell>Unidad de Medida</TableCell>
                                 </>) : null}
                             <TableCell>
@@ -174,7 +174,7 @@ export default function ProductoList() {
                                             {producto.proveedores}
                                         </Tooltip>
                                     </TableCell>
-                                    <TableCell><Tooltip title="Es el precio promedio entre todos los Proveedores" arrow> ${producto.precio_promedio}</Tooltip></TableCell>
+                                    <TableCell align="right"><Tooltip title="Es el precio promedio entre todos los Proveedores" arrow> {producto.precio_promedio ? `$${producto.precio_promedio}` : ''}</Tooltip></TableCell>
                                     <TableCell>{producto.unidad_medida}</TableCell>
                                 </>) : null}
 

@@ -185,8 +185,8 @@ export default function ProveedorProductos() {
             <TableRow>
               <TableCell>Producto</TableCell>
               <TableCell>Descripcion</TableCell>
-              <TableCell>Precio Unitario</TableCell>
-              <TableCell>Tiempo Entrega (días)</TableCell>
+              <TableCell align="right">Precio Unitario</TableCell>
+              <TableCell align="right">Tiempo Entrega (días)</TableCell>
               <TableCell>Acciones</TableCell>
             </TableRow>
           </TableHead>
@@ -195,8 +195,8 @@ export default function ProveedorProductos() {
               <TableRow key={producto.id}>
                 <TableCell>{producto.nombre}</TableCell>
                 <TableCell>{producto.descripcion}</TableCell>
-                <TableCell>${producto.precio_unitario}</TableCell>
-                <TableCell>{producto.tiempo_entrega}</TableCell>
+                <TableCell align="right">${producto.precio_unitario}</TableCell>
+                <TableCell align="right">{producto.tiempo_entrega}</TableCell>
                 <TableCell>
                   <IconButton
                     color="error"

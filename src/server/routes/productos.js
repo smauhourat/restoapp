@@ -56,7 +56,7 @@ router.get('/', (req, res) => {
     SELECT 
       Producto.*, 
       (select count(*) from Proveedor_Producto pp where pp.producto_id == Producto.id) as proveedores,
-      (select sum(pp.precio_unitario)/count(*) from Proveedor_Producto pp where pp.producto_id == Producto.id) as precio_promedio
+      round((select sum(pp.precio_unitario)/count(*) from Proveedor_Producto pp where pp.producto_id == Producto.id), 2) as precio_promedio
     FROM 
       Producto
     ${searchCondition}

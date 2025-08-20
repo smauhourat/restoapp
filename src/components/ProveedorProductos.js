@@ -115,7 +115,6 @@ export default function ProveedorProductos() {
   };
 
   const handleAddAndStayProducto = async () => {
-    console.log('handleAddAndStayProducto formData', formData);
     if (!formData.producto_id || !formData.precio_unitario) {
       setAsignProductError('El nombre y el precio unitario son obligatorios.');
       return;

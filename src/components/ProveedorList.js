@@ -13,6 +13,11 @@ import {
   Container,
   Typography,
   IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Snackbar,
   Alert,
   MenuItem,
@@ -26,12 +31,15 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import InventoryIcon from '@mui/icons-material/Inventory';
 
+import proveedorService from '../services/proveedorServices';
 import apiClient from '../api/client';
 
 // Clave para el localStorage
 const LOCALSTORAGE_KEY = 'proveedoresPerPage';
 
 export default function ProveedorList() {
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [proveedorToDelete, setProveedorToDelete] = useState(null);
   const [proveedores, setProveedores] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
@@ -64,10 +72,21 @@ export default function ProveedorList() {
     setTotalPages(totalPages);
   };  
 
+  // const handleDelete = async (id) => {
+  //   await apiClient.delete(`/proveedores/${id}`)
+  //   setProveedores(proveedores.filter((p) => p.id !== id))
+  // }
   const handleDelete = async (id) => {
-    await apiClient.delete(`/proveedores/${id}`)
-    setProveedores(proveedores.filter((p) => p.id !== id))
-  }
+    try {
+      await proveedorService.delete(id);
+      // Recargar los datos después de eliminar
+      setProveedores(proveedores.filter((p) => p.id !== id))
+      setOpenDeleteDialog(false);
+    } catch (error) {
+      setError('Error al eliminar el proveedor');
+      console.error(error);
+    }
+  };  
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
@@ -146,7 +165,12 @@ export default function ProveedorList() {
                   </IconButton>                  
                   <IconButton
                     color="error"
-                    onClick={() => handleDelete(proveedor.id)}
+                    onClick={() => {
+                      setProveedorToDelete(proveedor.id);
+                      setOpenDeleteDialog(true);
+                    }}
+
+                    // onClick={() => handleDelete(proveedor.id)}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -183,6 +207,30 @@ export default function ProveedorList() {
           showLastButton
         />
       </Box>      
+
+      {/* Diálogo de confirmación para eliminar */}
+      <Dialog
+          open={openDeleteDialog}
+          onClose={() => setOpenDeleteDialog(false)}
+      >
+          <DialogTitle>¿Eliminar proveedor?</DialogTitle>
+          <DialogContent>
+              <DialogContentText>
+                  Esta acción no se puede deshacer. ¿Estás seguro?
+              </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+              <Button onClick={() => setOpenDeleteDialog(false)}>Cancelar</Button>
+              <Button
+                  onClick={() => handleDelete(proveedorToDelete)}
+                  color="error"
+                  autoFocus
+              >
+                  Eliminar
+              </Button>
+          </DialogActions>
+      </Dialog>
+
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}

@@ -24,7 +24,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
-import apiClient from '../api/client';
+import pedidoService from '../services/pedidoServices';
 
 // Clave para el localStorage
 const LOCALSTORAGE_KEY = 'pedidosPerPage';
@@ -59,15 +59,14 @@ export default function PedidoList() {
     }, [perPage]);
 
     const fetchPedidos = async () => {
-        const { data, totalPages } = await apiClient.get('/pedidos', {
-            params: { page, perPage }
-        });
+        const { data, totalPages } = await pedidoService.getAll(page, perPage);
         setPedidos(data)
         setTotalPages(totalPages);
     };
 
     const handleEstadoChange = async (pedidoId, nuevoEstado) => {
-        await apiClient.patch(`/pedidos/${pedidoId}/estado`, JSON.stringify({ estado: nuevoEstado }))
+        //await apiClient.patch(`/pedidos/${pedidoId}/estado`, JSON.stringify({ estado: nuevoEstado }))
+        await pedidoService.updateEstado(pedidoId, nuevoEstado);
         await fetchPedidos()
     }
 

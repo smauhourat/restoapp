@@ -19,12 +19,13 @@ import {
     Alert,
     CircularProgress,
     Box,
-    Dialog, // Importar Dialog
-    DialogActions, // Importar DialogActions
-    DialogContent, // Importar DialogContent
-    DialogContentText, // Importar DialogContentText
-    DialogTitle, // Importar DialogTitle
-    Breadcrumbs
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Breadcrumbs,
+    Stack
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
@@ -32,8 +33,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
-import Stack from '@mui/material/Stack';
-import apiClient from '../api/client';
+import pedidoService from '../services/pedidoServices';
+import proveedorServices from '../services/proveedorServices';
 
 export default function PedidoForm() {
     const [proveedores, setProveedores] = useState([]);
@@ -54,7 +55,6 @@ export default function PedidoForm() {
     // Estados para el diálogo de confirmación
     const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
     const [pendingProveedorId, setPendingProveedorId] = useState(null);
-    const [pendingProveedorValue, setPendingProveedorValue] = useState(null); // Para revertir el Autocomplete
 
     // Cargar proveedores al inicio
     useEffect(() => {
@@ -64,7 +64,7 @@ export default function PedidoForm() {
 
     const initPedido = async () => {
         try {
-            const ret = await apiClient.post(`/pedidos/nropedido`);
+            const ret = await pedidoService.getNroPedido();
             setPedido(prevPedido => ({ ...prevPedido, numero_pedido: `PED-${ret.nro_pedido}` }));
         } catch (err) {
             setError('Error al obtener el número de pedido.');
@@ -74,8 +74,8 @@ export default function PedidoForm() {
 
     const fetchProveedores = async () => {
         try {
-            const ret = await apiClient.get(`/proveedores`);
-            setProveedores(ret.data);
+            const { data } = await proveedorServices.get();
+            setProveedores(data);
         } catch (err) {
             setError('Error al cargar los proveedores.');
             console.error(err);
@@ -87,7 +87,7 @@ export default function PedidoForm() {
         const fetchProductos = async () => {
             setLoadingProductos(true);
             try {
-                const data = await apiClient.get(`/proveedores/${pedido.proveedor_id}/productos`);
+                const data = await proveedorServices.productos(pedido.proveedor_id);
                 setProductosDisponibles(data);
 
                 const initialQuantities = {};
@@ -187,7 +187,7 @@ export default function PedidoForm() {
 
     const addPedido = async () => {
         try {
-            await apiClient.post(`/pedidos`, JSON.stringify(pedido));
+            await pedidoService.create(pedido);
             navigate('/pedidos');
         } catch (err) {
             setError('Error al guardar el pedido.');
@@ -213,7 +213,6 @@ export default function PedidoForm() {
         const newProveedorId = value?.id || null;
         if (pedido.renglones.length > 0 && newProveedorId !== pedido.proveedor_id) {
             setPendingProveedorId(newProveedorId);
-            setPendingProveedorValue(value); // Guardar el objeto completo para el Autocomplete
             setOpenConfirmDialog(true);
         } else {
             setPedido({ ...pedido, proveedor_id: newProveedorId, renglones: [] });
@@ -224,13 +223,11 @@ export default function PedidoForm() {
         setPedido({ ...pedido, proveedor_id: pendingProveedorId, renglones: [] });
         setOpenConfirmDialog(false);
         setPendingProveedorId(null);
-        setPendingProveedorValue(null);
     };
 
     const handleCancelChangeProveedor = () => {
         setOpenConfirmDialog(false);
         setPendingProveedorId(null);
-        setPendingProveedorValue(null);
         // Revertir la selección del Autocomplete si es necesario
         // Esto se maneja mejor si el Autocomplete tiene un 'value' controlado
     };

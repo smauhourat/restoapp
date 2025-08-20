@@ -2,6 +2,13 @@ import apiClient from '../api/client';
 
 const proveedorService = {
 
+    async get() {
+        const response = await apiClient.get('/proveedores', {
+            params: { page:1, perPage:99999, sortBy:'nombre', order:'asc' }
+        });
+        return response;        
+    },
+
     async getAll(page = 1, perPage = 10, sortBy = 'nombre', order = 'asc') {
         const response = await apiClient.get('/proveedores', {
             params: { page, perPage, sortBy, order }
@@ -27,7 +34,12 @@ const proveedorService = {
     async update(id, proveedor) {
         const response = await apiClient.put(`/proveedores/${id}`, JSON.stringify(proveedor));
         return response.data;
-    }
+    },
+
+    async productos(id) {
+        const response = await apiClient.get(`/proveedores/${id}/productos`);
+        return response;
+    }    
 }
 
 export default proveedorService;

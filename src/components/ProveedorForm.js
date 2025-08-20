@@ -11,7 +11,7 @@ import {
 import SaveIcon from '@mui/icons-material/Save';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-import apiClient from '../api/client';
+import proveedorServices from '../services/proveedorServices';
 
 export default function ProveedorForm() {
   const { id } = useParams();
@@ -30,17 +30,18 @@ export default function ProveedorForm() {
   }, [id]);
 
   const fetchProveedor = async (id) => {
-    const data = await apiClient.get(`/proveedores/${id}`)
+    const data = await proveedorServices.getById(id);
     setProveedor(data)
   }  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (id) {
-      await apiClient.put(`/proveedores/${id}`, JSON.stringify(proveedor))
+      await proveedorServices.update(id, proveedor);
     } else {
-      await apiClient.post(`/proveedores`, JSON.stringify(proveedor))
-    }
+      await proveedorServices.create(proveedor);
+    }    
     navigate('/proveedores')
   }
 

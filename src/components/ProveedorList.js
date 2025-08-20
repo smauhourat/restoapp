@@ -32,7 +32,6 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import InventoryIcon from '@mui/icons-material/Inventory';
 
 import proveedorService from '../services/proveedorServices';
-import apiClient from '../api/client';
 
 // Clave para el localStorage
 const LOCALSTORAGE_KEY = 'proveedoresPerPage';
@@ -65,17 +64,11 @@ export default function ProveedorList() {
   }, [perPage]);
     
   const fetchProveedores = async () => {
-    const { data, totalPages } = await apiClient.get('/proveedores', {
-      params: { page, perPage }
-    });
+    const { data, totalPages } = await proveedorService.getAll(page, perPage);
     setProveedores(data.sort((a, b) => a.nombre.localeCompare(b.nombre)));
     setTotalPages(totalPages);
   };  
 
-  // const handleDelete = async (id) => {
-  //   await apiClient.delete(`/proveedores/${id}`)
-  //   setProveedores(proveedores.filter((p) => p.id !== id))
-  // }
   const handleDelete = async (id) => {
     try {
       await proveedorService.delete(id);

@@ -9,7 +9,10 @@ router.get('/', (req, res) => {
     const offset = (page - 1) * perPage;
 
     const proveedores = db.prepare(`
-    SELECT * FROM Proveedor
+    SELECT *,
+    (select count(*) from Proveedor_Producto pp where pp.proveedor_id == Proveedor.id) as productos
+    FROM Proveedor
+    ORDER BY nombre ASC
     LIMIT ? OFFSET ?
   `).all(perPage, offset);
 

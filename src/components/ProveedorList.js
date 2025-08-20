@@ -93,6 +93,7 @@ export default function ProveedorList() {
                   <TableCell>Nombre</TableCell>
                   <TableCell>Teléfono</TableCell>
                   <TableCell>Email</TableCell>
+                  <TableCell>#Productos</TableCell>
                 </>
               ) : (
                 <>
@@ -111,6 +112,7 @@ export default function ProveedorList() {
                       <TableCell>{proveedor.nombre}</TableCell>
                       <TableCell>{proveedor.telefono}</TableCell>
                       <TableCell>{proveedor.email}</TableCell>
+                      <TableCell>{proveedor.productos}</TableCell>
                     </>
                   ) : (
                     <>

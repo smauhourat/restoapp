@@ -109,10 +109,7 @@ router.post('/', (req, res) => {
     INSERT INTO Producto (nombre, descripcion, unidad_medida)
     VALUES (?, ?, ?)
   `);
-    console.log('Creando producto:', nombre + '$');
-    console.log('Creando producto:', nombre.trim() + '$');
-    const result = stmt.run(nombre.trim(), descripcion.trim(), unidad_medida);
-    console.log('Producto creado:', result);
+  const result = stmt.run(nombre.toUpperCase(), descripcion.toUpperCase(), unidad_medida);
     res.json({ id: result.lastInsertRowid, nombre, descripcion, unidad_medida });
 });
 
@@ -132,7 +129,7 @@ router.put('/:id', (req, res) => {
     SET nombre = ?, descripcion = ?, unidad_medida = ?
     WHERE id = ?
   `);
-    stmt.run(nombre, descripcion, unidad_medida, id);
+  stmt.run(nombre.toUpperCase(), descripcion.toUpperCase(), unidad_medida, id);
   res.json({ id, nombre, descripcion, unidad_medida  });
 });
 

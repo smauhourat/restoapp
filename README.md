@@ -9,6 +9,7 @@ Esta accion de envio deberia quedar registrada de alguna forma, con fecha. y cam
 
 La generacion de un pedido se hace en el tiempo, cuando se baja al deposito y se advierte determinado producto faltante, cuando se esta en la cocina, etc.
 
+(Algo que podria pensarse es la generacion de un pedido general, y despues cuando se cierra se hace uno por cada proveedor).
 
 
 

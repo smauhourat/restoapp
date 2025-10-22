@@ -39,7 +39,18 @@ const proveedorService = {
     async productos(id) {
         const response = await apiClient.get(`/proveedores/${id}/productos`);
         return response;
-    }    
+    },    
+
+    async getProductoProveedor(proveedorId, productoId) {
+        const response = await apiClient.get(`/proveedores/${proveedorId}/productos/${productoId}`);
+        console.log('Servicio Producto Proveedor =>', response)
+        return response;
+    },
+
+    async updateProductoProveedor(proveedorId, productoId, productoProveedor) {
+        const response = await apiClient.put(`/proveedores/${proveedorId}/productos/${productoId}`, JSON.stringify(productoProveedor));
+        return response.data;
+    }   
 }
 
 export default proveedorService;

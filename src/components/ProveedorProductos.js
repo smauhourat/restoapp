@@ -21,6 +21,7 @@ import {
   Autocomplete,
   MenuItem
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -196,6 +197,12 @@ export default function ProveedorProductos() {
                 <TableCell align="right">${producto.precio_unitario}</TableCell>
                 <TableCell align="right">{producto.tiempo_entrega}</TableCell>
                 <TableCell>
+                  <IconButton
+                    color="primary"
+                    onClick={() => navigate(`/proveedores/${id}/productos/${producto.id}`)}
+                  >
+                    <EditIcon />
+                  </IconButton>                  
                   <IconButton
                     color="error"
                     onClick={() => handleDelete(producto.id)}

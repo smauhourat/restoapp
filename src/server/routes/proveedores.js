@@ -125,6 +125,7 @@ router.get('/:proveedorId/productos/:productoId', (req, res) => {
     JOIN Proveedor_Producto pp ON p.id = pp.producto_id
     WHERE pp.proveedor_id = ? AND pp.producto_id = ?
   `).get(proveedorId, productoId);
+  console.log('Producto Especifico =>', producto)
     res.json(producto);
 });
 

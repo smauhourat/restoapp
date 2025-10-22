@@ -116,6 +116,37 @@ router.post('/:id/productos', (req, res) => {
   res.json({ success: true });
 });
 
+// Obtener un producto específico de un proveedor
+router.get('/:proveedorId/productos/:productoId', (req, res) => {
+    const { proveedorId, productoId } = req.params;
+    const producto = db.prepare(`
+    SELECT p.id, p.nombre, p.descripcion, pp.precio_unitario, pp.tiempo_entrega, p.unidad_medida
+    FROM Producto p
+    JOIN Proveedor_Producto pp ON p.id = pp.producto_id
+    WHERE pp.proveedor_id = ? AND pp.producto_id = ?
+  `).get(proveedorId, productoId);
+    res.json(producto);
+});
+
+
+// Actualizar un producto de un proveedor
+router.put('/:proveedorId/productos/:productoId', (req, res) => {
+  const { proveedorId, productoId } = req.params;
+  const { precio_unitario } = req.body;
+
+  // Validaciones básicas
+  if (!precio_unitario || precio_unitario <= 0) {
+    return res.status(400).json({ error: 'Debe ingresar un valor numerico positivo.' });
+  }
+
+  const stmt = db.prepare(`
+    UPDATE Proveedor_Producto
+    SET precio_unitario = ?
+    WHERE proveedor_id = ? AND producto_id = ?
+  `);
+  stmt.run(precio_unitario, proveedorId, productoId);
+  res.json({ success: true });
+});
 
 // Eliminar un proveedor
 router.delete('/:id', (req, res) => {

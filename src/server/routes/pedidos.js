@@ -19,7 +19,7 @@ router.get('/', (req, res) => {
   const offset = (page - 1) * perPage;
 
   const pedidos = db.prepare(`
-    SELECT p.id, p.numero_pedido, p.fecha, pr.nombre as proveedor, p.estado, p.total
+    SELECT p.id, p.numero_pedido, p.fecha, pr.nombre as proveedor, p.estado, p.total, (select count(*) from Pedido_Renglon where pedido_id = p.id) as cantidad_renglones
     FROM Pedido p
     JOIN Proveedor pr ON p.proveedor_id = pr.id
     ORDER BY p.numero_pedido DESC
@@ -88,7 +88,7 @@ router.get('/:id', (req, res) => {
   `).get(id);
 
     const renglones = db.prepare(`
-    SELECT pr.*, pd.nombre as producto_nombre
+    SELECT pr.*, pd.nombre as producto_nombre, pd.descripcion as producto_descripcion, pd.unidad_medida as producto_unidad_medida
     FROM Pedido_Renglon pr
     JOIN Producto pd ON pr.producto_id = pd.id
     WHERE pr.pedido_id = ?

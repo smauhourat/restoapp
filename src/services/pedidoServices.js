@@ -26,8 +26,9 @@ const pedidoService = {
         return response;
     },
 
-    async create(producto) {
-        const response = await apiClient.post('/pedidos', JSON.stringify(producto));
+    async create(pedido) {
+        console.log('Creando pedido =>', pedido);
+        const response = await apiClient.post('/pedidos', JSON.stringify(pedido));
         return response.data;
     },
 

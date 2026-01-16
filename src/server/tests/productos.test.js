@@ -40,3 +40,18 @@ describe('POST /api/productos', () => {
     expect(response.body).toHaveProperty('id');
   });
 });
+
+describe('POST /api/productos', () => {
+  it('should create a new product2', async () => {
+    const newProduct = {
+      nombre: 'Producto de Prueba2',
+      descripcion: 'Descripción de prueba',
+      unidad_medida: 'kg'
+    };
+    const response = await request(app).post('/api/productos').send(newProduct);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('id');
+  });
+});
+
+//describe('

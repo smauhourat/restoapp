@@ -1,21 +1,23 @@
+import Database from 'better-sqlite3';
+import { initDatabase } from '../models.js';
+
 import request from 'supertest';
 import express from 'express';
 import productosRoutes from '../routes/productos.js';
-import db from '../db.js';
+
+// Mock de db.js
+jest.mock('../db.js', () => {
+  const Database = require('better-sqlite3');
+  const { initDatabase } = require('../models.js');
+  const testDb = new Database(':memory:');
+  testDb.pragma('foreign_keys = ON');
+  initDatabase(testDb);
+  return testDb;
+});
 
 const app = express();
 app.use(express.json());
 app.use('/api/productos', productosRoutes);
-
-// Mock de la base de datos para tests
-beforeAll(() => {
-  // Crear tabla de prueba o usar una base de datos en memoria si es posible
-  // Para better-sqlite3, puedes usar :memory:
-});
-
-afterAll(() => {
-  // Limpiar
-});
 
 describe('GET /api/productos', () => {
   it('should return a list of products', async () => {

@@ -62,7 +62,10 @@ export default function PedidoDetalle() {
     }
 
     const generateQR = async () => {
-        const content = `Pedido #${pedido.numero_pedido}\nProveedor: ${pedido.proveedor_nombre}\nTotal: $${pedido.total.toFixed(2)}`;
+        const itemsText = pedido.renglones.map((item, i) =>
+            `${i + 1}.   ${item.cantidad} ${item.producto_nombre}`
+        ).join('\n'); // %0A es el código para salto de línea en URLs        
+        const content = `Pedido #${pedido.numero_pedido}\nProveedor: ${pedido.proveedor_nombre}\n${itemsText}\nTotal: $${pedido.total.toFixed(2)}`;
         setQrContent(content);
         setQrOpen(true);
 

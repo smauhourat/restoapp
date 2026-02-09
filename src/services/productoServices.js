@@ -9,9 +9,9 @@ const productService = {
         return response;        
     },
 
-    async getAll(page = 1, perPage = 10, sortBy = 'nombre', order = 'asc') {
+    async getAll(page = 1, perPage = 10, sortBy = 'nombre', order = 'asc', search = '') {
         const response = await apiClient.get('/productos', {
-            params: { page, perPage, sortBy, order }
+            params: { page, perPage, sortBy, order, search }
         });
         return response;
     },

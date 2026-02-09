@@ -30,28 +30,51 @@ const productoExiste = (nombre, id = null) => {
 // Obtener todos los productos
 // GET /api/productos con paginación
 router.get('/', (req, res) => {
-  const { page = 1, perPage = 99999, sortBy = 'nombre', order = 'asc' } = req.query;
+  const { page = 1, perPage = 99999, sortBy = 'nombre', order = 'asc', search = ''} = req.query;
   const offset = (page - 1) * perPage;
 
   // Validar campos de ordenamiento
   if (!validSortFields.includes(sortBy) || !validOrders.includes(order.toLowerCase())) {
     return res.status(400).json({ error: 'Parámetros de orden inválidos' });
   }
+
+  // Construir consulta con filtro de búsqueda
+  let searchCondition = '';
+  let queryParams = [perPage, offset];
+
+  if (search) {
+    searchCondition = `
+        WHERE nombre LIKE ? 
+        OR descripcion LIKE ? 
+        OR unidad_medida LIKE ?
+      `;
+    const searchPattern = `%${search}%`;
+    queryParams = [searchPattern, searchPattern, searchPattern, perPage, offset];
+  }
   
   const productos = db.prepare(`
     SELECT 
       Producto.*, 
       (select count(*) from Proveedor_Producto pp where pp.producto_id == Producto.id) as proveedores,
-      (select sum(pp.precio_unitario)/count(*) from Proveedor_Producto pp where pp.producto_id == Producto.id) as precio_promedio
+      round((select sum(pp.precio_unitario)/count(*) from Proveedor_Producto pp where pp.producto_id == Producto.id), 2) as precio_promedio
     FROM 
       Producto
+    ${searchCondition}
     ORDER BY ${sortBy} ${order}
     LIMIT ? OFFSET ?
-  `).all(perPage, offset);
+  `).all(...queryParams);
 
-  const total = db.prepare(`
-    SELECT COUNT(*) as total FROM Producto
-  `).get().total;
+  // Consulta para el total con filtro de búsqueda
+  let totalQuery = 'SELECT COUNT(*) as total FROM Producto';
+  let totalParams = [];
+
+  if (search) {
+    totalQuery += ' WHERE nombre LIKE ? OR descripcion LIKE ? OR unidad_medida LIKE ?';
+    const searchPattern = `%${search}%`;
+    totalParams = [searchPattern, searchPattern, searchPattern];
+  }
+
+  const total = db.prepare(totalQuery).get(...totalParams).total;
 
   res.json({
     data: productos,
@@ -75,7 +98,7 @@ router.get('/:id', (req, res) => {
 
 // Crear un nuevo producto
 router.post('/', (req, res) => {
-    const { nombre, descripcion, unidad_medida } = req.body;
+  const { nombre, descripcion, unidad_medida } = req.body;
 
     // Validaciones básicas
     const error = validateProducto({ nombre });
@@ -86,15 +109,14 @@ router.post('/', (req, res) => {
     INSERT INTO Producto (nombre, descripcion, unidad_medida)
     VALUES (?, ?, ?)
   `);
-    const result = stmt.run(nombre, descripcion, unidad_medida);
-    console.log('Producto creado:', result);
+  const result = stmt.run(nombre.toUpperCase(), descripcion.toUpperCase(), unidad_medida);
     res.json({ id: result.lastInsertRowid, nombre, descripcion, unidad_medida });
 });
 
 // Actualizar un producto
 router.put('/:id', (req, res) => {
     const { id } = req.params;
-    const { nombre, descripcion, unidad_medida } = req.body;
+  const { nombre, descripcion, unidad_medida } = req.body;
 
     // Validaciones básicas
     const error = validateProducto({ nombre });
@@ -107,7 +129,7 @@ router.put('/:id', (req, res) => {
     SET nombre = ?, descripcion = ?, unidad_medida = ?
     WHERE id = ?
   `);
-    stmt.run(nombre, descripcion, unidad_medida, id);
+  stmt.run(nombre.toUpperCase(), descripcion.toUpperCase(), unidad_medida, id);
   res.json({ id, nombre, descripcion, unidad_medida  });
 });
 

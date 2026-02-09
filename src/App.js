@@ -5,6 +5,7 @@ import Home from './components/Home';
 import ProveedorList from './components/ProveedorList';
 import ProveedorForm from './components/ProveedorForm';
 import ProveedorProductos from './components/ProveedorProductos';
+import ProveedorProductoForm from './components/ProveedorProductoForm';
 import ProductoList from './components/ProductoList';
 import ProductoForm from './components/ProductoForm';
 import PedidoList from './components/PedidoList';
@@ -38,6 +39,7 @@ function App() {
           <Route path="/proveedores/nuevo" element={<ProveedorForm />} />
           <Route path="/proveedores/editar/:id" element={<ProveedorForm />} />
           <Route path="/proveedores/:id/productos" element={<ProveedorProductos />} />
+          <Route path="/proveedores/:proveedorId/productos/:productoId" element={<ProveedorProductoForm />} />
           <Route path="/productos" element={<ProductoList />} />
           <Route path="/productos/nuevo" element={<ProductoForm />} />
           <Route path="/productos/editar/:id" element={<ProductoForm />} />        

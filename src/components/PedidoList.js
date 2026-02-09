@@ -1,3 +1,4 @@
+import { useTheme, useMediaQuery } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -24,7 +25,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
-import apiClient from '../api/client';
+import pedidoService from '../services/pedidoServices';
 
 // Clave para el localStorage
 const LOCALSTORAGE_KEY = 'pedidosPerPage';
@@ -49,6 +50,9 @@ export default function PedidoList() {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
     useEffect(() => {
         fetchPedidos();
     }, [page, perPage]);
@@ -59,15 +63,14 @@ export default function PedidoList() {
     }, [perPage]);
 
     const fetchPedidos = async () => {
-        const { data, totalPages } = await apiClient.get('/pedidos', {
-            params: { page, perPage }
-        });
+        const { data, totalPages } = await pedidoService.getAll(page, perPage);
         setPedidos(data)
         setTotalPages(totalPages);
     };
 
     const handleEstadoChange = async (pedidoId, nuevoEstado) => {
-        await apiClient.patch(`/pedidos/${pedidoId}/estado`, JSON.stringify({ estado: nuevoEstado }))
+        //await apiClient.patch(`/pedidos/${pedidoId}/estado`, JSON.stringify({ estado: nuevoEstado }))
+        await pedidoService.updateEstado(pedidoId, nuevoEstado);
         await fetchPedidos()
     }
 
@@ -102,10 +105,16 @@ export default function PedidoList() {
                 <Table size="small">
                     <TableHead>
                         <TableRow>
-                            <TableCell>Número</TableCell>
-                            <TableCell>Fecha</TableCell>
-                            <TableCell>Proveedor</TableCell>
-                            <TableCell>Total</TableCell>
+                            {!isMobile ? (
+                                <>
+                                    <TableCell>Número</TableCell>
+                                    <TableCell>Fecha</TableCell>
+                                    <TableCell>Proveedor</TableCell>
+                                    <TableCell>Total</TableCell>
+                                </>
+                            ) : (
+                                    <TableCell>Número</TableCell>                                
+                            )}
                             <TableCell>Estado</TableCell>
                             <TableCell align="right" sx={{ paddingRight: '2rem' }}>Acciones</TableCell>
                         </TableRow>
@@ -115,10 +124,33 @@ export default function PedidoList() {
                             <TableRow key={pedido.id} sx={{
                                 backgroundColor: getBackCoor(pedido.estado)
                             }}>
-                                <TableCell>{pedido.numero_pedido}</TableCell>
-                                <TableCell>{new Date(pedido.fecha).toLocaleDateString()}</TableCell>
-                                <TableCell>{pedido.proveedor}</TableCell>
-                                <TableCell>${pedido.total.toFixed(2)}</TableCell>
+                                {!isMobile ? (
+                                    <>
+                                        <TableCell>{pedido.numero_pedido}</TableCell>
+                                        <TableCell>{new Date(pedido.fecha).toLocaleDateString()}</TableCell>
+                                        <TableCell>{pedido.proveedor}</TableCell>
+                                        <TableCell>${pedido.total.toFixed(2)}</TableCell>
+                                    </>
+                                ) : (
+                                    <>
+                                        <TableCell>
+                                            <Stack spacing={0.5}>
+                                                <Typography variant="body2">
+                                                    {pedido.numero_pedido}
+                                                </Typography>
+                                                <Typography variant="caption" color="textSecondary">
+                                                    {new Date(pedido.fecha).toLocaleDateString()}
+                                                </Typography>
+                                                <Typography variant="caption" color="textSecondary">
+                                                    {pedido.proveedor}
+                                                </Typography>            
+                                                <Typography variant="caption" color="textSecondary">
+                                                    ${pedido.total.toFixed(2)}
+                                                </Typography>
+                                            </Stack>
+                                        </TableCell>                                     
+                                    </>
+                                )}
                                 <TableCell>
                                     <Select
                                         value={pedido.estado}

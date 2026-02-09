@@ -27,7 +27,7 @@ export default function Dashboard() {
 
 
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-          <Card>
+          <Card sx={{ boxShadow: '5px 5px 5px rgba(83, 82, 82, 0.2)' }}>
             <CardHeader
               action={
                 <IconButton aria-label="settings">
@@ -43,7 +43,7 @@ export default function Dashboard() {
           </Card>
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-          <Card>
+          <Card sx={{ boxShadow: '5px 5px 5px rgba(83, 82, 82, 0.2)' }}>
             <CardHeader
               action={
                 <IconButton aria-label="settings">
@@ -59,7 +59,7 @@ export default function Dashboard() {
           </Card>
         </Grid>        
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-          <Card>
+          <Card sx={{ boxShadow: '5px 5px 5px rgba(83, 82, 82, 0.2)' }}>
             <CardHeader
               action={
                 <IconButton aria-label="settings">
@@ -76,7 +76,7 @@ export default function Dashboard() {
         </Grid> 
         
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-          <Card>
+          <Card sx={{ boxShadow: '5px 5px 5px rgba(83, 82, 82, 0.2)' }}>
             <CardHeader title="Pedidos x Estado" />
             <CardContent>
               {/* <Box sx={{ height: 300 }}> */}

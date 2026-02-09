@@ -21,6 +21,7 @@ import {
   Autocomplete,
   MenuItem
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -103,9 +104,6 @@ export default function ProveedorProductos() {
   };
 
   const handleAddProducto = async () => {
-    console.log('handleAddProducto called');
-    console.log('formData', formData);
-    console.log('!formData.producto_id', !formData.producto_id);
     if (!formData.producto_id || !formData.precio_unitario) {
       setAsignProductError('El nombre y el precio unitario son obligatorios.');
       return;
@@ -123,7 +121,8 @@ export default function ProveedorProductos() {
       return;
     }          
     await addProducto()
-    setFormData({ ...formData, precio_unitario: '', tiempo_entrega: '' });
+    //setFormData({ ...formData, precio_unitario: '', tiempo_entrega: '' });
+    setFormData({ producto_id: '', precio_unitario: '', tiempo_entrega: '' });
     setSelectedProducto(null);
     setAsignProductError('');
     fetchData()
@@ -185,8 +184,8 @@ export default function ProveedorProductos() {
             <TableRow>
               <TableCell>Producto</TableCell>
               <TableCell>Descripcion</TableCell>
-              <TableCell>Precio Unitario</TableCell>
-              <TableCell>Tiempo Entrega (días)</TableCell>
+              <TableCell align="right">Precio Unitario</TableCell>
+              <TableCell align="right">Tiempo Entrega (días)</TableCell>
               <TableCell>Acciones</TableCell>
             </TableRow>
           </TableHead>
@@ -195,9 +194,15 @@ export default function ProveedorProductos() {
               <TableRow key={producto.id}>
                 <TableCell>{producto.nombre}</TableCell>
                 <TableCell>{producto.descripcion}</TableCell>
-                <TableCell>${producto.precio_unitario}</TableCell>
-                <TableCell>{producto.tiempo_entrega}</TableCell>
+                <TableCell align="right">${producto.precio_unitario}</TableCell>
+                <TableCell align="right">{producto.tiempo_entrega}</TableCell>
                 <TableCell>
+                  <IconButton
+                    color="primary"
+                    onClick={() => navigate(`/proveedores/${id}/productos/${producto.id}`)}
+                  >
+                    <EditIcon />
+                  </IconButton>                  
                   <IconButton
                     color="error"
                     onClick={() => handleDelete(producto.id)}
@@ -212,7 +217,13 @@ export default function ProveedorProductos() {
       </TableContainer>
 
       {/* Diálogo para asignar producto */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+      <Dialog open={openDialog} onClose={() => 
+          {
+            setOpenDialog(false);
+            setSelectedProducto(null);
+            setFormData({ producto_id: '', precio_unitario: '', tiempo_entrega: '' });
+          }
+        }>
         <DialogTitle>Asignar Producto al Proveedor</DialogTitle>
         <DialogContent sx={{ p: 3, minWidth: 260 }}>
           <Autocomplete
@@ -291,7 +302,7 @@ export default function ProveedorProductos() {
             type="number"
             size="small"
             fullWidth
-            sx={{ mb: 2 }}
+            sx={{ mb: 2, display: 'none' }}
             value={formData.tiempo_entrega}
             onChange={(e) => setFormData({ ...formData, tiempo_entrega: e.target.value })}
           />

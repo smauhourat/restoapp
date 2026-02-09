@@ -1,8 +1,8 @@
 import db from './db.js';
 
-export function initDatabase() {
+export function initDatabase(database) {
   // Tabla Proveedor
-  db.exec(`
+  database.exec(`
     CREATE TABLE IF NOT EXISTS Proveedor (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nombre TEXT NOT NULL,
@@ -13,7 +13,7 @@ export function initDatabase() {
   `);
 
   // Tabla Producto
-  db.exec(`
+  database.exec(`
     CREATE TABLE IF NOT EXISTS Producto (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nombre TEXT NOT NULL,
@@ -23,7 +23,7 @@ export function initDatabase() {
   `);
 
   // Tabla intermedia Proveedor_Producto
-  db.exec(`
+  database.exec(`
     CREATE TABLE IF NOT EXISTS Proveedor_Producto (
       proveedor_id INTEGER,
       producto_id INTEGER,
@@ -36,7 +36,7 @@ export function initDatabase() {
   `);
 
   // Tabla Pedido (Cabecera)
-  db.exec(`
+  database.exec(`
     CREATE TABLE IF NOT EXISTS Pedido (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       numero_pedido TEXT UNIQUE NOT NULL,
@@ -49,7 +49,7 @@ export function initDatabase() {
   `);
 
   // Tabla Pedido_Renglon (Items)
-  db.exec(`
+  database.exec(`
     CREATE TABLE IF NOT EXISTS Pedido_Renglon (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       pedido_id INTEGER NOT NULL,
@@ -63,7 +63,7 @@ export function initDatabase() {
   `);
 
   // Tabla HistorialEnvios
-  db.exec(`
+  database.exec(`
   CREATE TABLE IF NOT EXISTS HistorialEnvios (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     pedido_id INTEGER NOT NULL,
@@ -75,7 +75,7 @@ export function initDatabase() {
 `);  
 
   // Tabla NrosPedidos
-  db.exec(`
+  database.exec(`
     CREATE TABLE IF NOT EXISTS NrosPedidos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     fecha_generacion TEXT DEFAULT (datetime('now')),
@@ -83,4 +83,7 @@ export function initDatabase() {
     nro_pedido INTEGER GENERATED ALWAYS AS (id + 1000000)
   );
 `);
+
+// Indices
+  //CREATE UNIQUE INDEX IF NOT EXISTS idx_producto_nombre ON Producto (nombre)
 }

@@ -7,7 +7,7 @@ Una vez creado el pedido con ese encabezado y una lista de Productos se puede vi
 
 Esta accion de envio deberia quedar registrada de alguna forma, con fecha. y cambiar el estado del Pedido.
 
-
+https://deepwiki.com/smauhourat/restoapp
 
 develop
 

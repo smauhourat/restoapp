@@ -1,6 +1,5 @@
-import Database from 'better-sqlite3';
-import { initDatabase } from '../models.js';
-
+// import Database from 'better-sqlite3';
+// import { initDatabase } from '../models.js';
 import request from 'supertest';
 import express from 'express';
 import productosRoutes from '../routes/productos.js';
@@ -41,17 +40,17 @@ describe('POST /api/productos', () => {
   });
 });
 
-describe('POST /api/productos', () => {
-  it('should create a new product2', async () => {
-    const newProduct = {
-      nombre: 'Producto de Prueba2',
-      descripcion: 'Descripción de prueba',
-      unidad_medida: 'kg'
-    };
-    const response = await request(app).post('/api/productos').send(newProduct);
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('id');
-  });
-});
+// describe('POST /api/productos', () => {
+//   it('should create a new product2', async () => {
+//     const newProduct = {
+//       nombre: 'Producto de Prueba2',
+//       descripcion: 'Descripción de prueba',
+//       unidad_medida: 'kg'
+//     };
+//     const response = await request(app).post('/api/productos').send(newProduct);
+//     expect(response.status).toBe(200);
+//     expect(response.body).toHaveProperty('id');
+//   });
+// });
 
 //describe('

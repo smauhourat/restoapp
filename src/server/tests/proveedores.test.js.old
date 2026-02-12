@@ -1,0 +1,194 @@
+import request from 'supertest';
+import express from 'express';
+import proveedoresRoutes from '../routes/proveedores.js';
+
+jest.mock('../db.js', () => {
+  const Database = require('better-sqlite3');
+  const { initDatabase } = require('../models.js');
+  const testDb = new Database(':memory:');
+  testDb.pragma('foreign_keys = ON');
+  initDatabase(testDb);
+  return testDb;
+});
+
+const app = express();
+app.use(express.json());
+app.use('/api/proveedores', proveedoresRoutes);
+
+const proveedorValido = {
+  nombre: 'Proveedor Test',
+  direccion: 'Calle Falsa 123',
+  telefono: '1234567890',
+  email: 'test@email.com',
+};
+
+describe('POST /api/proveedores', () => {
+  // --- Validaciones de nombre ---
+  it('rechaza nombre vacío', async () => {
+    const res = await request(app)
+      .post('/api/proveedores')
+      .send({ ...proveedorValido, nombre: '' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/al menos 3 caracteres/i);
+  });
+
+  it('rechaza nombre menor a 3 caracteres', async () => {
+    const res = await request(app)
+      .post('/api/proveedores')
+      .send({ ...proveedorValido, nombre: 'Ab' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/al menos 3 caracteres/i);
+  });
+
+  it('rechaza nombre mayor a 50 caracteres', async () => {
+    const res = await request(app)
+      .post('/api/proveedores')
+      .send({ ...proveedorValido, nombre: 'A'.repeat(51) });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/más de 50 caracteres/i);
+  });
+
+  it('rechaza nombre duplicado', async () => {
+    await request(app).post('/api/proveedores').send(proveedorValido);
+
+    const res = await request(app)
+      .post('/api/proveedores')
+      .send({ ...proveedorValido, email: 'otro@email.com' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/ya existe/i);
+  });
+
+  it('rechaza nombre duplicado sin importar mayúsculas', async () => {
+    const res = await request(app)
+      .post('/api/proveedores')
+      .send({ ...proveedorValido, nombre: 'proveedor test', email: 'otro2@email.com' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/ya existe/i);
+  });
+
+  // --- Validaciones de teléfono ---
+  it('rechaza sin teléfono', async () => {
+    const res = await request(app)
+      .post('/api/proveedores')
+      .send({ nombre: 'Otro Proveedor', direccion: 'Dir', email: 'a@b.com' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/teléfono/i);
+  });
+
+  it('rechaza teléfono con letras', async () => {
+    const res = await request(app)
+      .post('/api/proveedores')
+      .send({ ...proveedorValido, nombre: 'Prov Letras', telefono: '123abc' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/teléfono/i);
+  });
+
+  it('rechaza teléfono con caracteres especiales', async () => {
+    const res = await request(app)
+      .post('/api/proveedores')
+      .send({ ...proveedorValido, nombre: 'Prov Especial', telefono: '+54-11' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/teléfono/i);
+  });
+
+  // --- Validaciones de email ---
+  it('rechaza sin email', async () => {
+    const res = await request(app)
+      .post('/api/proveedores')
+      .send({ nombre: 'Prov Sin Email', direccion: 'Dir', telefono: '123456' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/email/i);
+  });
+
+  it('rechaza email inválido', async () => {
+    const res = await request(app)
+      .post('/api/proveedores')
+      .send({ ...proveedorValido, nombre: 'Prov Email Inv', email: 'no-es-email' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/email/i);
+  });
+
+  // --- Caso exitoso ---
+  it('crea proveedor con datos válidos', async () => {
+    const res = await request(app)
+      .post('/api/proveedores')
+      .send({ nombre: 'Nuevo Proveedor', direccion: 'Dir 456', telefono: '9876543', email: 'nuevo@test.com' });
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('id');
+  });
+});
+
+describe('PUT /api/proveedores/:id', () => {
+  let proveedorId;
+
+  beforeAll(async () => {
+    const res = await request(app)
+      .post('/api/proveedores')
+      .send({ nombre: 'Para Editar', direccion: 'Dir', telefono: '111222', email: 'editar@test.com' });
+    proveedorId = res.body.id;
+  });
+
+  it('rechaza nombre menor a 3 caracteres', async () => {
+    const res = await request(app)
+      .put(`/api/proveedores/${proveedorId}`)
+      .send({ nombre: 'Ab', telefono: '111222', email: 'editar@test.com' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/al menos 3 caracteres/i);
+  });
+
+  it('rechaza nombre mayor a 50 caracteres', async () => {
+    const res = await request(app)
+      .put(`/api/proveedores/${proveedorId}`)
+      .send({ nombre: 'A'.repeat(51), telefono: '111222', email: 'editar@test.com' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/más de 50 caracteres/i);
+  });
+
+  it('rechaza nombre duplicado con otro proveedor', async () => {
+    const res = await request(app)
+      .put(`/api/proveedores/${proveedorId}`)
+      .send({ nombre: 'Nuevo Proveedor', telefono: '111222', email: 'editar@test.com' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/ya existe/i);
+  });
+
+  it('permite mantener su propio nombre', async () => {
+    const res = await request(app)
+      .put(`/api/proveedores/${proveedorId}`)
+      .send({ nombre: 'Para Editar', telefono: '111222', email: 'editar@test.com' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('rechaza sin teléfono', async () => {
+    const res = await request(app)
+      .put(`/api/proveedores/${proveedorId}`)
+      .send({ nombre: 'Para Editar', email: 'editar@test.com' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/teléfono/i);
+  });
+
+  it('rechaza teléfono con letras', async () => {
+    const res = await request(app)
+      .put(`/api/proveedores/${proveedorId}`)
+      .send({ nombre: 'Para Editar', telefono: 'abc123', email: 'editar@test.com' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/teléfono/i);
+  });
+
+  it('rechaza sin email', async () => {
+    const res = await request(app)
+      .put(`/api/proveedores/${proveedorId}`)
+      .send({ nombre: 'Para Editar', telefono: '111222' });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/email/i);
+  });
+
+  it('actualiza con datos válidos', async () => {
+    const res = await request(app)
+      .put(`/api/proveedores/${proveedorId}`)
+      .send({ nombre: 'Editado OK', direccion: 'Nueva Dir', telefono: '999888', email: 'editado@test.com' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

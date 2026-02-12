@@ -44,23 +44,35 @@ router.get('/:id', (req, res) => {
 router.post('/', (req, res) => {
     const { nombre, direccion, telefono, email } = req.body;
 
-    // Validaciones básicas
-    if (!nombre || nombre.length < 3) {
+    if (!nombre || nombre.trim().length < 3) {
       return res.status(400).json({ error: 'Nombre debe tener al menos 3 caracteres' });
     }
 
-    if (telefono && !/^[0-9+]{8,15}$/.test(telefono)) {
-      return res.status(400).json({ error: 'Teléfono inválido' });
+    if (nombre.trim().length > 50) {
+      return res.status(400).json({ error: 'Nombre no puede tener más de 50 caracteres' });
     }
 
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    const existente = db.prepare('SELECT id FROM Proveedor WHERE LOWER(nombre) = LOWER(?)').get(nombre.trim());
+    if (existente) {
+      return res.status(400).json({ error: 'Ya existe un proveedor con ese nombre' });
+    }
+
+    if (!telefono || !/^[0-9]+$/.test(telefono)) {
+      return res.status(400).json({ error: 'Teléfono es obligatorio y solo acepta números' });
+    }
+
+    if (!email || email.trim().length === 0) {
+      return res.status(400).json({ error: 'Email es obligatorio' });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ error: 'Email inválido' });
     }
-        
+
     const stmt = db.prepare(
         'INSERT INTO Proveedor (nombre, direccion, telefono, email) VALUES (?, ?, ?, ?)'
     );
-    const result = stmt.run(nombre, direccion, telefono, email);
+    const result = stmt.run(nombre.trim(), direccion, telefono, email.trim());
     res.json({ id: result.lastInsertRowid });
 });
 
@@ -69,25 +81,37 @@ router.put('/:id', (req, res) => {
     const { id } = req.params;
     const { nombre, direccion, telefono, email } = req.body;
 
-    // Validaciones básicas
-    if (!nombre || nombre.length < 3) {
+    if (!nombre || nombre.trim().length < 3) {
       return res.status(400).json({ error: 'Nombre debe tener al menos 3 caracteres' });
     }
 
-    if (telefono && !/^[0-9+]{8,15}$/.test(telefono)) {
-      return res.status(400).json({ error: 'Teléfono inválido' });
+    if (nombre.trim().length > 50) {
+      return res.status(400).json({ error: 'Nombre no puede tener más de 50 caracteres' });
     }
 
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    const existente = db.prepare('SELECT id FROM Proveedor WHERE LOWER(nombre) = LOWER(?) AND id != ?').get(nombre.trim(), id);
+    if (existente) {
+      return res.status(400).json({ error: 'Ya existe un proveedor con ese nombre' });
+    }
+
+    if (!telefono || !/^[0-9]+$/.test(telefono)) {
+      return res.status(400).json({ error: 'Teléfono es obligatorio y solo acepta números' });
+    }
+
+    if (!email || email.trim().length === 0) {
+      return res.status(400).json({ error: 'Email es obligatorio' });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ error: 'Email inválido' });
-    }    
-    
+    }
+
     const stmt = db.prepare(`
     UPDATE Proveedor
     SET nombre = ?, direccion = ?, telefono = ?, email = ?
     WHERE id = ?
   `);
-    stmt.run(nombre, direccion, telefono, email, id);
+    stmt.run(nombre.trim(), direccion, telefono, email.trim(), id);
     res.json({ success: true });
 });
 

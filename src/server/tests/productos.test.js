@@ -8,9 +8,11 @@ import productosRoutes from '../routes/productos.js';
 jest.mock('../db.js', () => {
   const Database = require('better-sqlite3');
   const { initDatabase } = require('../models.js');
+  const { seedDatabase } = require('./utils/seed_db.js');
   const testDb = new Database(':memory:');
   testDb.pragma('foreign_keys = ON');
   initDatabase(testDb);
+  seedDatabase(testDb)
   return testDb;
 });
 
@@ -23,7 +25,7 @@ describe('GET /api/productos', () => {
     const response = await request(app).get('/api/productos');
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('data');
-    console.log(response.body);
+    //console.log(response.body);
   });
 });
 

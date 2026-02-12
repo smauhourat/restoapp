@@ -1,4 +1,3 @@
--- Datos para Proveedor
 INSERT INTO Proveedor (id, nombre, direccion, telefono, email) VALUES (1, 'BOCONCCINO', 'Italia', '1155558888', 'sdasd@hotmail.com');
 INSERT INTO Proveedor (id, nombre, direccion, telefono, email) VALUES (2, 'VIDAL', 'Barcelona', '', '');
 INSERT INTO Proveedor (id, nombre, direccion, telefono, email) VALUES (3, 'ASG', 'Andorra', '115557777', 'meme@hotmail.com');
@@ -14,15 +13,12 @@ INSERT INTO Proveedor (id, nombre, direccion, telefono, email) VALUES (12, 'HELA
 INSERT INTO Proveedor (id, nombre, direccion, telefono, email) VALUES (13, 'MOLINA', 'asd', '234234', '');
 INSERT INTO Proveedor (id, nombre, direccion, telefono, email) VALUES (14, 'VINOS', 'aa', '222', '');
 INSERT INTO Proveedor (id, nombre, direccion, telefono, email) VALUES (15, 'CAFÉ Y TÉ', 'qweqew', '2321', '');
-
--- Datos para Producto
 INSERT INTO Producto (id, nombre, descripcion, unidad_medida) VALUES (3, 'CAPUTO AZUL', 'HARINAS', 'kg');
 INSERT INTO Producto (id, nombre, descripcion, unidad_medida) VALUES (4, 'CAPUTO ROSA ', 'HARINAS', 'kg');
 INSERT INTO Producto (id, nombre, descripcion, unidad_medida) VALUES (5, 'NAPOLITANA COROMINA', 'HARINAS', 'kg');
 INSERT INTO Producto (id, nombre, descripcion, unidad_medida) VALUES (6, 'INTEGRAL COROMINA', 'HARINAS', 'kg');
 INSERT INTO Producto (id, nombre, descripcion, unidad_medida) VALUES (7, 'SEMOLA DE GRANO DURO', 'HARINAS', 'litro');
-INSERT INTO Producto (id, nombre, descripcion, unidad_medida) VALUES (8, 'JAMON DULCE', 'EMBUTIDOS
-', 'kg');
+INSERT INTO Producto (id, nombre, descripcion, unidad_medida) VALUES (8, 'JAMON DULCE', 'EMBUTIDOS', 'kg');
 INSERT INTO Producto (id, nombre, descripcion, unidad_medida) VALUES (9, 'JAMON PARMA', 'EMBUTIDOS', 'kg');
 INSERT INTO Producto (id, nombre, descripcion, unidad_medida) VALUES (10, 'SALAME NAPOLI', 'EMBUTIDOS', 'kg');
 INSERT INTO Producto (id, nombre, descripcion, unidad_medida) VALUES (11, 'GUANCIALE ROMANO ', 'EMBUTIDOS', 'kg');
@@ -267,8 +263,6 @@ INSERT INTO Producto (id, nombre, descripcion, unidad_medida) VALUES (271, 'SERV
 INSERT INTO Producto (id, nombre, descripcion, unidad_medida) VALUES (272, 'aaaa', 'a', 'unidad');
 INSERT INTO Producto (id, nombre, descripcion, unidad_medida) VALUES (274, 'PRODUCTO DE PRUEBA', 'DESCRIPCIÓN DE PRUEBA', 'kg');
 INSERT INTO Producto (id, nombre, descripcion, unidad_medida) VALUES (275, 'PRODUCTO DE PRUEBA2', 'DESCRIPCIÓN DE PRUEBA', 'kg');
-
--- Datos para Proveedor_Producto
 INSERT INTO Proveedor_Producto (proveedor_id, producto_id, precio_unitario, tiempo_entrega) VALUES (6, 167, 30.2, '');
 INSERT INTO Proveedor_Producto (proveedor_id, producto_id, precio_unitario, tiempo_entrega) VALUES (6, 168, 14.48, '');
 INSERT INTO Proveedor_Producto (proveedor_id, producto_id, precio_unitario, tiempo_entrega) VALUES (6, 169, 8.1, '');
@@ -528,59 +522,50 @@ INSERT INTO Proveedor_Producto (proveedor_id, producto_id, precio_unitario, tiem
 INSERT INTO Proveedor_Producto (proveedor_id, producto_id, precio_unitario, tiempo_entrega) VALUES (13, 263, 10.95, '');
 INSERT INTO Proveedor_Producto (proveedor_id, producto_id, precio_unitario, tiempo_entrega) VALUES (13, 264, 1.65, '');
 INSERT INTO Proveedor_Producto (proveedor_id, producto_id, precio_unitario, tiempo_entrega) VALUES (13, 265, 1.05, '');
-
--- Datos para Pedido
 INSERT INTO Pedido (id, numero_pedido, fecha, proveedor_id, estado, total) VALUES (3, 'PED-1000009', '2025-08-20', 6, 'pendiente', 37.519999999999996);
 INSERT INTO Pedido (id, numero_pedido, fecha, proveedor_id, estado, total) VALUES (4, 'PED-1000019', '2025-08-20', 3, 'pendiente', 29.39);
-
--- Datos para Pedido_Renglon
-INSERT INTO Pedido_Renglon (id, pedido_id, producto_id, cantidad, precio_unitario, subtotal) VALUES (4, 3, 168, 1, 14.48, 14.48);
-INSERT INTO Pedido_Renglon (id, pedido_id, producto_id, cantidad, precio_unitario, subtotal) VALUES (5, 3, 171, 3, 7.68, 23.04);
-INSERT INTO Pedido_Renglon (id, pedido_id, producto_id, cantidad, precio_unitario, subtotal) VALUES (6, 4, 14, 1, 11.89, 11.89);
-INSERT INTO Pedido_Renglon (id, pedido_id, producto_id, cantidad, precio_unitario, subtotal) VALUES (7, 4, 17, 1, 17.5, 17.5);
-
--- Datos para HistorialEnvios
+INSERT INTO Pedido_Renglon (id, pedido_id, producto_id, cantidad, precio_unitario) VALUES (4, 3, 168, 1, 14.48);
+INSERT INTO Pedido_Renglon (id, pedido_id, producto_id, cantidad, precio_unitario) VALUES (5, 3, 171, 3, 7.68);
+INSERT INTO Pedido_Renglon (id, pedido_id, producto_id, cantidad, precio_unitario) VALUES (6, 4, 14, 1, 11.89);
+INSERT INTO Pedido_Renglon (id, pedido_id, producto_id, cantidad, precio_unitario) VALUES (7, 4, 17, 1, 17.5);
 INSERT INTO HistorialEnvios (id, pedido_id, metodo_envio, fecha_envio, destinatario) VALUES (1, 3, 'qr', '2025-08-20 19:13:50', 'Generado para compartir');
 INSERT INTO HistorialEnvios (id, pedido_id, metodo_envio, fecha_envio, destinatario) VALUES (2, 3, 'wsp', '2025-08-20 19:16:59', 'Generado para enviar');
 INSERT INTO HistorialEnvios (id, pedido_id, metodo_envio, fecha_envio, destinatario) VALUES (3, 3, 'qr', '2025-08-20 19:18:44', 'Generado para compartir');
 INSERT INTO HistorialEnvios (id, pedido_id, metodo_envio, fecha_envio, destinatario) VALUES (4, 3, 'qr', '2025-08-20 19:22:34', 'Generado para compartir');
 INSERT INTO HistorialEnvios (id, pedido_id, metodo_envio, fecha_envio, destinatario) VALUES (5, 3, 'qr', '2025-08-20 19:32:47', 'Generado para compartir');
-
--- Datos para NrosPedidos
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (1, '2025-07-29 19:42:42', 'ok', 1000001);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (2, '2025-07-29 20:47:41', 'ok', 1000002);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (3, '2025-07-29 20:48:00', 'ok', 1000003);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (4, '2025-07-29 20:54:06', 'ok', 1000004);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (5, '2025-07-29 21:00:12', 'ok', 1000005);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (6, '2025-07-31 18:31:18', 'ok', 1000006);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (7, '2025-08-05 15:07:17', 'ok', 1000007);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (8, '2025-08-20 19:12:29', 'ok', 1000008);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (9, '2025-08-20 19:13:02', 'ok', 1000009);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (10, '2025-08-20 21:00:14', 'ok', 1000010);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (11, '2025-08-20 21:06:44', 'ok', 1000011);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (12, '2025-08-20 21:07:30', 'ok', 1000012);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (13, '2025-08-20 21:07:44', 'ok', 1000013);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (14, '2025-08-20 21:10:02', 'ok', 1000014);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (15, '2025-08-20 21:10:43', 'ok', 1000015);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (16, '2025-08-20 21:10:44', 'ok', 1000016);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (17, '2025-08-20 21:10:59', 'ok', 1000017);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (18, '2025-08-20 21:11:26', 'ok', 1000018);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (19, '2025-08-20 21:11:34', 'ok', 1000019);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (20, '2025-08-20 21:15:24', 'ok', 1000020);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (21, '2025-08-20 21:15:48', 'ok', 1000021);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (22, '2025-08-20 21:15:56', 'ok', 1000022);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (23, '2025-08-20 21:16:32', 'ok', 1000023);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (24, '2025-08-20 21:16:35', 'ok', 1000024);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (25, '2025-08-20 21:17:21', 'ok', 1000025);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (26, '2025-08-20 21:17:37', 'ok', 1000026);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (27, '2025-08-20 21:18:27', 'ok', 1000027);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (28, '2025-08-20 21:18:41', 'ok', 1000028);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (29, '2025-08-20 21:18:54', 'ok', 1000029);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (30, '2025-08-20 21:19:14', 'ok', 1000030);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (31, '2025-08-20 21:21:05', 'ok', 1000031);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (32, '2025-08-20 21:21:16', 'ok', 1000032);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (33, '2025-08-20 21:22:16', 'ok', 1000033);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (34, '2025-08-20 21:22:20', 'ok', 1000034);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (35, '2025-08-21 18:00:50', 'ok', 1000035);
-INSERT INTO NrosPedidos (id, fecha_generacion, estado, nro_pedido) VALUES (36, '2025-08-21 18:01:02', 'ok', 1000036);
-
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (1, '2025-07-29 19:42:42', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (2, '2025-07-29 20:47:41', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (3, '2025-07-29 20:48:00', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (4, '2025-07-29 20:54:06', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (5, '2025-07-29 21:00:12', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (6, '2025-07-31 18:31:18', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (7, '2025-08-05 15:07:17', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (8, '2025-08-20 19:12:29', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (9, '2025-08-20 19:13:02', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (10, '2025-08-20 21:00:14', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (11, '2025-08-20 21:06:44', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (12, '2025-08-20 21:07:30', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (13, '2025-08-20 21:07:44', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (14, '2025-08-20 21:10:02', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (15, '2025-08-20 21:10:43', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (16, '2025-08-20 21:10:44', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (17, '2025-08-20 21:10:59', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (18, '2025-08-20 21:11:26', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (19, '2025-08-20 21:11:34', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (20, '2025-08-20 21:15:24', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (21, '2025-08-20 21:15:48', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (22, '2025-08-20 21:15:56', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (23, '2025-08-20 21:16:32', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (24, '2025-08-20 21:16:35', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (25, '2025-08-20 21:17:21', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (26, '2025-08-20 21:17:37', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (27, '2025-08-20 21:18:27', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (28, '2025-08-20 21:18:41', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (29, '2025-08-20 21:18:54', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (30, '2025-08-20 21:19:14', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (31, '2025-08-20 21:21:05', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (32, '2025-08-20 21:21:16', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (33, '2025-08-20 21:22:16', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (34, '2025-08-20 21:22:20', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (35, '2025-08-21 18:00:50', 'ok');
+INSERT INTO NrosPedidos (id, fecha_generacion, estado) VALUES (36, '2025-08-21 18:01:02', 'ok');

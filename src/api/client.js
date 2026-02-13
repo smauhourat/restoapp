@@ -20,7 +20,11 @@ apiClient.interceptors.response.use(
         // console.error('API Error:', error.response?.data || error.message);
         console.error('API Error:', error)
 
-        const message = error.response?.data?.error || 'Error desconocido del servidor';
+        const errorData = error.response?.data;
+        const baseMessage = errorData?.error || 'Error desconocido del servidor';
+        const detalles = Array.isArray(errorData?.detalles) ? errorData.detalles : [];
+        const detalleExtra = detalles.find((detalle) => detalle && detalle !== baseMessage);
+        const message = detalleExtra ? `${baseMessage} (${detalleExtra})` : baseMessage;
         // Mostrar toast (esto depende de cómo manejes notificaciones)
         showToast(message)      
 

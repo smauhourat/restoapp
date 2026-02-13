@@ -32,7 +32,7 @@ describe('GET /api/productos', () => {
 describe('POST /api/productos', () => {
   it('should create a new product', async () => {
     const newProduct = {
-      nombre: 'Producto de Prueba2',
+      nombre: 'Producto Automatizado',
       descripcion: 'Descripción de prueba',
       unidad_medida: 'kg'
     };

@@ -1,205 +1,183 @@
 import express from 'express';
 import db from '../db.js';
+import { validateRequest } from '../middleware/validate.js';
+import { sendError } from '../utils/http.js';
+import {
+  listProveedoresSchema,
+  proveedorIdSchema,
+  createProveedorSchema,
+  updateProveedorSchema,
+  createProveedorProductoSchema,
+  proveedorProductoDetailSchema,
+  updateProveedorProductoSchema,
+  deleteProveedorProductoSchema,
+  productosDisponiblesSchema,
+} from '../validators/proveedores.js';
 
 const router = express.Router();
 
 // GET /api/proveedores con paginación
-router.get('/', (req, res) => {
-    const { page = 1, perPage = 10 } = req.query;
-    const offset = (page - 1) * perPage;
+router.get('/', validateRequest(listProveedoresSchema), (req, res) => {
+  const { page, perPage } = req.validated.query;
+  const offset = (page - 1) * perPage;
 
-    const proveedores = db.prepare(`
+  const proveedores = db.prepare(`
     SELECT *,
-    (select count(*) from Proveedor_Producto pp where pp.proveedor_id == Proveedor.id) as productos
+      (SELECT COUNT(*) FROM Proveedor_Producto pp WHERE pp.proveedor_id = Proveedor.id) AS productos
     FROM Proveedor
     ORDER BY nombre ASC
     LIMIT ? OFFSET ?
   `).all(perPage, offset);
 
-  //console.log('Proveedores =>', proveedores)
+  const total = db.prepare('SELECT COUNT(*) as total FROM Proveedor').get().total;
 
-    const total = db.prepare(`
-    SELECT COUNT(*) as total FROM Proveedor
-  `).get().total;
-
-    res.json({
-        data: proveedores,
-        total,
-        page: parseInt(page),
-        perPage: parseInt(perPage),
-        totalPages: Math.ceil(total / perPage),
-    });
+  res.json({
+    data: proveedores,
+    total,
+    page,
+    perPage,
+    totalPages: Math.ceil(total / perPage),
+  });
 });
 
-router.get('/:id', (req, res) => {
-  const { id } = req.params;
+router.get('/:id', validateRequest(proveedorIdSchema), (req, res) => {
+  const { id } = req.validated.params;
   const proveedor = db.prepare(`
     SELECT p.*
     FROM Proveedor p
     WHERE p.id = ?
   `).get(id);
+
+  if (!proveedor) {
+    return sendError(res, 'Proveedor no encontrado', 404);
+  }
+
   res.json(proveedor);
 });
 
-router.post('/', (req, res) => {
-    const { nombre, direccion, telefono, email } = req.body;
+router.post('/', validateRequest(createProveedorSchema), (req, res) => {
+  const { nombre, direccion, telefono, email } = req.validated.body;
+  const nombreNormalizado = nombre.trim();
+  const direccionValue = direccion ?? '';
 
-    if (!nombre || nombre.trim().length < 3) {
-      return res.status(400).json({ error: 'Nombre debe tener al menos 3 caracteres' });
-    }
+  const existente = db.prepare('SELECT id FROM Proveedor WHERE LOWER(nombre) = LOWER(?)').get(nombreNormalizado);
+  if (existente) {
+    return sendError(res, 'Ya existe un proveedor con ese nombre');
+  }
 
-    if (nombre.trim().length > 50) {
-      return res.status(400).json({ error: 'Nombre no puede tener más de 50 caracteres' });
-    }
-
-    const existente = db.prepare('SELECT id FROM Proveedor WHERE LOWER(nombre) = LOWER(?)').get(nombre.trim());
-    if (existente) {
-      return res.status(400).json({ error: 'Ya existe un proveedor con ese nombre' });
-    }
-
-    if (!telefono || !/^[0-9]+$/.test(telefono)) {
-      return res.status(400).json({ error: 'Teléfono es obligatorio y solo acepta números' });
-    }
-
-    if (!email || email.trim().length === 0) {
-      return res.status(400).json({ error: 'Email es obligatorio' });
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return res.status(400).json({ error: 'Email inválido' });
-    }
-
-    const stmt = db.prepare(
-        'INSERT INTO Proveedor (nombre, direccion, telefono, email) VALUES (?, ?, ?, ?)'
-    );
-    const result = stmt.run(nombre.trim(), direccion, telefono, email.trim());
-    res.json({ id: result.lastInsertRowid });
+  const stmt = db.prepare('INSERT INTO Proveedor (nombre, direccion, telefono, email) VALUES (?, ?, ?, ?)');
+  const result = stmt.run(nombreNormalizado, direccionValue, telefono, email.trim());
+  res.json({ id: result.lastInsertRowid });
 });
 
-// Actualizar un proveedor
-router.put('/:id', (req, res) => {
-    const { id } = req.params;
-    const { nombre, direccion, telefono, email } = req.body;
+router.put('/:id', validateRequest(updateProveedorSchema), (req, res) => {
+  const { id } = req.validated.params;
+  const { nombre, direccion, telefono, email } = req.validated.body;
+  const nombreNormalizado = nombre.trim();
+  const direccionValue = direccion ?? '';
 
-    if (!nombre || nombre.trim().length < 3) {
-      return res.status(400).json({ error: 'Nombre debe tener al menos 3 caracteres' });
-    }
+  const existente = db.prepare('SELECT id FROM Proveedor WHERE LOWER(nombre) = LOWER(?) AND id != ?').get(nombreNormalizado, id);
+  if (existente) {
+    return sendError(res, 'Ya existe un proveedor con ese nombre');
+  }
 
-    if (nombre.trim().length > 50) {
-      return res.status(400).json({ error: 'Nombre no puede tener más de 50 caracteres' });
-    }
-
-    const existente = db.prepare('SELECT id FROM Proveedor WHERE LOWER(nombre) = LOWER(?) AND id != ?').get(nombre.trim(), id);
-    if (existente) {
-      return res.status(400).json({ error: 'Ya existe un proveedor con ese nombre' });
-    }
-
-    if (!telefono || !/^[0-9]+$/.test(telefono)) {
-      return res.status(400).json({ error: 'Teléfono es obligatorio y solo acepta números' });
-    }
-
-    if (!email || email.trim().length === 0) {
-      return res.status(400).json({ error: 'Email es obligatorio' });
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return res.status(400).json({ error: 'Email inválido' });
-    }
-
-    const stmt = db.prepare(`
+  const stmt = db.prepare(`
     UPDATE Proveedor
     SET nombre = ?, direccion = ?, telefono = ?, email = ?
     WHERE id = ?
   `);
-    stmt.run(nombre.trim(), direccion, telefono, email.trim(), id);
-    res.json({ success: true });
+  const result = stmt.run(nombreNormalizado, direccionValue, telefono, email.trim(), id);
+
+  if (result.changes === 0) {
+    return sendError(res, 'Proveedor no encontrado', 404);
+  }
+
+  res.json({ success: true });
 });
 
-
-// Obtener todos los productos de un proveedor
-router.get('/:id/productos', (req, res) => {
-    const { id } = req.params;
-    const productos = db.prepare(`
+router.get('/:id/productos', validateRequest(proveedorIdSchema), (req, res) => {
+  const { id } = req.validated.params;
+  const productos = db.prepare(`
     SELECT p.id, p.nombre, p.descripcion, pp.precio_unitario, pp.tiempo_entrega, p.unidad_medida
     FROM Producto p
     JOIN Proveedor_Producto pp ON p.id = pp.producto_id
     WHERE pp.proveedor_id = ?
   `).all(id);
-    res.json(productos);
+
+  res.json(productos);
 });
 
-// Añadir producto a un proveedor
-router.post('/:id/productos', (req, res) => {
-  const { id } = req.params;
-  const { producto_id, precio_unitario, tiempo_entrega } = req.body;
-    const stmt = db.prepare(`
+router.post('/:id/productos', validateRequest(createProveedorProductoSchema), (req, res) => {
+  const { id } = req.validated.params;
+  const { producto_id, precio_unitario, tiempo_entrega } = req.validated.body;
+
+  db.prepare(`
     INSERT INTO Proveedor_Producto (proveedor_id, producto_id, precio_unitario, tiempo_entrega)
     VALUES (?, ?, ?, ?)
-  `);
-  stmt.run(id, producto_id, precio_unitario, tiempo_entrega);
+  `).run(id, producto_id, precio_unitario, tiempo_entrega ?? '');
+
   res.json({ success: true });
 });
 
-// Obtener un producto específico de un proveedor
-router.get('/:proveedorId/productos/:productoId', (req, res) => {
-    const { proveedorId, productoId } = req.params;
-    const producto = db.prepare(`
+router.get('/:proveedorId/productos/:productoId', validateRequest(proveedorProductoDetailSchema), (req, res) => {
+  const { proveedorId, productoId } = req.validated.params;
+  const producto = db.prepare(`
     SELECT p.id, p.nombre, p.descripcion, pp.precio_unitario, pp.tiempo_entrega, p.unidad_medida
     FROM Producto p
     JOIN Proveedor_Producto pp ON p.id = pp.producto_id
     WHERE pp.proveedor_id = ? AND pp.producto_id = ?
   `).get(proveedorId, productoId);
-  console.log('Producto Especifico =>', producto)
-    res.json(producto);
-});
 
-
-// Actualizar un producto de un proveedor
-router.put('/:proveedorId/productos/:productoId', (req, res) => {
-  const { proveedorId, productoId } = req.params;
-  const { precio_unitario } = req.body;
-
-  // Validaciones básicas
-  if (!precio_unitario || precio_unitario <= 0) {
-    return res.status(400).json({ error: 'Debe ingresar un valor numerico positivo.' });
+  if (!producto) {
+    return sendError(res, 'Producto no encontrado para el proveedor', 404);
   }
 
-  const stmt = db.prepare(`
+  res.json(producto);
+});
+
+router.put('/:proveedorId/productos/:productoId', validateRequest(updateProveedorProductoSchema), (req, res) => {
+  const { proveedorId, productoId } = req.validated.params;
+  const { precio_unitario } = req.validated.body;
+
+  const result = db.prepare(`
     UPDATE Proveedor_Producto
     SET precio_unitario = ?
     WHERE proveedor_id = ? AND producto_id = ?
-  `);
-  stmt.run(precio_unitario, proveedorId, productoId);
+  `).run(precio_unitario, proveedorId, productoId);
+
+  if (result.changes === 0) {
+    return sendError(res, 'Producto no encontrado para el proveedor', 404);
+  }
+
   res.json({ success: true });
 });
 
-// Eliminar un proveedor
-router.delete('/:id', (req, res) => {
-    const { id } = req.params;
-    console.log('Id Proveedor =>', id)
-    const stmt = db.prepare(`
-    DELETE FROM Proveedor 
-    WHERE id = ?
-  `);
-    stmt.run(id);
-    res.json({ success: true });
+router.delete('/:id', validateRequest(proveedorIdSchema), (req, res) => {
+  const { id } = req.validated.params;
+  const result = db.prepare('DELETE FROM Proveedor WHERE id = ?').run(id);
+
+  if (result.changes === 0) {
+    return sendError(res, 'Proveedor no encontrado', 404);
+  }
+
+  res.json({ success: true });
 });
 
+router.delete('/:proveedorId/productos/:productoId', validateRequest(deleteProveedorProductoSchema), (req, res) => {
+  const { proveedorId, productoId } = req.validated.params;
+  const result = db
+    .prepare('DELETE FROM Proveedor_Producto WHERE proveedor_id = ? AND producto_id = ?')
+    .run(proveedorId, productoId);
 
-// Eliminar producto de un proveedor
-router.delete('/:proveedorId/productos/:productoId', (req, res) => {
-    const { proveedorId, productoId } = req.params;
-    const stmt = db.prepare(`
-    DELETE FROM Proveedor_Producto 
-    WHERE proveedor_id = ? AND producto_id = ?
-  `);
-    stmt.run(proveedorId, productoId);
-    res.json({ success: true });
+  if (result.changes === 0) {
+    return sendError(res, 'Producto no encontrado para el proveedor', 404);
+  }
+
+  res.json({ success: true });
 });
 
-// Obtener productos NO asignados a un proveedor
-router.get('/:id/productos-disponibles', (req, res) => {
-  const { id } = req.params;
+router.get('/:id/productos-disponibles', validateRequest(productosDisponiblesSchema), (req, res) => {
+  const { id } = req.validated.params;
 
   const productos = db.prepare(`
     SELECT p.*
@@ -214,6 +192,5 @@ router.get('/:id/productos-disponibles', (req, res) => {
 
   res.json(productos);
 });
-
 
 export default router;

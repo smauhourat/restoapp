@@ -21,6 +21,7 @@ export const listProveedoresSchema = {
   query: z.object({
     page: positiveIntegerField('page').default(1),
     perPage: positiveIntegerField('perPage').default(10),
+    search: optionalStringField('search', { max: 100 }).default(''),
   }),
 };
 

@@ -18,18 +18,41 @@ const router = express.Router();
 
 // GET /api/proveedores con paginación
 router.get('/', validateRequest(listProveedoresSchema), (req, res) => {
-  const { page, perPage } = req.validated.query;
+  const { page, perPage, search } = req.validated.query;
   const offset = (page - 1) * perPage;
+
+  let searchCondition = '';
+  let queryParams = [perPage, offset];
+
+  if (search) {
+    searchCondition = `
+      WHERE nombre LIKE ?
+        OR email LIKE ?
+        OR telefono LIKE ?
+    `;
+    const pattern = `%${search}%`;
+    queryParams = [pattern, pattern, pattern, perPage, offset];
+  }
 
   const proveedores = db.prepare(`
     SELECT *,
       (SELECT COUNT(*) FROM Proveedor_Producto pp WHERE pp.proveedor_id = Proveedor.id) AS productos
     FROM Proveedor
+    ${searchCondition}
     ORDER BY nombre ASC
     LIMIT ? OFFSET ?
-  `).all(perPage, offset);
+  `).all(...queryParams);
 
-  const total = db.prepare('SELECT COUNT(*) as total FROM Proveedor').get().total;
+  let totalQuery = 'SELECT COUNT(*) as total FROM Proveedor';
+  let totalParams = [];
+
+  if (search) {
+    totalQuery += ' WHERE nombre LIKE ? OR email LIKE ? OR telefono LIKE ?';
+    const pattern = `%${search}%`;
+    totalParams = [pattern, pattern, pattern];
+  }
+
+  const total = db.prepare(totalQuery).get(...totalParams).total;
 
   res.json({
     data: proveedores,

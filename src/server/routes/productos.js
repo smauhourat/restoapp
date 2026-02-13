@@ -86,14 +86,14 @@ router.get('/:id', validateRequest(productoIdSchema), (req, res) => {
     SELECT p.*
     FROM Producto p
     WHERE p.id = ?
-  `).get(id); 
-  
+  `).get(id);
+
   if (!producto) {
     return sendError(res, 'Producto no encontrado', 404);
   }
 
   res.json(producto);
-})
+});
 
 // Crear un nuevo producto
 router.post('/', validateRequest(createProductoSchema), (req, res) => {
@@ -116,14 +116,15 @@ router.post('/', validateRequest(createProductoSchema), (req, res) => {
 
 // Actualizar un producto
 router.put('/:id', validateRequest(updateProductoSchema), (req, res) => {
-    const { id } = req.validated.params;
+  const { id } = req.validated.params;
   const { nombre, descripcion, unidad_medida } = req.validated.body;
   const nombreUpper = normalizeNombre(nombre);
 
-    if (productoExiste(nombreUpper, id)) return sendError(res, 'El producto ya existe');
+  if (productoExiste(nombreUpper, id)) {
+    return sendError(res, 'El producto ya existe');
+  }
 
-
-    const stmt = db.prepare(`
+  const stmt = db.prepare(`
     UPDATE Producto 
     SET nombre = ?, descripcion = ?, unidad_medida = ?
     WHERE id = ?
@@ -133,26 +134,26 @@ router.put('/:id', validateRequest(updateProductoSchema), (req, res) => {
   if (result.changes === 0) {
     return sendError(res, 'Producto no encontrado', 404);
   }
-  res.json({ id, nombre, descripcion, unidad_medida  });
+  res.json({ id, nombre, descripcion, unidad_medida });
 });
 
 // Eliminar un producto
 router.delete('/:id', validateRequest(deleteProductoSchema), (req, res) => {
-    const { id } = req.validated.params;
-    // Verificar que el producto no esté asociado a un proveedor
-    const tieneProveedores = db.prepare(`
+  const { id } = req.validated.params;
+  // Verificar que el producto no esté asociado a un proveedor
+  const tieneProveedores = db.prepare(`
     SELECT COUNT(*) as count FROM Proveedor_Producto WHERE producto_id = ?
   `).get(id).count > 0;
 
-    if (tieneProveedores) {
-        return sendError(res, 'El producto está asociado a proveedores');
-    }
+  if (tieneProveedores) {
+    return sendError(res, 'El producto está asociado a proveedores');
+  }
 
-    const result = db.prepare('DELETE FROM Producto WHERE id = ?').run(id);
-    if (result.changes === 0) {
-      return sendError(res, 'Producto no encontrado', 404);
-    }
-    res.json({ success: true });
+  const result = db.prepare('DELETE FROM Producto WHERE id = ?').run(id);
+  if (result.changes === 0) {
+    return sendError(res, 'Producto no encontrado', 404);
+  }
+  res.json({ success: true });
 });
 
 router.post('/importar', upload.single('archivo'), (req, res) => {
@@ -165,30 +166,23 @@ router.post('/importar', upload.single('archivo'), (req, res) => {
     const sheetName = workbook.SheetNames[0];
     const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
-    console.log('Datos importados:', data);
-
-    // Validar estructura mínima
-    const validatedData = data.map(row => ({
+    const validatedData = data.map((row) => ({
       nombre: row.Nombre || row.nombre || 'Sin nombre',
       descripcion: row.Descripcion || row.descripcion || '',
-      unidad: row.Unidad || row.unidad || 'unidad'
+      unidad: row.Unidad || row.unidad || 'unidad',
     }));
 
-    // No permitimos duplicados por la columna 'Nombre'
-    const filteredData = validatedData.filter((obj, index, self) =>
-      index === self.findIndex((o) => (o["nombre"] === obj["nombre"]))
+    const filteredData = validatedData.filter(
+      (obj, index, self) => index === self.findIndex((o) => o.nombre === obj.nombre),
     );
-
-    fs.unlinkSync(req.file.path); // Limpiar archivo temporal
 
     return res.json({
       success: true,
       data: filteredData,
-      preview: true // Indica que es una previsualización
+      preview: true,
     });
-
   } catch (error) {
-    sendError(res, error.message || 'Error al procesar el archivo', 500);
+    return sendError(res, error.message || 'Error al procesar el archivo', 500);
   } finally {
     if (req.file) {
       fs.existsSync(req.file.path) && fs.unlinkSync(req.file.path);
@@ -206,11 +200,11 @@ router.post('/confirmar-importacion', validateRequest(confirmarImportacionSchema
   `);
 
   try {
-    productos.forEach(producto => {
+    productos.forEach((producto) => {
       stmt.run(
         normalizeNombre(producto.nombre),
         (producto.descripcion ?? '').toUpperCase(),
-        producto.unidad
+        producto.unidad,
       );
     });
     res.json({ success: true, imported: productos.length });

@@ -34,6 +34,12 @@ const productService = {
     async update(id, producto) {
         const response = await apiClient.put(`/productos/${id}`, JSON.stringify(producto));
         return response.data;
+    },
+
+    async getProveedoresByProductoId(id) {
+        const response = await apiClient.get(`/productos/${id}/proveedores`);
+        console.log('Respuesta de proveedores:', response);
+        return response;
     }
 }
 

@@ -137,6 +137,28 @@ router.put('/:id', validateRequest(updateProductoSchema), (req, res) => {
   res.json({ id, nombre, descripcion, unidad_medida });
 });
 
+// Obtener proveedores de un producto
+router.get('/:id/proveedores', validateRequest(productoIdSchema), (req, res) => {
+  const { id } = req.validated.params;
+  
+  const proveedores = db.prepare(`
+    SELECT 
+      Proveedor.id,
+      Proveedor.nombre,
+      Proveedor.telefono,
+      Proveedor.email,
+      Proveedor.direccion,
+      Proveedor_Producto.precio_unitario,
+      Proveedor_Producto.tiempo_entrega
+    FROM Proveedor_Producto
+    JOIN Proveedor ON Proveedor.id = Proveedor_Producto.proveedor_id
+    WHERE Proveedor_Producto.producto_id = ?
+    ORDER BY Proveedor.nombre ASC
+  `).all(id);
+
+  res.json(proveedores);
+});
+
 // Eliminar un producto
 router.delete('/:id', validateRequest(deleteProductoSchema), (req, res) => {
   const { id } = req.validated.params;

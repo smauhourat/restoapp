@@ -65,6 +65,9 @@ export default function ProductoList() {
         key: 'nombre',
         direction: 'asc',
     });
+    const [openProveedoresDialog, setOpenProveedoresDialog] = useState(false);
+    const [proveedoresList, setProveedoresList] = useState([]);
+    const [proveedorProductoLoading, setProveedorProductoLoading] = useState(false);
     const navigate = useNavigate();
 
     const theme = useTheme();
@@ -200,6 +203,21 @@ export default function ProductoList() {
         }
     };
 
+    const handleVerProveedores = async (productoId) => {
+        setProveedorProductoLoading(true);
+        try {
+            const proveedores = await productService.getProveedoresByProductoId(productoId);
+            console.log('Proveedores del producto:', proveedores);
+            setProveedoresList(proveedores);
+        } catch (error) {
+            setError('Error al cargar los proveedores');
+            console.error(error);
+        } finally {
+            setOpenProveedoresDialog(true);
+            setProveedorProductoLoading(false);
+        }
+    };
+
     return (
         <Container maxWidth="lg" sx={{ mt: 4 }}>
             <Typography variant="h4" component="h1" gutterBottom>
@@ -328,10 +346,14 @@ export default function ProductoList() {
                                     </TableCell>
                                     {!isMobile ? (<>
                                         <TableCell sx={{
-                                            ...(producto.proveedores === 0 && { backgroundColor: colorAlert })
-                                        }}>
-                                            <Tooltip title="Cantidad de Proveedores" arrow>
-                                                {producto.proveedores}
+                                            ...(producto.proveedores === 0 && { backgroundColor: colorAlert }),
+                                            cursor: producto.proveedores > 0 ? 'pointer' : 'default',
+                                            '&:hover': producto.proveedores > 0 ? { backgroundColor: 'action.hover' } : {}
+                                        }}
+                                        onClick={() => producto.proveedores > 0 && handleVerProveedores(producto.id)}
+                                        >
+                                            <Tooltip title={producto.proveedores > 0 ? 'Ver proveedores' : 'Sin proveedores'} arrow>
+                                                <span>{producto.proveedores}</span>
                                             </Tooltip>
                                         </TableCell>
                                         <TableCell align="right"><Tooltip title="Es el precio promedio entre todos los Proveedores" arrow> {producto.precio_promedio ? `$${producto.precio_promedio}` : ''}</Tooltip></TableCell>
@@ -422,6 +444,55 @@ export default function ProductoList() {
                     >
                         Eliminar
                     </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Dialogo para ver proveedores del producto */}
+            <Dialog
+                open={openProveedoresDialog}
+                onClose={() => setOpenProveedoresDialog(false)}
+                maxWidth="sm"
+                fullWidth
+            >
+                <DialogTitle>Proveedores del Producto</DialogTitle>
+                <DialogContent>
+                    {proveedorProductoLoading ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                            <CircularProgress />
+                        </Box>
+                    ) : proveedoresList?.length > 0 ? (
+                        <TableContainer>
+                            <Table size="small">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Nombre</TableCell>
+                                        <TableCell>Teléfono</TableCell>
+                                        <TableCell>Email</TableCell>
+                                        <TableCell align="right">Precio</TableCell>
+                                        <TableCell align="right">Tiempo Entrega</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {proveedoresList.map((proveedor) => (
+                                        <TableRow key={proveedor.id}>
+                                            <TableCell>{proveedor.nombre}</TableCell>
+                                            <TableCell>{proveedor.telefono || '-'}</TableCell>
+                                            <TableCell>{proveedor.email || '-'}</TableCell>
+                                            <TableCell align="right">${proveedor.precio_unitario?.toFixed(2)}</TableCell>
+                                            <TableCell align="right">{proveedor.tiempo_entrega ? `${proveedor.tiempo_entrega} días` : '-'}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    ) : (
+                        <Typography variant="body2" color="text.secondary">
+                            Este producto no tiene proveedores asignados
+                        </Typography>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenProveedoresDialog(false)}>Cerrar</Button>
                 </DialogActions>
             </Dialog>
 

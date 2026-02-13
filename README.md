@@ -6,6 +6,7 @@ La aplicacion deberia poder facilitar al operador la generacion de Pedidos, los 
 Una vez creado el pedido con ese encabezado y su lista de Productos se puede visualizar los Pedidos, y enviar al Proveedor, ya sea por Mail o por WhatsApp.
 
 Esta accion de envio deberia quedar registrada de alguna forma, con fecha. y cambiar el estado del Pedido.
+Ojota
 
 
 ## Modelo de Base de Datos (Simplificado)

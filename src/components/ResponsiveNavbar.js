@@ -20,6 +20,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import logo from './../logo.png';
+import logodark from './../logo-dark.png';
 import { useThemeMode } from '../context/ThemeModeContext.js';
 
 export default function ResponsiveNavbar() {
@@ -57,9 +58,9 @@ export default function ResponsiveNavbar() {
                         <Typography variant="h6" component="div">
                             <Link to="/">
                                 <img
-                                    src={logo}
+                                    src={isDark ? logo : logodark}
                                     alt="Logo"
-                                    style={{ height: '45px', paddingTop: '5px', paddingBottom: '5px' }}
+                                    style={{ height: '55px', paddingTop: '5px', paddingBottom: '5px' }}
                                 />
                             </Link>
                         </Typography>

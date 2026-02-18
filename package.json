@@ -30,6 +30,7 @@
     "start": "react-scripts start",
     "client": "react-scripts start",
     "server": "nodemon src/server/server.js",
+    "migrate": "node src/server/scripts/migrate.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

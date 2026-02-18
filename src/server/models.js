@@ -1,5 +1,3 @@
-import db from './db.js';
-
 export function initDatabase(database) {
   // Tabla Proveedor
   database.exec(`

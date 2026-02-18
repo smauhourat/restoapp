@@ -1,5 +1,5 @@
 import express from 'express';
-import db from '../db.js';
+import { authenticate } from '../middleware/auth.js';
 import { validateRequest } from '../middleware/validate.js';
 import { sendError } from '../utils/http.js';
 import {
@@ -13,10 +13,13 @@ import {
 
 const router = express.Router();
 
+router.use(authenticate);
+
 // GET /api/pedidos con paginación
 router.get('/', validateRequest(listPedidosSchema), (req, res) => {
   const { page, perPage } = req.validated.query;
   const offset = (page - 1) * perPage;
+  const db = req.tenantDb;
 
   const pedidos = db.prepare(`
     SELECT p.id, p.numero_pedido, p.fecha, pr.nombre as proveedor, p.estado, p.total, (select count(*) from Pedido_Renglon where pedido_id = p.id) as cantidad_renglones
@@ -43,6 +46,7 @@ router.get('/', validateRequest(listPedidosSchema), (req, res) => {
 // Crear un nuevo pedido
 router.post('/', validateRequest(createPedidoSchema), (req, res) => {
   const { numero_pedido, fecha, proveedor_id, renglones } = req.validated.body;
+  const db = req.tenantDb;
 
   const dbTransaction = db.transaction(() => {
     const stmtPedido = db.prepare(`
@@ -78,6 +82,8 @@ router.post('/', validateRequest(createPedidoSchema), (req, res) => {
 // Obtener detalles de un pedido (con renglones)
 router.get('/:id', validateRequest(pedidoIdParamSchema), (req, res) => {
   const { id } = req.validated.params;
+  const db = req.tenantDb;
+
   const pedido = db.prepare(`
     SELECT p.*, pr.nombre as proveedor_nombre
     FROM Pedido p
@@ -103,6 +109,7 @@ router.get('/:id', validateRequest(pedidoIdParamSchema), (req, res) => {
 router.patch('/:id/estado', validateRequest(updateEstadoSchema), (req, res) => {
   const { id } = req.validated.params;
   const { estado } = req.validated.body;
+  const db = req.tenantDb;
 
   const result = db.prepare('UPDATE Pedido SET estado = ? WHERE id = ?').run(estado, id);
 
@@ -113,11 +120,11 @@ router.patch('/:id/estado', validateRequest(updateEstadoSchema), (req, res) => {
   res.json({ success: true });
 });
 
-
 // Registrar envío
 router.post('/:id/envios', validateRequest(createEnvioSchema), (req, res) => {
   const { id } = req.validated.params;
   const { metodo_envio, destinatario } = req.validated.body;
+  const db = req.tenantDb;
 
   const pedidoExiste = db.prepare('SELECT id FROM Pedido WHERE id = ?').get(id);
   if (!pedidoExiste) {
@@ -135,6 +142,7 @@ router.post('/:id/envios', validateRequest(createEnvioSchema), (req, res) => {
 // Obtener historial de un pedido
 router.get('/:id/envios', validateRequest(historialEnviosSchema), (req, res) => {
   const { id } = req.validated.params;
+  const db = req.tenantDb;
 
   const pedidoExiste = db.prepare('SELECT id FROM Pedido WHERE id = ?').get(id);
   if (!pedidoExiste) {
@@ -150,6 +158,7 @@ router.get('/:id/envios', validateRequest(historialEnviosSchema), (req, res) => 
 
 // Generar Nro Pedido
 router.post('/nropedido', (req, res) => {
+  const db = req.tenantDb;
 
   const inserted = db.prepare(`
     INSERT INTO NrosPedidos (estado)
@@ -158,10 +167,8 @@ router.post('/nropedido', (req, res) => {
 
   const result = db.prepare(`
     SELECT nro_pedido FROM NrosPedidos WHERE id = ?
-    `).get(inserted.lastInsertRowid)
+  `).get(inserted.lastInsertRowid);
 
-
-  //console.log('inserted id =>', result)
   res.json(result);
 });
 

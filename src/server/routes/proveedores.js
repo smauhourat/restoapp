@@ -1,5 +1,5 @@
 import express from 'express';
-import db from '../db.js';
+import { authenticate } from '../middleware/auth.js';
 import { validateRequest } from '../middleware/validate.js';
 import { sendError } from '../utils/http.js';
 import {
@@ -16,10 +16,13 @@ import {
 
 const router = express.Router();
 
+router.use(authenticate);
+
 // GET /api/proveedores con paginación
 router.get('/', validateRequest(listProveedoresSchema), (req, res) => {
   const { page, perPage, search } = req.validated.query;
   const offset = (page - 1) * perPage;
+  const db = req.tenantDb;
 
   let searchCondition = '';
   let queryParams = [perPage, offset];
@@ -65,6 +68,8 @@ router.get('/', validateRequest(listProveedoresSchema), (req, res) => {
 
 router.get('/:id', validateRequest(proveedorIdSchema), (req, res) => {
   const { id } = req.validated.params;
+  const db = req.tenantDb;
+
   const proveedor = db.prepare(`
     SELECT p.*
     FROM Proveedor p
@@ -80,6 +85,7 @@ router.get('/:id', validateRequest(proveedorIdSchema), (req, res) => {
 
 router.post('/', validateRequest(createProveedorSchema), (req, res) => {
   const { nombre, direccion, telefono, email } = req.validated.body;
+  const db = req.tenantDb;
   const nombreNormalizado = nombre.trim();
   const direccionValue = direccion ?? '';
 
@@ -96,6 +102,7 @@ router.post('/', validateRequest(createProveedorSchema), (req, res) => {
 router.put('/:id', validateRequest(updateProveedorSchema), (req, res) => {
   const { id } = req.validated.params;
   const { nombre, direccion, telefono, email } = req.validated.body;
+  const db = req.tenantDb;
   const nombreNormalizado = nombre.trim();
   const direccionValue = direccion ?? '';
 
@@ -120,6 +127,8 @@ router.put('/:id', validateRequest(updateProveedorSchema), (req, res) => {
 
 router.get('/:id/productos', validateRequest(proveedorIdSchema), (req, res) => {
   const { id } = req.validated.params;
+  const db = req.tenantDb;
+
   const productos = db.prepare(`
     SELECT p.id, p.nombre, p.descripcion, pp.precio_unitario, pp.tiempo_entrega, p.unidad_medida
     FROM Producto p
@@ -133,6 +142,7 @@ router.get('/:id/productos', validateRequest(proveedorIdSchema), (req, res) => {
 router.post('/:id/productos', validateRequest(createProveedorProductoSchema), (req, res) => {
   const { id } = req.validated.params;
   const { producto_id, precio_unitario, tiempo_entrega } = req.validated.body;
+  const db = req.tenantDb;
 
   db.prepare(`
     INSERT INTO Proveedor_Producto (proveedor_id, producto_id, precio_unitario, tiempo_entrega)
@@ -144,6 +154,8 @@ router.post('/:id/productos', validateRequest(createProveedorProductoSchema), (r
 
 router.get('/:proveedorId/productos/:productoId', validateRequest(proveedorProductoDetailSchema), (req, res) => {
   const { proveedorId, productoId } = req.validated.params;
+  const db = req.tenantDb;
+
   const producto = db.prepare(`
     SELECT p.id, p.nombre, p.descripcion, pp.precio_unitario, pp.tiempo_entrega, p.unidad_medida
     FROM Producto p
@@ -161,6 +173,7 @@ router.get('/:proveedorId/productos/:productoId', validateRequest(proveedorProdu
 router.put('/:proveedorId/productos/:productoId', validateRequest(updateProveedorProductoSchema), (req, res) => {
   const { proveedorId, productoId } = req.validated.params;
   const { precio_unitario } = req.validated.body;
+  const db = req.tenantDb;
 
   const result = db.prepare(`
     UPDATE Proveedor_Producto
@@ -177,6 +190,8 @@ router.put('/:proveedorId/productos/:productoId', validateRequest(updateProveedo
 
 router.delete('/:id', validateRequest(proveedorIdSchema), (req, res) => {
   const { id } = req.validated.params;
+  const db = req.tenantDb;
+
   const result = db.prepare('DELETE FROM Proveedor WHERE id = ?').run(id);
 
   if (result.changes === 0) {
@@ -188,6 +203,8 @@ router.delete('/:id', validateRequest(proveedorIdSchema), (req, res) => {
 
 router.delete('/:proveedorId/productos/:productoId', validateRequest(deleteProveedorProductoSchema), (req, res) => {
   const { proveedorId, productoId } = req.validated.params;
+  const db = req.tenantDb;
+
   const result = db
     .prepare('DELETE FROM Proveedor_Producto WHERE proveedor_id = ? AND producto_id = ?')
     .run(proveedorId, productoId);
@@ -201,6 +218,7 @@ router.delete('/:proveedorId/productos/:productoId', validateRequest(deleteProve
 
 router.get('/:id/productos-disponibles', validateRequest(productosDisponiblesSchema), (req, res) => {
   const { id } = req.validated.params;
+  const db = req.tenantDb;
 
   const productos = db.prepare(`
     SELECT p.*

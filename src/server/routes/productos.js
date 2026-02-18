@@ -1,8 +1,8 @@
 import express from 'express';
-import db from '../db.js';
 import multer from 'multer';
 import xlsx from 'xlsx';
 import fs from 'fs';
+import { authenticate } from '../middleware/auth.js';
 import { validateRequest } from '../middleware/validate.js';
 import { sendError } from '../utils/http.js';
 import {
@@ -14,12 +14,14 @@ import {
   confirmarImportacionSchema,
 } from '../validators/productos.js';
 
-const upload = multer({ dest: 'uploads/' }); // Carpeta temporal
+const upload = multer({ dest: 'uploads/' });
 const router = express.Router();
+
+router.use(authenticate);
 
 const normalizeNombre = (nombre) => nombre.trim().toUpperCase();
 
-const productoExiste = (nombre, id = null) => {
+const productoExiste = (db, nombre, id = null) => {
   const query = id
     ? `SELECT COUNT(*) as count FROM Producto WHERE UPPER(nombre) = ? AND id != ?`
     : `SELECT COUNT(*) as count FROM Producto WHERE UPPER(nombre) = ?`;
@@ -32,6 +34,7 @@ const productoExiste = (nombre, id = null) => {
 router.get('/', validateRequest(listProductosSchema), (req, res) => {
   const { page, perPage, sortBy, order, search } = req.validated.query;
   const offset = (page - 1) * perPage;
+  const db = req.tenantDb;
 
   let searchCondition = '';
   let queryParams = [perPage, offset];
@@ -50,8 +53,8 @@ router.get('/', validateRequest(listProductosSchema), (req, res) => {
   const sortDirection = order === 'desc' ? 'DESC' : 'ASC';
 
   const productos = db.prepare(`
-    SELECT 
-      Producto.*, 
+    SELECT
+      Producto.*,
       (SELECT COUNT(*) FROM Proveedor_Producto pp WHERE pp.producto_id = Producto.id) AS proveedores,
       ROUND((SELECT SUM(pp.precio_unitario) / COUNT(*) FROM Proveedor_Producto pp WHERE pp.producto_id = Producto.id), 2) AS precio_promedio
     FROM Producto
@@ -82,6 +85,8 @@ router.get('/', validateRequest(listProductosSchema), (req, res) => {
 
 router.get('/:id', validateRequest(productoIdSchema), (req, res) => {
   const { id } = req.validated.params;
+  const db = req.tenantDb;
+
   const producto = db.prepare(`
     SELECT p.*
     FROM Producto p
@@ -98,9 +103,10 @@ router.get('/:id', validateRequest(productoIdSchema), (req, res) => {
 // Crear un nuevo producto
 router.post('/', validateRequest(createProductoSchema), (req, res) => {
   const { nombre, descripcion, unidad_medida } = req.validated.body;
+  const db = req.tenantDb;
   const nombreUpper = normalizeNombre(nombre);
 
-  if (productoExiste(nombreUpper)) {
+  if (productoExiste(db, nombreUpper)) {
     return sendError(res, 'El producto ya existe');
   }
 
@@ -118,14 +124,15 @@ router.post('/', validateRequest(createProductoSchema), (req, res) => {
 router.put('/:id', validateRequest(updateProductoSchema), (req, res) => {
   const { id } = req.validated.params;
   const { nombre, descripcion, unidad_medida } = req.validated.body;
+  const db = req.tenantDb;
   const nombreUpper = normalizeNombre(nombre);
 
-  if (productoExiste(nombreUpper, id)) {
+  if (productoExiste(db, nombreUpper, id)) {
     return sendError(res, 'El producto ya existe');
   }
 
   const stmt = db.prepare(`
-    UPDATE Producto 
+    UPDATE Producto
     SET nombre = ?, descripcion = ?, unidad_medida = ?
     WHERE id = ?
   `);
@@ -140,9 +147,10 @@ router.put('/:id', validateRequest(updateProductoSchema), (req, res) => {
 // Obtener proveedores de un producto
 router.get('/:id/proveedores', validateRequest(productoIdSchema), (req, res) => {
   const { id } = req.validated.params;
-  
+  const db = req.tenantDb;
+
   const proveedores = db.prepare(`
-    SELECT 
+    SELECT
       Proveedor.id,
       Proveedor.nombre,
       Proveedor.telefono,
@@ -162,7 +170,8 @@ router.get('/:id/proveedores', validateRequest(productoIdSchema), (req, res) => 
 // Eliminar un producto
 router.delete('/:id', validateRequest(deleteProductoSchema), (req, res) => {
   const { id } = req.validated.params;
-  // Verificar que el producto no esté asociado a un proveedor
+  const db = req.tenantDb;
+
   const tieneProveedores = db.prepare(`
     SELECT COUNT(*) as count FROM Proveedor_Producto WHERE producto_id = ?
   `).get(id).count > 0;
@@ -215,6 +224,7 @@ router.post('/importar', upload.single('archivo'), (req, res) => {
 // Ruta para confirmar importación
 router.post('/confirmar-importacion', validateRequest(confirmarImportacionSchema), (req, res) => {
   const { productos } = req.validated.body;
+  const db = req.tenantDb;
 
   const stmt = db.prepare(`
     INSERT INTO Producto (nombre, descripcion, unidad_medida)

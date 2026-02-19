@@ -2,20 +2,18 @@
 import request from 'supertest';
 import express from 'express';
 import pedidosRoutes from '../routes/pedidos.js';
-import db from '../db.js';
 import { seedDatabase } from './utils/seed_db.js';
 
-jest.mock('../db.js', () => {
-  const Database = require('better-sqlite3');
-  const { initDatabase } = require('../models.js');
-  const { seedDatabase } = require('./utils/seed_db.js');
+let mockTestDb; // prefijo "mock" requerido por Jest para variables en jest.mock()
 
-  const testDb = new Database(':memory:');
-  testDb.pragma('foreign_keys = ON');
-  initDatabase(testDb);
-  seedDatabase(testDb);
-  return testDb;
-});
+// Mock del middleware de auth: bypasea JWT e inyecta req.tenantDb con la DB de test
+jest.mock('../middleware/auth.js', () => ({
+  authenticate: (req, res, next) => {
+    req.user = { tenant_id: 'test', rol: 'admin' };
+    req.tenantDb = mockTestDb;
+    next();
+  },
+}));
 
 const app = express();
 app.use(express.json());
@@ -32,12 +30,12 @@ const TABLES_TO_RESET = [
 ];
 
 const resetDatabase = () => {
-  db.exec('PRAGMA foreign_keys = OFF');
+  mockTestDb.exec('PRAGMA foreign_keys = OFF');
   TABLES_TO_RESET.forEach((table) => {
-    db.exec(`DELETE FROM ${table};`);
+    mockTestDb.exec(`DELETE FROM ${table};`);
   });
-  db.exec('PRAGMA foreign_keys = ON');
-  seedDatabase(db);
+  mockTestDb.exec('PRAGMA foreign_keys = ON');
+  seedDatabase(mockTestDb);
 };
 
 let pedidoCounter = 0;
@@ -65,6 +63,15 @@ const createPedido = async (overrides = {}) => {
   const response = await request(app).post('/api/pedidos').send(payload).expect(200);
   return { id: response.body.id, payload };
 };
+
+beforeAll(() => {
+  const Database = require('better-sqlite3');
+  const { initDatabase } = require('../models.js');
+  mockTestDb = new Database(':memory:');
+  mockTestDb.pragma('foreign_keys = ON');
+  initDatabase(mockTestDb);
+  seedDatabase(mockTestDb);
+});
 
 beforeEach(() => {
   resetDatabase();

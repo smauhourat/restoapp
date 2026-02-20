@@ -8,7 +8,7 @@ Una vez creado el pedido con ese encabezado y su lista de Productos se puede vis
 Esta accion de envio deberia quedar registrada de alguna forma, con fecha. y cambiar el estado del Pedido.
 Ojota
 
-
+[https://deepwiki.com/smauhourat/restoapp] (https://deepwiki.com/smauhourat/restoapp)
 ## Modelo de Base de Datos (Simplificado)
 
 ### Tablas y Columnas

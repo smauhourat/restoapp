@@ -14,14 +14,14 @@ const TENANTS_DIR = join(DATA_DIR, 'tenants');
 // ─── Auth DB (singleton) ────────────────────────────────────────────────────
 let _authDb = null;
 
-export function getAuthDb() {
-  if (!_authDb) {
-    _authDb = new Database(AUTH_DB_PATH);
-    _authDb.pragma('foreign_keys = ON');
-    initAuthDatabase(_authDb);
-  }
-  return _authDb;
+if (db.open) {
+  console.log('Database connection is open.');
+} else {
+  console.log('Database connection is closed.');
 }
+
+// Habilitar foreign keys
+db.pragma('foreign_keys = ON');
 
 // ─── Tenant DBs (cache por tenant_id) ──────────────────────────────────────
 const _tenantCache = new Map();

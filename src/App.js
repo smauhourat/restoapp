@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Box } from '@mui/material';
 import ResponsiveNavbar from './components/ResponsiveNavbar';
+import Footer from './components/Footer';
 import ProveedorList from './components/ProveedorList';
 import ProveedorForm from './components/ProveedorForm';
 import ProveedorProductos from './components/ProveedorProductos';
@@ -33,7 +35,8 @@ function App() {
         <Router>
           <ToastProvider>
             <AppWrapper />
-            <Routes>
+            <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+          <Routes>
               {/* Ruta pública */}
               <Route path="/login" element={<LoginPage />} />
 
@@ -129,6 +132,8 @@ function App() {
                 </ProtectedRoute>
               } />
             </Routes>
+          <Footer />
+          </Box>
           </ToastProvider>
         </Router>
       </AuthProvider>

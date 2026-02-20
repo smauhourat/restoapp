@@ -26,6 +26,7 @@ import logo from './../logo.png';
 import logodark from './../logo-dark.png';
 import { useThemeMode } from '../context/ThemeModeContext.js';
 import { useAuth } from '../context/AuthContext.js';
+import { version } from '../../package.json';
 
 export default function ResponsiveNavbar() {
     const theme = useTheme();
@@ -102,7 +103,7 @@ export default function ResponsiveNavbar() {
                             </Box>
                             <Box sx={{ display: 'flex', alignItems: 'center', ml: 3, gap: 1.5 }}>
                                 <Typography variant="body1" sx={{ color: '#facc15', mr: 1 }}>
-                                    v0.0.2
+                                    v{version}
                                 </Typography>
                                 <Tooltip title={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}>
                                     <IconButton

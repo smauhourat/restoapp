@@ -4,9 +4,12 @@ import { PieChart } from '@mui/x-charts';
 import { MoreVert } from '@mui/icons-material';
 
 import apiClient from '../api/client';
+import { useAuth } from '../context/AuthContext.js';
 
 
 export default function Dashboard() {
+  const { user } = useAuth();
+  const isSuperAdmin = user?.rol === 'superadmin';
   const [estadisticas, setEstadisticas] = useState([]);
 
   useEffect(() => {
@@ -20,6 +23,26 @@ export default function Dashboard() {
     setEstadisticas(data)
     console.log(data);
   };
+
+  if (isSuperAdmin) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <Card sx={{ boxShadow: '5px 5px 5px rgba(83, 82, 82, 0.2)' }}>
+              <CardHeader
+                action={<IconButton aria-label="settings"><MoreVert /></IconButton>}
+                title="Total Empresas"
+              />
+              <CardContent>
+                <Typography variant="h4">{estadisticas.total_empresas}</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>

@@ -34,11 +34,13 @@ export default function ResponsiveNavbar() {
     const isDark = mode === 'dark';
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [mobileOpen, setMobileOpen] = useState(false);
-    const navLinks = [
-        { label: 'Proveedores', path: '/proveedores' },
-        { label: 'Productos', path: '/productos' },
-        { label: 'Pedidos', path: '/pedidos' },
-    ];
+    const navLinks = user?.rol === 'superadmin'
+        ? [{ label: 'Empresas', path: '/empresas' }]
+        : [
+            { label: 'Proveedores', path: '/proveedores' },
+            { label: 'Productos', path: '/productos' },
+            { label: 'Pedidos', path: '/pedidos' },
+          ];
 
     const handleCloseMobileMenu = () => {
         setMobileOpen(false);

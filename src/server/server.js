@@ -7,6 +7,7 @@ import productosRoutes from './routes/productos.js';
 import proveedoresRoutes from './routes/proveedores.js';
 import pedidosRoutes from './routes/pedidos.js';
 import statsRoutes from './routes/stats.js';
+import empresasRoutes from './routes/empresas.js';
 import authRoutes from './auth/routes.js';
 
 // Middleware para limpiar strings en el body
@@ -37,6 +38,7 @@ app.use('/api/productos', productosRoutes);
 app.use('/api/proveedores', proveedoresRoutes);
 app.use('/api/pedidos', pedidosRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/empresas', empresasRoutes);
 
 // Inicializar auth.db al arrancar (crea tablas si no existen)
 getAuthDb();

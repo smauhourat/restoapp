@@ -1,11 +1,20 @@
 import express from 'express';
 import { authenticate } from '../middleware/auth.js';
+import { getAuthDb } from '../db.js';
 
 const router = express.Router();
 
 router.use(authenticate);
 
 router.get('/dashboard', (req, res) => {
+  if (req.user.rol === 'superadmin') {
+    const authDb = getAuthDb();
+    const { total_empresas } = authDb.prepare(
+      `SELECT COUNT(*) as total_empresas FROM empresas`
+    ).get();
+    return res.json({ total_empresas });
+  }
+
   const db = req.tenantDb;
 
   const stats = db.prepare(`

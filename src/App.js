@@ -11,6 +11,7 @@ import PedidoForm from './components/PedidoForm';
 import PedidoDetalle from './components/PedidoDetalle';
 import ImportarProductos from './components/ImportarProductos';
 import Dashboard from './components/Dashboard';
+import EmpresaList from './components/EmpresaList';
 import LoginPage from './components/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { ToastProvider, useToast } from './components/ToastProvider';
@@ -112,6 +113,12 @@ function App() {
                 <ProtectedRoute>
                   <ResponsiveNavbar />
                   <ImportarProductos />
+                </ProtectedRoute>
+              } />
+              <Route path="/empresas" element={
+                <ProtectedRoute roles={['superadmin']}>
+                  <ResponsiveNavbar />
+                  <EmpresaList />
                 </ProtectedRoute>
               } />
             </Routes>

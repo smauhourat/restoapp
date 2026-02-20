@@ -26,7 +26,8 @@ import logo from './../logo.png';
 import logodark from './../logo-dark.png';
 import { useThemeMode } from '../context/ThemeModeContext.js';
 import { useAuth } from '../context/AuthContext.js';
-import { version } from '../../package.json';
+import pkg from '../../package.json';
+const { version } = pkg;
 
 export default function ResponsiveNavbar() {
     const theme = useTheme();

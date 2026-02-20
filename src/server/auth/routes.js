@@ -1,5 +1,9 @@
 import express from 'express';
-import { login, logout, refresh, crearEmpresa, crearUsuario, listarUsuarios } from './service.js';
+import {
+  login, logout, refresh,
+  crearEmpresa, crearUsuario, listarUsuarios,
+  toggleEmpresaActivo, toggleUsuarioActivo, eliminarUsuario,
+} from './service.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 import { sendError } from '../utils/http.js';
 
@@ -112,6 +116,44 @@ router.get('/usuarios', authenticate, authorize('superadmin', 'admin'), (req, re
   try {
     const usuarios = listarUsuarios(empresaId);
     res.json(usuarios);
+  } catch (err) {
+    return sendError(res, err.message);
+  }
+});
+
+// PATCH /api/auth/empresas/:id/activo — toggle empresa activo (solo superadmin)
+router.patch('/empresas/:id/activo', authenticate, authorize('superadmin'), (req, res) => {
+  const { activo } = req.body ?? {};
+  if (activo === undefined || activo === null) {
+    return sendError(res, 'activo es requerido');
+  }
+  try {
+    toggleEmpresaActivo(req.params.id, activo);
+    res.json({ success: true });
+  } catch (err) {
+    return sendError(res, err.message);
+  }
+});
+
+// PATCH /api/auth/usuarios/:id/activo — toggle usuario activo
+router.patch('/usuarios/:id/activo', authenticate, authorize('superadmin', 'admin'), (req, res) => {
+  const { activo } = req.body ?? {};
+  if (activo === undefined || activo === null) {
+    return sendError(res, 'activo es requerido');
+  }
+  try {
+    toggleUsuarioActivo(req.params.id, activo);
+    res.json({ success: true });
+  } catch (err) {
+    return sendError(res, err.message);
+  }
+});
+
+// DELETE /api/auth/usuarios/:id — eliminar usuario
+router.delete('/usuarios/:id', authenticate, authorize('superadmin', 'admin'), (req, res) => {
+  try {
+    eliminarUsuario(req.params.id);
+    res.json({ success: true });
   } catch (err) {
     return sendError(res, err.message);
   }

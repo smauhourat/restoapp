@@ -12,6 +12,7 @@ import PedidoDetalle from './components/PedidoDetalle';
 import ImportarProductos from './components/ImportarProductos';
 import Dashboard from './components/Dashboard';
 import EmpresaList from './components/EmpresaList';
+import UsuarioList from './components/UsuarioList';
 import LoginPage from './components/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { ToastProvider, useToast } from './components/ToastProvider';
@@ -119,6 +120,12 @@ function App() {
                 <ProtectedRoute roles={['superadmin']}>
                   <ResponsiveNavbar />
                   <EmpresaList />
+                </ProtectedRoute>
+              } />
+              <Route path="/empresas/:empresaId/usuarios" element={
+                <ProtectedRoute roles={['superadmin']}>
+                  <ResponsiveNavbar />
+                  <UsuarioList />
                 </ProtectedRoute>
               } />
             </Routes>

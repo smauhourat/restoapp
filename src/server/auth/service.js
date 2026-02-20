@@ -219,3 +219,23 @@ export function listarUsuarios(empresaId) {
     ORDER BY nombre ASC
   `).all(empresaId);
 }
+
+// ─── Toggle activo empresa ────────────────────────────────────────────────────
+export function toggleEmpresaActivo(empresaId, activo) {
+  const db = getAuthDb();
+  const result = db.prepare('UPDATE empresas SET activo = ? WHERE id = ?').run(activo ? 1 : 0, empresaId);
+  if (result.changes === 0) throw new Error('Empresa no encontrada');
+}
+
+// ─── Toggle activo usuario ────────────────────────────────────────────────────
+export function toggleUsuarioActivo(usuarioId, activo) {
+  const db = getAuthDb();
+  const result = db.prepare('UPDATE usuarios SET activo = ? WHERE id = ?').run(activo ? 1 : 0, usuarioId);
+  if (result.changes === 0) throw new Error('Usuario no encontrado');
+}
+
+// ─── Eliminar usuario ─────────────────────────────────────────────────────────
+export function eliminarUsuario(usuarioId) {
+  const db = getAuthDb();
+  db.prepare('DELETE FROM usuarios WHERE id = ?').run(usuarioId);
+}

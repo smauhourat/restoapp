@@ -1,5 +1,4 @@
 
-C:\Users\Smauhourat\.claude\projects\e--Personales-Mati-restoapp\memory
 # RestoApp - Memoria del Proyecto
 
 ## Stack

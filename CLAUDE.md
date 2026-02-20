@@ -31,6 +31,9 @@
 - `npm run migrate` — migración inicial (ejecutar UNA sola vez)
 - `npm start` — frontend
 
+## Preferencias
+- **Package manager**: Siempre usar `npm` (nunca yarn, pnpm, bun, etc.)
+
 ## Credenciales iniciales (demo)
 - admin@demo.com / Admin1234!  (empresa: Restaurante Demo)
 - superadmin@restoapp.com / SuperAdmin1234!

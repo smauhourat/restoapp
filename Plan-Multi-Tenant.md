@@ -318,14 +318,14 @@ JWT payload: { sub, tenant_id, rol, empresa_nombre }
 
 ### PASO 5 — Crear auth/routes.js
 Endpoints:
-
+```
 POST /api/auth/login → llama service.login()
 POST /api/auth/logout → llama service.logout()
 POST /api/auth/refresh → llama service.refresh()
 POST /api/auth/empresas → solo superadmin: crea empresa + admin inicial
 POST /api/auth/usuarios → admin de empresa: crea usuario en su empresa
 GET /api/auth/me → retorna datos del usuario autenticado
-
+```
 
 
 ### PASO 6 — Crear middleware/auth.js
@@ -360,20 +360,20 @@ Archivo: src/server/scripts/migrate.js
 
 Script que se ejecuta UNA SOLA VEZ:
 
-Crea data/ y data/tenants/ si no existen
-Crea data/auth.db con schema
-Genera UUID para la empresa por defecto ("Restaurante Demo")
-Copia proveedores_v2.db → data/tenants/tenant_{uuid}.db
-Inserta empresa en auth.db
-Crea usuario admin por defecto: admin@demo.com / Admin1234!
-Crea usuario superadmin: superadmin@restoapp.com / SuperAdmin1234!
-Imprime credenciales al finalizar
-Script npm: "migrate": "node src/server/scripts/migrate.js"
+Crea data/ y data/tenants/ si no existen  
+Crea data/auth.db con schema  
+Genera UUID para la empresa por defecto ("Restaurante Demo")  
+Copia proveedores_v2.db → data/tenants/tenant_{uuid}.db  
+Inserta empresa en auth.db  
+Crea usuario admin por defecto: admin@demo.com / Admin1234!  
+Crea usuario superadmin: superadmin@restoapp.com / SuperAdmin1234!  
+Imprime credenciales al finalizar  
+Script npm: "migrate": "node src/server/scripts/migrate.js"  
 
 ### PASO 10 — Frontend: AuthContext
 Archivo: src/context/AuthContext.js
 
-
+```
 AuthContext:
   state: { user, isAuthenticated, isLoading }
   user: { nombre, email, rol, empresa_nombre, tenant_id }
@@ -388,31 +388,33 @@ AuthContext:
     - POST /api/auth/logout
     - Limpia localStorage
     - Navega a /login
-	
-### PASO 11 — Frontend: actualizar client.js
-Agregar dos interceptors:
+```
 
-Request: agrega Authorization: Bearer <token> si hay token
-Response error 401: intenta refresh automático, si falla redirige a /login	
+### PASO 11 — Frontend: actualizar client.js
+Agregar dos interceptors:  
+
+Request: agrega Authorization: Bearer <token> si hay token  
+Response error 401: intenta refresh automático, si falla redirige a /login	  
 
 
 ### PASO 12 — Frontend: LoginPage.js
-Componente con:
+Componente con:  
 
-Campos email + password
-Botón submit con loading state
-Muestra error si credenciales incorrectas
-Estilo MUI consistente con el resto de la app
-Al hacer login exitoso → navega a /
+Campos email + password  
+Botón submit con loading state  
+Muestra error si credenciales incorrectas  
+Estilo MUI consistente con el resto de la app  
+Al hacer login exitoso → navega a /  
 
 ### PASO 13 — Frontend: ProtectedRoute.js
 
-// Wrapper que redirige a /login si no está autenticado
-// Opcionalmente acepta prop `roles` para control de acceso por rol
+// Wrapper que redirige a /login si no está autenticado  
+// Opcionalmente acepta prop `roles` para control de acceso por rol  
+```
 <ProtectedRoute roles={['admin', 'operador']}>
   <MiComponente />
 </ProtectedRoute>
-
+```
 
 
 ### PASO 14 — Frontend: actualizar App.js
@@ -508,13 +510,17 @@ src/components/ResponsiveNavbar.js	Chip de usuario + botón logout
 
 ### Para arrancar
 
-* Backend
+* Backend  
+```
 npm run server
-
+```
 * Frontend (otra terminal)
+```
 npm start
+```
 Credenciales iniciales
 
-Admin de empresa:    admin@demo.com      / Admin1234!
-Super Admin:         superadmin@restoapp.com / SuperAdmin1234!
-El superadmin puede crear nuevas empresas via POST /api/auth/empresas. Cada empresa nueva obtiene su propio archivo .db aislado en src/server/data/tenants/.
+Admin de empresa:    admin@demo.com      / Admin1234!  
+Super Admin:         superadmin@restoapp.com / SuperAdmin1234!  
+El superadmin puede crear nuevas empresas via POST /api/auth/empresas.   
+Cada empresa nueva obtiene su propio archivo .db aislado en src/server/data/tenants/.  

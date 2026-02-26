@@ -16,6 +16,8 @@ import Dashboard from './components/Dashboard';
 import EmpresaList from './components/EmpresaList';
 import UsuarioList from './components/UsuarioList';
 import LoginPage from './components/LoginPage';
+import ForgotPasswordPage from './components/ForgotPasswordPage';
+import ResetPasswordPage from './components/ResetPasswordPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { ToastProvider, useToast } from './components/ToastProvider';
 import { setAxiosErrorToastHandler } from './api/client';
@@ -37,8 +39,10 @@ function App() {
             <AppWrapper />
             <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <Routes>
-              {/* Ruta pública */}
+              {/* Rutas públicas */}
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
               {/* Rutas protegidas */}
               <Route path="/" element={

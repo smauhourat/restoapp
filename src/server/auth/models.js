@@ -33,7 +33,18 @@ export function initAuthDatabase(db) {
   `);
 
   db.exec(`
+    CREATE TABLE IF NOT EXISTS password_reset_tokens (
+      id         TEXT PRIMARY KEY,
+      usuario_id TEXT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+      token_hash TEXT NOT NULL,
+      expira_en  TEXT NOT NULL,
+      usado      INTEGER DEFAULT 0
+    );
+  `);
+
+  db.exec(`
     CREATE INDEX IF NOT EXISTS idx_usuarios_email ON usuarios(email);
     CREATE INDEX IF NOT EXISTS idx_refresh_tokens_usuario ON refresh_tokens(usuario_id);
+    CREATE INDEX IF NOT EXISTS idx_prt_usuario ON password_reset_tokens(usuario_id);
   `);
 }

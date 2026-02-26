@@ -3,6 +3,7 @@ import {
   login, logout, refresh,
   crearEmpresa, crearUsuario, listarUsuarios,
   toggleEmpresaActivo, toggleUsuarioActivo, eliminarUsuario,
+  solicitarReset, resetPassword,
 } from './service.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 import { sendError } from '../utils/http.js';
@@ -38,6 +39,35 @@ router.post('/refresh', (req, res) => {
     res.json(result);
   } catch (err) {
     return sendError(res, err.message, 401);
+  }
+});
+
+// POST /api/auth/forgot-password — público
+router.post('/forgot-password', (req, res) => {
+  const { email } = req.body ?? {};
+  if (!email) return sendError(res, 'El email es requerido', 400);
+  try {
+    solicitarReset(email);
+    res.json({ message: 'Si el email existe, recibirás un enlace en breve.' });
+  } catch {
+    sendError(res, 'Error al procesar la solicitud', 500);
+  }
+});
+
+// POST /api/auth/reset-password — público
+router.post('/reset-password', (req, res) => {
+  const { token, password } = req.body ?? {};
+  if (!token || !password) return sendError(res, 'Token y contraseña son requeridos', 400);
+  try {
+    resetPassword(token, password);
+    res.json({ message: 'Contraseña actualizada correctamente.' });
+  } catch (err) {
+    const mensajes = {
+      TOKEN_INVALIDO: 'El enlace no es válido.',
+      TOKEN_YA_USADO: 'Este enlace ya fue utilizado.',
+      TOKEN_EXPIRADO: 'El enlace ha expirado. Solicitá uno nuevo.',
+    };
+    sendError(res, mensajes[err.message] || 'Error al restablecer la contraseña', 400);
   }
 });
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
     Box,
     Card,
@@ -11,6 +11,7 @@ import {
     CircularProgress,
     InputAdornment,
     IconButton,
+    Link,
 } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -130,6 +131,12 @@ export default function LoginPage() {
                         >
                             {loading ? <CircularProgress size={24} color="inherit" /> : 'Ingresar'}
                         </Button>
+
+                        <Box sx={{ mt: 2, textAlign: 'center' }}>
+                            <Link component={RouterLink} to="/forgot-password" variant="body2">
+                                ¿Olvidaste tu contraseña?
+                            </Link>
+                        </Box>
                     </Box>
                 </CardContent>
             </Card>

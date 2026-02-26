@@ -1,7 +1,9 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { getAuthDb, getTenantDb } from '../db.js';
+import { sendPasswordResetEmail } from '../utils/email.js';
 
 const ACCESS_TOKEN_EXPIRES = process.env.JWT_EXPIRES_IN || '15m';
 const REFRESH_TOKEN_EXPIRES = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
@@ -238,4 +240,64 @@ export function toggleUsuarioActivo(usuarioId, activo) {
 export function eliminarUsuario(usuarioId) {
   const db = getAuthDb();
   db.prepare('DELETE FROM usuarios WHERE id = ?').run(usuarioId);
+}
+
+// ─── Solicitar reset de contraseña ───────────────────────────────────────────
+export function solicitarReset(email) {
+  const db = getAuthDb();
+
+  const usuario = db.prepare(
+    `SELECT id, nombre, email FROM usuarios WHERE email = ? AND activo = 1`
+  ).get(email.toLowerCase().trim());
+
+  // Si no existe el usuario, no hacemos nada (anti-enumeración)
+  if (!usuario) return;
+
+  // Eliminar tokens previos del usuario
+  db.prepare(`DELETE FROM password_reset_tokens WHERE usuario_id = ?`)
+    .run(usuario.id);
+
+  // Generar token seguro (256 bits de entropía)
+  const tokenRaw = crypto.randomBytes(32).toString('hex');
+  const tokenHash = crypto.createHash('sha256').update(tokenRaw).digest('hex');
+  const expiraEn = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // +1 hora
+
+  db.prepare(`
+    INSERT INTO password_reset_tokens (id, usuario_id, token_hash, expira_en)
+    VALUES (?, ?, ?, ?)
+  `).run(uuidv4(), usuario.id, tokenHash, expiraEn);
+
+  const resetUrl = `${process.env.APP_URL}/reset-password/${tokenRaw}`;
+
+  // Envío asíncrono — no bloquea la respuesta HTTP
+  sendPasswordResetEmail(usuario.email, usuario.nombre, resetUrl)
+    .catch(err => console.error('[email] Error al enviar reset:', err.message));
+}
+
+// ─── Resetear contraseña con token ───────────────────────────────────────────
+export function resetPassword(tokenRaw, nuevaPassword) {
+  const db = getAuthDb();
+  const tokenHash = crypto.createHash('sha256').update(tokenRaw).digest('hex');
+
+  const registro = db.prepare(`
+    SELECT id, usuario_id, expira_en, usado
+    FROM password_reset_tokens
+    WHERE token_hash = ?
+  `).get(tokenHash);
+
+  if (!registro)        throw new Error('TOKEN_INVALIDO');
+  if (registro.usado)   throw new Error('TOKEN_YA_USADO');
+  if (new Date(registro.expira_en) < new Date()) throw new Error('TOKEN_EXPIRADO');
+
+  const nuevaHash = bcrypt.hashSync(nuevaPassword, 10);
+
+  db.transaction(() => {
+    db.prepare(`UPDATE usuarios SET password_hash = ? WHERE id = ?`)
+      .run(nuevaHash, registro.usuario_id);
+    db.prepare(`UPDATE password_reset_tokens SET usado = 1 WHERE id = ?`)
+      .run(registro.id);
+    // Revocar todas las sesiones activas del usuario
+    db.prepare(`UPDATE refresh_tokens SET revocado = 1 WHERE usuario_id = ?`)
+      .run(registro.usuario_id);
+  })();
 }

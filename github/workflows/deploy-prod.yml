@@ -1,0 +1,82 @@
+name: Deploy → Producción
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    name: Build & Deploy (Prod)
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.20.4'
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+        env:
+          CI: false
+          REACT_APP_API_URL: /api
+
+      - name: Preparar directorio de deploy
+        run: |
+          mkdir -p deploy_package/src
+          cp -r build deploy_package/
+          cp -r src/server deploy_package/src/
+          cp package.json deploy_package/
+          cp package-lock.json deploy_package/
+
+      - name: Copiar archivos al VPS via rsync
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: >-
+            -avz
+            --delete
+            --exclude='src/server/data/'
+            --exclude='src/server/uploads/'
+            --exclude='.env'
+            --exclude='ecosystem.config.js'
+          path: deploy_package/
+          remote_path: /var/www/restoapp.adhentux.com/
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_port: ${{ secrets.SSH_PORT }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Instalar dependencias de producción y reiniciar
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd /var/www/restoapp.adhentux.com
+
+            cat > .env << 'ENVEOF'
+            ${{ secrets.ENV_PROD }}
+            ENVEOF
+
+            npm ci --omit=dev
+
+            if [ ! -f src/server/data/auth.db ]; then
+              echo "Ejecutando migración inicial..."
+              npm run migrate
+            fi
+
+            pm2 reload restoapp-prod --update-env || pm2 start ecosystem.config.js
+            pm2 save
+
+            echo "Deploy PROD completado ✓"

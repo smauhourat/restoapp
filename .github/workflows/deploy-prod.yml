@@ -71,6 +71,11 @@ jobs:
 
             npm ci --omit=dev
 
+            # Crear directorios persistentes si no existen
+            mkdir -p logs
+            mkdir -p src/server/data/tenants
+            mkdir -p src/server/uploads
+                        
             if [ ! -f src/server/data/auth.db ]; then
               echo "Ejecutando migración inicial..."
               npm run migrate

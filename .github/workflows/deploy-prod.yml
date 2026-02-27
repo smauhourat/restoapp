@@ -2,7 +2,7 @@ name: Deploy → Producción
 
 on:
   push:
-    branches: [master]
+    branches-ignore: [master]
 
 jobs:
   deploy:

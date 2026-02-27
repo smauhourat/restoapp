@@ -5,9 +5,9 @@
 /src/server/node_modules
 /.pnp
 .pnp.js
-*.db
-*.db-shm
-*.db-wal
+**/*.db
+**/*.db-shm
+**/*.db-wal
 proveedores.db
 /src/server/proveedores.db
 /.vscode

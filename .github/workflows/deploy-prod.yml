@@ -77,6 +77,7 @@ jobs:
             # Crear directorios persistentes si no existen
             mkdir -p logs
             mkdir -p src/server/data/tenants
+            mkdir -p src/server/data/backups
             mkdir -p src/server/uploads
 
             # Aplicar migraciones pendientes (idempotente)

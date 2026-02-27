@@ -12,8 +12,8 @@ import Database from 'better-sqlite3';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { dirname, join } from 'path';
-import { readdirSync, existsSync, mkdirSync } from 'fs';
+import { basename, dirname, join } from 'path';
+import { readdirSync, existsSync, mkdirSync, unlinkSync } from 'fs';
 import 'dotenv/config';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -25,6 +25,7 @@ const TENANTS_DIR = join(DATA_DIR, 'tenants');
 const AUTH_DB_PATH = join(DATA_DIR, 'auth.db');
 const AUTH_MIGRATIONS_DIR = join(__dirname, 'migrations', 'auth');
 const TENANT_MIGRATIONS_DIR = join(__dirname, 'migrations', 'tenant');
+const BACKUPS_DIR = join(DATA_DIR, 'backups');
 
 // ─── Utilidades ───────────────────────────────────────────────────────────────
 
@@ -52,6 +53,45 @@ function getAppliedVersions(db) {
   return new Set(
     db.prepare('SELECT version FROM schema_migrations').all().map(r => r.version)
   );
+}
+
+function hasPendingMigrations(db, migrationsDir) {
+  ensureMigrationsTable(db);
+  const applied = getAppliedVersions(db);
+  const files = getMigrationFiles(migrationsDir);
+  return files.some(f => !applied.has(f.replace('.js', '')));
+}
+
+function getBackupTimestamp() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  return `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+}
+
+function pruneBackups(dbBaseName, maxKeep = 5) {
+  const allFiles = existsSync(BACKUPS_DIR)
+    ? readdirSync(BACKUPS_DIR).filter(f => f.startsWith(dbBaseName + '_') && f.endsWith('.db'))
+    : [];
+  allFiles.sort(); // YYYYMMDD_HHmmss → orden cronológico equivale a orden alfabético
+  const toDelete = allFiles.slice(0, Math.max(0, allFiles.length - maxKeep));
+  for (const f of toDelete) {
+    try {
+      unlinkSync(join(BACKUPS_DIR, f));
+      console.log(`  [backup] Eliminado backup antiguo: ${f}`);
+    } catch (err) {
+      console.warn(`  [backup] No se pudo eliminar ${f}: ${err.message}`);
+    }
+  }
+}
+
+function backupDb(db, dbPath) {
+  ensureDir(BACKUPS_DIR);
+  const dbBaseName = basename(dbPath, '.db');
+  const backupName = `${dbBaseName}_${getBackupTimestamp()}.db`;
+  const backupPath = join(BACKUPS_DIR, backupName).replace(/\\/g, '/');
+  db.exec(`VACUUM INTO '${backupPath}'`);
+  console.log(`  [backup] ✓ Creado: ${backupName}`);
+  pruneBackups(dbBaseName);
 }
 
 async function applyMigrations(db, migrationsDir, label) {
@@ -93,6 +133,10 @@ async function migrateAuthDb() {
   const db = new Database(AUTH_DB_PATH);
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
+
+  if (!isNew && hasPendingMigrations(db, AUTH_MIGRATIONS_DIR)) {
+    backupDb(db, AUTH_DB_PATH);
+  }
 
   await applyMigrations(db, AUTH_MIGRATIONS_DIR, 'auth');
 
@@ -146,6 +190,11 @@ async function migrateTenantDbs() {
     const db = new Database(dbPath);
     db.pragma('journal_mode = WAL');
     db.pragma('foreign_keys = ON');
+
+    if (hasPendingMigrations(db, TENANT_MIGRATIONS_DIR)) {
+      backupDb(db, dbPath);
+    }
+
     await applyMigrations(db, TENANT_MIGRATIONS_DIR, 'tenant');
     db.close();
   }

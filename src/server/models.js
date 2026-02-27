@@ -16,7 +16,8 @@ export function initDatabase(database) {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nombre TEXT NOT NULL,
       descripcion TEXT,
-      unidad_medida TEXT
+      unidad_medida TEXT,
+      imagen_url TEXT
     );
   `);
 

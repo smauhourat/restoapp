@@ -23,6 +23,9 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
+      - name: Lint & Test
+        run: npm test  
+
       - name: Build frontend
         run: npm run build
         env:

@@ -83,6 +83,14 @@ export function initDatabase(database) {
   );
 `);
 
+  // Tabla schema_migrations
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS schema_migrations (
+      version TEXT PRIMARY KEY,
+      applied_at TEXT DEFAULT (datetime('now'))
+    );
+  `);
+
 // Indices
   //CREATE UNIQUE INDEX IF NOT EXISTS idx_producto_nombre ON Producto (nombre)
 }
